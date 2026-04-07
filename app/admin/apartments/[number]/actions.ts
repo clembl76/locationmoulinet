@@ -2,7 +2,9 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation } from '@/lib/quittance'
+import { createEdlReport } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function savePreavisAction(
   leaseId: string,
@@ -93,6 +95,16 @@ export async function generateQuittanceCautionAction(
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }
+}
+
+export async function createEdlReportAction(
+  leaseId: string,
+  aptNumber: string,
+  entryDate: string
+): Promise<void> {
+  const report = await createEdlReport(leaseId, entryDate)
+  revalidatePath(`/admin/apartments/${aptNumber}`)
+  redirect(`/admin/apartments/${aptNumber}/edl/${report.id}`)
 }
 
 export async function generateAttestationAction(

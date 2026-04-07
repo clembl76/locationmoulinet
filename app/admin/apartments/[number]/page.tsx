@@ -1,9 +1,10 @@
-import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, checkCautionTransaction, type RentRecord } from '@/lib/adminData'
+import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, checkCautionTransaction, getEdlReport, type RentRecord } from '@/lib/adminData'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
 import QuittanceCautionButton from '@/components/admin/QuittanceCautionButton'
 import AttestationLocationButton from '@/components/admin/AttestationLocationButton'
 import PreavisButton from '@/components/admin/PreavisButton'
+import EdlButton from '@/components/admin/EdlButton'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -36,10 +37,11 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [transactions, rentRecord, hasCautionTransaction] = await Promise.all([
+  const [transactions, rentRecord, hasCautionTransaction, edlReport] = await Promise.all([
     getApartmentTransactions(number, apt?.tenant_last_name ?? null, 24),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
+    apt?.lease_id ? getEdlReport(apt.lease_id) : Promise.resolve(null),
   ])
 
   if (!apt) notFound()
@@ -225,6 +227,27 @@ export default async function AdminApartmentDetailPage({
                 currentMoveOut={apt.move_out_date}
               />
               <DisabledBtn>Contacter</DisabledBtn>
+            </div>
+          )}
+
+          {/* EDL */}
+          {isOccupied && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
+              {edlReport ? (
+                <a
+                  href={`/admin/apartments/${apt.number}/edl/${edlReport.id}`}
+                  className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                >
+                  Voir le document d&apos;EDL
+                </a>
+              ) : (
+                <EdlButton
+                  leaseId={apt.lease_id!}
+                  aptNumber={apt.number}
+                  moveInDate={apt.move_in_date}
+                />
+              )}
             </div>
           )}
 

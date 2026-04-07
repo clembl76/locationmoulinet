@@ -480,6 +480,173 @@ export async function getAllTransactions(): Promise<AllTransactionRow[]> {
   `)
 }
 
+// ─── EDL (État des lieux) ─────────────────────────────────────────────────────
+
+export type EdlReport = {
+  id: string
+  lease_id: string
+  entry_date: string | null
+  exit_date: string | null
+  notes: string | null
+  created_at: string
+}
+
+export type EdlInstallation = {
+  hot_water: string | null
+  heating: string | null
+}
+
+export type EdlKey = {
+  id: string
+  key_type: string
+  quantity: number
+  quantity_exit: number | null
+  order_index: number
+}
+
+export type EdlElement = {
+  id: string
+  room: string
+  element: string
+  condition_entry: string | null
+  comment_entry: string | null
+  condition_exit: string | null
+  comment_exit: string | null
+  order_index: number
+}
+
+export type EdlItem = {
+  id: string
+  room: string
+  item: string
+  quantity_entry: number | null
+  condition_entry: string | null
+  comment_entry: string | null
+  quantity_exit: number | null
+  condition_exit: string | null
+  comment_exit: string | null
+  order_index: number
+}
+
+export type EdlTenant = {
+  id: string
+  title: string | null
+  first_name: string
+  last_name: string
+  email: string | null
+  phone: string | null
+  birth_date: string | null
+  birth_place: string | null
+  address: string | null
+}
+
+export type EdlGuarantor = {
+  id: string
+  title: string | null
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+  phone: string | null
+  birth_date: string | null
+  birth_place: string | null
+  address: string | null
+}
+
+export type EdlPageData = {
+  report: EdlReport
+  installation: EdlInstallation | null
+  keys: EdlKey[]
+  elements: EdlElement[]
+  items: EdlItem[]
+  tenant: EdlTenant | null
+  guarantor: EdlGuarantor | null
+}
+
+export async function getEdlReport(leaseId: string): Promise<EdlReport | null> {
+  const rows = await runSql<EdlReport>(`
+    SELECT id, lease_id, entry_date, exit_date, notes, created_at
+    FROM check_in_reports
+    WHERE lease_id = '${leaseId}'
+    LIMIT 1
+  `)
+  return rows[0] ?? null
+}
+
+export async function createEdlReport(leaseId: string, entryDate: string): Promise<EdlReport> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('check_in_reports')
+    .upsert({ lease_id: leaseId, entry_date: entryDate }, { onConflict: 'lease_id' })
+    .select('id, lease_id, entry_date, exit_date, notes, created_at')
+    .single()
+  if (error) throw new Error(error.message)
+  return data as EdlReport
+}
+
+export async function getEdlPageData(reportId: string, apartmentId: string): Promise<EdlPageData | null> {
+  // Phase 1 : récupérer le rapport pour avoir lease_id
+  const reportRows = await runSql<EdlReport>(`
+    SELECT id, lease_id, entry_date, exit_date, notes, created_at
+    FROM check_in_reports WHERE id = '${reportId}' LIMIT 1
+  `)
+  if (!reportRows[0]) return null
+  const report = reportRows[0]
+
+  // Phase 2 : tout le reste en parallèle
+  const [installRows, keyRows, elementRows, itemRows, tenantRows, guarantorRows] = await Promise.all([
+    runSql<EdlInstallation>(`
+      SELECT hot_water, heating FROM apartment_installation
+      WHERE apartment_id = '${apartmentId}' LIMIT 1
+    `),
+    runSql<EdlKey>(`
+      SELECT id, key_type, quantity, quantity_exit, order_index FROM apartment_keys
+      WHERE apartment_id = '${apartmentId}' ORDER BY order_index
+    `).catch(() => runSql<EdlKey>(`
+      SELECT id, key_type, quantity, NULL::integer AS quantity_exit, order_index FROM apartment_keys
+      WHERE apartment_id = '${apartmentId}' ORDER BY order_index
+    `)),
+    runSql<EdlElement>(`
+      SELECT id, room, element, condition_entry, comment_entry,
+             condition_exit, comment_exit, order_index
+      FROM check_in_elements
+      WHERE apartment_id = '${apartmentId}'
+      ORDER BY order_index
+    `),
+    runSql<EdlItem>(`
+      SELECT id, room, item, quantity_entry, condition_entry, comment_entry,
+             quantity_exit, condition_exit, comment_exit, order_index
+      FROM inventory_items
+      WHERE apartment_id = '${apartmentId}'
+      ORDER BY order_index
+    `),
+    runSql<EdlTenant>(`
+      SELECT t.id, t.title, t.first_name, t.last_name, t.email, t.phone,
+             t.birth_date::text AS birth_date, t.birth_place, t.address
+      FROM lease_tenants lt
+      JOIN tenants t ON t.id = lt.tenant_id
+      WHERE lt.lease_id = '${report.lease_id}'
+      LIMIT 1
+    `).catch(() => [] as EdlTenant[]),
+    runSql<EdlGuarantor>(`
+      SELECT id, title, first_name, last_name, email, phone,
+             birth_date::text AS birth_date, birth_place, address
+      FROM guarantors
+      WHERE lease_id = '${report.lease_id}'
+      LIMIT 1
+    `).catch(() => [] as EdlGuarantor[]),
+  ])
+
+  return {
+    report,
+    installation: installRows[0] ?? null,
+    keys: keyRows,
+    elements: elementRows,
+    items: itemRows,
+    tenant: tenantRows[0] ?? null,
+    guarantor: guarantorRows[0] ?? null,
+  }
+}
+
 export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {
   const rows = await runSql<{ count: string }>(`
     SELECT COUNT(*) AS count
