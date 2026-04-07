@@ -9,6 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav className="flex gap-4 text-sm text-blue-light/80">
             <a href="/admin" className="hover:text-white transition-colors">Tableau de bord</a>
             <a href="/admin/apartments" className="hover:text-white transition-colors">Appartements</a>
+            <a href="/admin/payments" className="hover:text-white transition-colors">Paiements</a>
           </nav>
         </div>
         <a href="/admin/logout" className="text-xs text-blue-light/60 hover:text-white transition-colors">

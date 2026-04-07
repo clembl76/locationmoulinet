@@ -1,6 +1,8 @@
-import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, type RentRecord } from '@/lib/adminData'
+import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, checkCautionTransaction, type RentRecord } from '@/lib/adminData'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
+import QuittanceCautionButton from '@/components/admin/QuittanceCautionButton'
+import AttestationLocationButton from '@/components/admin/AttestationLocationButton'
 import PreavisButton from '@/components/admin/PreavisButton'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -34,9 +36,10 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [transactions, rentRecord] = await Promise.all([
+  const [transactions, rentRecord, hasCautionTransaction] = await Promise.all([
     getApartmentTransactions(number, apt?.tenant_last_name ?? null, 24),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
+    checkCautionTransaction(number),
   ])
 
   if (!apt) notFound()
@@ -59,7 +62,11 @@ export default async function AdminApartmentDetailPage({
       </a>
 
       <div className="flex items-baseline gap-3">
-        <h1 className="text-2xl font-bold text-gray-900">Appartement {apt.number}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          <a href={`/apartments/${apt.number}`} className="hover:text-blue-primary transition-colors">
+            Appartement {apt.number}
+          </a>
+        </h1>
         <span className="text-sm text-gray-400">{apt.building_short_name} · {apt.surface_area} m²</span>
       </div>
 
@@ -222,12 +229,22 @@ export default async function AdminApartmentDetailPage({
           )}
 
           {/* Documents */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Documents</p>
-            <DisabledBtn>Quittance caution</DisabledBtn>
-            <DisabledBtn>Attestation CAF</DisabledBtn>
-            <DisabledBtn>Attestation de loyer</DisabledBtn>
-          </div>
+          {isOccupied && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Documents</p>
+              <QuittanceCautionButton
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                hasCautionTransaction={hasCautionTransaction}
+              />
+              <AttestationLocationButton
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                hasUnpaidRent={isUnpaid}
+              />
+              <DisabledBtn>Attestation CAF</DisabledBtn>
+            </div>
+          )}
         </div>
       </div>
     </div>

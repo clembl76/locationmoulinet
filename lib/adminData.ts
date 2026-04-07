@@ -74,6 +74,7 @@ export type DashboardStats = {
     amountUnpaid: number
   }
   caYtd: number
+  caCurrentMonth: number
   tauxOccupationMoyen: number
   dureeMoyenneAns: number
 }
@@ -187,6 +188,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     `),
   ])
 
+  const caCurrentMonth = rows
+    .filter(r => r.amount_received != null)
+    .reduce((s, r) => s + Number(r.amount_received ?? 0), 0)
+
   return {
     total,
     occupied,
@@ -195,6 +200,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     departures,
     paymentPie,
     caYtd: Number(caRow?.ca_ytd ?? 0),
+    caCurrentMonth,
     tauxOccupationMoyen: Number(tauxRow?.taux_moyen ?? 0),
     dureeMoyenneAns: Number(dureeRow?.duree_moy ?? 0),
   }
@@ -323,7 +329,7 @@ export async function getApartmentTransactions(
     FROM transactions tx
     WHERE tx.apartment_num = '${number}'
       AND tx.supplier ILIKE '%${tenantLastName.replace(/'/g, "''")}%'
-      AND tx.type ILIKE ANY(ARRAY['%loyer%', '%caution%'])
+      AND tx.type::text ILIKE ANY(ARRAY['%loyer%', '%caution%'])
     ORDER BY tx.date DESC
     LIMIT ${limitCount}
   `)
@@ -438,6 +444,51 @@ export async function generateMonthlyRents(
 
   const inserted = (data ?? []).length
   return { inserted, skipped: records.length - inserted, total: records.length }
+}
+
+// ─── All transactions (page Payments) ────────────────────────────────────────
+
+export type AllTransactionRow = {
+  id: string
+  date: string
+  amount: number
+  direction: 'CREDIT' | 'DEBIT'
+  supplier: string | null
+  type: string | null
+  description: string | null
+  apartment_num: string | null
+  has_active_tenant: boolean
+}
+
+export async function getAllTransactions(): Promise<AllTransactionRow[]> {
+  return runSql<AllTransactionRow>(`
+    SELECT
+      tx.id,
+      tx.date,
+      tx.amount,
+      tx.direction,
+      tx.supplier,
+      tx.type,
+      tx.description,
+      tx.apartment_num,
+      (l.id IS NOT NULL) AS has_active_tenant
+    FROM transactions tx
+    LEFT JOIN apartments a ON a.number = tx.apartment_num::text
+    LEFT JOIN leases l ON l.apartment_id = a.id
+      AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+    ORDER BY tx.date DESC, tx.id DESC
+  `)
+}
+
+export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {
+  const rows = await runSql<{ count: string }>(`
+    SELECT COUNT(*) AS count
+    FROM transactions
+    WHERE apartment_num = '${aptNumber}'
+      AND type::text ILIKE '%caution%'
+      AND direction::text = 'CREDIT'
+  `)
+  return Number(rows[0]?.count ?? 0) > 0
 }
 
 // ─── Seed test rents (données de test — à supprimer ensuite) ──────────────────

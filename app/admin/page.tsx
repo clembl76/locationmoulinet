@@ -61,6 +61,7 @@ export default async function AdminDashboard() {
   const annee = year
 
   const caFormatted = stats.caYtd.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+  const caMonthFormatted = stats.caCurrentMonth.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
   const paidTotal = stats.paymentPie.amountPaid
   const unpaidTotal = stats.paymentPie.amountUnpaid
   const grandTotal = paidTotal + unpaidTotal
@@ -79,8 +80,8 @@ export default async function AdminDashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="Total" value={stats.total} href="/admin/apartments" />
           <StatCard label="Loués" value={stats.occupied} href="/admin/apartments?status=loue" />
-          <StatCard label="Départ prévu" value={stats.soon} href="/admin/apartments?status=depart" />
           <StatCard label="Disponibles" value={stats.available} href="/admin/apartments?status=available" />
+          <StatCard label="Départ prévu" value={stats.soon} href="/admin/apartments?status=depart" />
         </div>
       </section>
 
@@ -102,45 +103,54 @@ export default async function AdminDashboard() {
         </div>
       </section>
 
-      {/* Loyers du mois — camembert */}
+      {/* Loyers du mois — camembert + CA mois */}
       <section>
         <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
           Loyers — {mois}
         </h2>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-8 flex-wrap">
-            <PieChart paid={paidTotal} unpaid={unpaidTotal} />
-            <div className="space-y-3 flex-1 min-w-[180px]">
-              <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-green-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    Encaissé — {paidTotal.toLocaleString('fr-FR')} €
-                  </p>
-                  <p className="text-xs text-gray-400">{stats.paymentPie.countPaid} locataire{stats.paymentPie.countPaid > 1 ? 's' : ''}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* CA encaissé mois courant — 1/3 */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">CA encaissé — {mois}</p>
+            <p className="text-3xl font-bold text-blue-dark">{caMonthFormatted}</p>
+            <p className="text-xs text-gray-400 mt-1">{stats.paymentPie.countPaid} locataire{stats.paymentPie.countPaid !== 1 ? 's' : ''} payé{stats.paymentPie.countPaid !== 1 ? 's' : ''}</p>
+          </div>
+          {/* Pie — 2/3 */}
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center gap-8 flex-wrap">
+              <PieChart paid={paidTotal} unpaid={unpaidTotal} />
+              <div className="space-y-3 flex-1 min-w-[180px]">
+                <div className="flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-green-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      Encaissé — {paidTotal.toLocaleString('fr-FR')} €
+                    </p>
+                    <p className="text-xs text-gray-400">{stats.paymentPie.countPaid} locataire{stats.paymentPie.countPaid > 1 ? 's' : ''}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-red-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    Non encaissé — {unpaidTotal.toLocaleString('fr-FR')} €
-                  </p>
-                  <p className="text-xs text-gray-400">{stats.paymentPie.countUnpaid} locataire{stats.paymentPie.countUnpaid > 1 ? 's' : ''}</p>
+                <div className="flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-red-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      Non encaissé — {unpaidTotal.toLocaleString('fr-FR')} €
+                    </p>
+                    <p className="text-xs text-gray-400">{stats.paymentPie.countUnpaid} locataire{stats.paymentPie.countUnpaid > 1 ? 's' : ''}</p>
+                  </div>
                 </div>
+                {grandTotal > 0 && (
+                  <p className="text-xs text-gray-300 pt-1">
+                    Total attendu : {grandTotal.toLocaleString('fr-FR')} €/mois
+                  </p>
+                )}
               </div>
-              {grandTotal > 0 && (
-                <p className="text-xs text-gray-300 pt-1">
-                  Total attendu : {grandTotal.toLocaleString('fr-FR')} €/mois
-                </p>
-              )}
+              <a
+                href="/admin/apartments"
+                className="ml-auto text-xs text-blue-primary hover:underline flex-shrink-0"
+              >
+                Voir les appartements →
+              </a>
             </div>
-            <a
-              href="/admin/apartments"
-              className="ml-auto text-xs text-blue-primary hover:underline flex-shrink-0"
-            >
-              Voir les appartements →
-            </a>
           </div>
         </div>
       </section>

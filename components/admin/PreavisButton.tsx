@@ -3,6 +3,12 @@
 import { useState, useTransition } from 'react'
 import { savePreavisAction } from '@/app/admin/apartments/[number]/actions'
 
+function getMinDate(): string {
+  const d = new Date()
+  d.setMonth(d.getMonth() + 3)
+  return d.toISOString().slice(0, 10)
+}
+
 export default function PreavisButton({
   leaseId,
   aptNumber,
@@ -16,10 +22,15 @@ export default function PreavisButton({
   const [date, setDate] = useState(currentMoveOut ?? '')
   const [pending, startTransition] = useTransition()
   const [result, setResult] = useState<{ ok: boolean; error?: string } | null>(null)
+  const minDate = getMinDate()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!date) return
+    if (date < minDate) {
+      setResult({ ok: false, error: 'La date doit être au moins 3 mois à partir d\'aujourd\'hui.' })
+      return
+    }
     startTransition(async () => {
       const r = await savePreavisAction(leaseId, aptNumber, date)
       setResult(r)
@@ -39,7 +50,7 @@ export default function PreavisButton({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left text-sm px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+        className="w-full text-left text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
       >
         Saisir un préavis de départ
       </button>
@@ -52,6 +63,7 @@ export default function PreavisButton({
       <input
         type="date"
         value={date}
+        min={minDate}
         onChange={e => setDate(e.target.value)}
         required
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary"

@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft } from '@/lib/quittance'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation } from '@/lib/quittance'
 import { revalidatePath } from 'next/cache'
 
 export async function savePreavisAction(
@@ -70,6 +70,43 @@ export async function markReceivedAndGenerateQuittance(
     revalidatePath(`/admin/apartments/${aptNumber}`)
     revalidatePath('/admin')
 
+    return { ok: true, filename, draftId }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function generateQuittanceCautionAction(
+  leaseId: string,
+  aptNumber: string
+): Promise<QuittanceActionResult> {
+  try {
+    const data = await getQuittanceCautionData(leaseId, aptNumber)
+    if (!data) throw new Error('Données du bail introuvables')
+    if (!data.caution_amount) throw new Error('Montant de caution introuvable (champ deposit du bail)')
+
+    const { pdfBytes, filename } = await generateQuittanceCautionPdf(data)
+    const draftId = await createGmailDraftCaution(data, pdfBytes, filename)
+
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true, filename, draftId }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function generateAttestationAction(
+  leaseId: string,
+  aptNumber: string
+): Promise<QuittanceActionResult> {
+  try {
+    const data = await getAttestationData(leaseId)
+    if (!data) throw new Error('Données du bail introuvables')
+
+    const { pdfBytes, filename } = await generateAttestationPdf(data)
+    const draftId = await createGmailDraftAttestation(data, pdfBytes, filename)
+
+    revalidatePath(`/admin/apartments/${aptNumber}`)
     return { ok: true, filename, draftId }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
