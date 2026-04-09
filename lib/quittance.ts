@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import path from 'path'
 import fs from 'fs'
+import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
 
@@ -220,8 +221,11 @@ export async function getQuittanceCautionData(
       SELECT COALESCE(deposit, 0) AS deposit FROM leases WHERE id = '${leaseId}' LIMIT 1
     `),
     runSqlAdmin<{ email: string | null }>(`
-      SELECT email FROM guarantors WHERE lease_id = '${leaseId}' LIMIT 1
-    `).catch(() => [{ email: null }]),
+      SELECT g.email FROM guarantors g
+      JOIN lease_tenants lt ON lt.tenant_id = g.tenant_id
+      WHERE lt.lease_id = '${leaseId}'
+      LIMIT 1
+    `),
   ])
 
   return {
@@ -352,7 +356,7 @@ export async function createGmailDraftCaution(
   ].join('\r\n')
 
   const raw = Buffer.from(mime).toString('base64url')
-  const auth = makeGmailAuth()
+  const auth = makeGoogleAuth()
   const gmail = google.gmail({ version: 'v1', auth })
   const draft = await gmail.users.drafts.create({
     userId: 'me',
@@ -407,10 +411,16 @@ export async function getAttestationData(leaseId: string): Promise<AttestationDa
   if (!rows[0]) return null
 
   const guarantorRows = await runSqlAdmin<{ email: string | null }>(`
-    SELECT email FROM guarantors WHERE lease_id = '${leaseId}' LIMIT 1
-  `).catch(() => [{ email: null }])
+    SELECT g.email FROM guarantors g
+    JOIN lease_tenants lt ON lt.tenant_id = g.tenant_id
+    WHERE lt.lease_id = '${leaseId}'
+    LIMIT 1
+  `)
 
-  return { ...rows[0], guarantor_email: guarantorRows[0]?.email ?? null }
+  return {
+    ...rows[0],
+    guarantor_email: guarantorRows[0]?.email ?? null,
+  }
 }
 
 export async function generateAttestationPdf(
@@ -548,7 +558,7 @@ export async function createGmailDraftAttestation(
   ].join('\r\n')
 
   const raw = Buffer.from(mime).toString('base64url')
-  const auth = makeGmailAuth()
+  const auth = makeGoogleAuth()
   const gmail = google.gmail({ version: 'v1', auth })
   const draft = await gmail.users.drafts.create({
     userId: 'me',
@@ -557,17 +567,224 @@ export async function createGmailDraftAttestation(
   return draft.data.id ?? ''
 }
 
-// ─── Gmail draft ──────────────────────────────────────────────────────────────
+// ─── Google auth (Drive + Calendar + Gmail) ──────────────────────────────────
+// GMAIL_REFRESH_TOKEN couvre les 3 scopes : drive, calendar, gmail.compose
 
-function makeGmailAuth() {
+function makeGoogleAuth() {
   const auth = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET
   )
-  // Refresh token avec scope gmail.compose (distinct du token Drive)
   auth.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN })
   return auth
 }
+
+// ─── Helpers Drive ────────────────────────────────────────────────────────────
+
+async function findTenantFolder(drive: ReturnType<typeof google.drive>, aptNumber: string, tenantLastName: string) {
+  const parentId = process.env.GDRIVE_TENANTS_FOLDER_ID
+  if (!parentId) return null
+  // Nomenclature dossier : "{aptNum}_{NOM_EN_MAJUSCULES}"
+  const searchName = `${aptNumber}_${tenantLastName.toUpperCase()}`
+  const res = await drive.files.list({
+    q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name contains '${searchName}' and trashed = false`,
+    fields: 'files(id, name, webViewLink)',
+    pageSize: 5,
+  })
+  return res.data.files?.[0] ?? null
+}
+
+// ─── Google Drive — lien vers le bail du locataire ───────────────────────────
+
+export async function getDriveTenantFolderUrl(
+  aptNumber: string,
+  tenantLastName: string
+): Promise<string | null> {
+  try {
+    const auth = makeGoogleAuth()
+    const drive = google.drive({ version: 'v3', auth })
+    const folder = await findTenantFolder(drive, aptNumber, tenantLastName)
+    if (!folder?.id) return null
+
+    // Nomenclature fichier bail : "_Bail_"
+    const fileRes = await drive.files.list({
+      q: `'${folder.id}' in parents and name contains '_Bail_' and trashed = false`,
+      fields: 'files(id, webViewLink)',
+      pageSize: 1,
+    })
+    const file = fileRes.data.files?.[0]
+    return file?.webViewLink ?? folder.webViewLink ?? null
+  } catch {
+    return null
+  }
+}
+
+// ─── Google Drive — lien vers le PDF d'état des lieux d'entrée ───────────────
+
+export async function getDriveEdlEntryUrl(
+  aptNumber: string,
+  tenantLastName: string
+): Promise<string | null> {
+  try {
+    const auth = makeGoogleAuth()
+    const drive = google.drive({ version: 'v3', auth })
+    const folder = await findTenantFolder(drive, aptNumber, tenantLastName)
+    if (!folder?.id) return null
+
+    // Nomenclature fichier EDL : "_EDLInventaire_"
+    // Le plus ancien = EDL d'entrée, le plus récent = EDL de sortie
+    const fileRes = await drive.files.list({
+      q: `'${folder.id}' in parents and name contains '_EDLInventaire_' and trashed = false`,
+      fields: 'files(id, name, webViewLink, createdTime)',
+      pageSize: 10,
+      orderBy: 'createdTime asc',
+    })
+    const files = fileRes.data.files ?? []
+    if (files.length === 0) return null
+    return files[0].webViewLink ?? null
+  } catch {
+    return null
+  }
+}
+
+// ─── Google Calendar — événement état des lieux d'entrée (créé au moment du préavis) ──
+
+export async function createCalendarPreavisEvent(opts: {
+  leaseId: string
+  aptNumber: string
+  moveOutDate: string  // YYYY-MM-DD — date de l'état des lieux (sortie = entrée du suivant)
+}): Promise<void> {
+  const calId = process.env.GCAL_GESTION_LOCATIVE_ID
+  if (!calId) return
+
+  // Fetch all lease data needed for the calendar event
+  type LeaseRow = {
+    tenant_first_name: string
+    tenant_last_name: string
+    tenant_phone: string | null
+    signing_date: string | null
+    deposit: number | null
+    lease_type: string | null
+    guarantor_last_name: string | null
+    guarantor_first_name: string | null
+    guarantor_phone: string | null
+  }
+  const rows = await runSqlAdmin<LeaseRow>(`
+    SELECT
+      t.first_name      AS tenant_first_name,
+      t.last_name       AS tenant_last_name,
+      t.phone           AS tenant_phone,
+      l.signing_date::text AS signing_date,
+      l.deposit,
+      l.lease_type::text AS lease_type,
+      g.last_name       AS guarantor_last_name,
+      g.first_name      AS guarantor_first_name,
+      g.phone           AS guarantor_phone
+    FROM leases l
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t ON t.id = lt.tenant_id
+    LEFT JOIN guarantors g ON g.tenant_id = t.id
+    WHERE l.id = '${opts.leaseId}'
+    LIMIT 1
+  `)
+  const row = rows[0]
+  if (!row) return
+
+  const hasGuarantor = !!row.guarantor_last_name
+  const guarantorName = hasGuarantor
+    ? `${row.guarantor_first_name ?? ''} ${row.guarantor_last_name ?? ''}`.trim()
+    : 'aucun'
+
+  const description = [
+    `Appartement : ${opts.aptNumber}`,
+    `Locataire : ${row.tenant_first_name} ${row.tenant_last_name}`,
+    `Téléphone : ${row.tenant_phone ?? ''}`,
+    `Date signature bail : ${(row.signing_date ?? '').slice(0, 10)}`,
+    `Garant : ${hasGuarantor ? 'Oui' : 'Non'}`,
+    `Nom garant : ${guarantorName}`,
+    `Téléphone garant : ${row.guarantor_phone ?? 'aucun'}`,
+    `Caution : ${row.deposit ?? ''} €`,
+    `Type bail : ${row.lease_type ?? ''}`,
+  ].join('\n')
+
+  const auth = makeGoogleAuth()
+  const calendar = google.calendar({ version: 'v3', auth })
+
+  await calendar.events.insert({
+    calendarId: calId,
+    requestBody: {
+      summary: `Etat des lieux de sortie ${opts.aptNumber} ${row.tenant_last_name.toUpperCase()}`,
+      description,
+      start: { dateTime: `${opts.moveOutDate}T14:00:00`, timeZone: 'Europe/Paris' },
+      end:   { dateTime: `${opts.moveOutDate}T14:30:00`, timeZone: 'Europe/Paris' },
+    },
+  })
+}
+
+// ─── Google Drive — upload candidat ──────────────────────────────────────────
+
+async function getOrCreateFolder(
+  drive: ReturnType<typeof google.drive>,
+  parentId: string,
+  folderName: string
+): Promise<string> {
+  const res = await drive.files.list({
+    q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`,
+    fields: 'files(id)',
+    pageSize: 1,
+  })
+  const existing = res.data.files?.[0]
+  if (existing?.id) return existing.id
+
+  const created = await drive.files.create({
+    requestBody: { name: folderName, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] },
+    fields: 'id',
+  })
+  return created.data.id!
+}
+
+export async function uploadCandidateDocuments(opts: {
+  aptNumber: string
+  candidateLastName: string
+  candidateFiles: { name: string; type: string; buffer: Buffer }[]
+  guarantorFiles: { name: string; type: string; buffer: Buffer }[]
+}): Promise<{ candidateUrls: string[]; guarantorUrls: string[] }> {
+  const rootId = process.env.GDRIVE_CANDIDATES_FOLDER_ID
+  if (!rootId) throw new Error('GDRIVE_CANDIDATES_FOLDER_ID manquant dans .env.local')
+
+  const auth = makeGoogleAuth()
+  const drive = google.drive({ version: 'v3', auth })
+
+  const tenantFolderName = `${opts.aptNumber}-${opts.candidateLastName.toUpperCase()}`
+  const tenantFolderId = await getOrCreateFolder(drive, rootId, tenantFolderName)
+  const justifFolderId = await getOrCreateFolder(drive, tenantFolderId, 'justificatifs')
+  const candidateFolderId = await getOrCreateFolder(drive, justifFolderId, 'candidate')
+
+  async function uploadFile(folderId: string, file: { name: string; type: string; buffer: Buffer }): Promise<string> {
+    const res = await drive.files.create({
+      requestBody: { name: file.name, parents: [folderId] },
+      media: { mimeType: file.type, body: Readable.from(file.buffer) },
+      fields: 'webViewLink',
+    })
+    return res.data.webViewLink ?? ''
+  }
+
+  const candidateUrls = await Promise.all(
+    opts.candidateFiles.map(f => uploadFile(candidateFolderId, f))
+  )
+
+  let guarantorUrls: string[] = []
+  if (opts.guarantorFiles.length > 0) {
+    const guarantorFolderId = await getOrCreateFolder(drive, justifFolderId, 'guarantor')
+    guarantorUrls = await Promise.all(
+      opts.guarantorFiles.map(f => uploadFile(guarantorFolderId, f))
+    )
+  }
+
+  return { candidateUrls, guarantorUrls }
+}
+
+// ─── Gmail draft ──────────────────────────────────────────────────────────────
 
 export async function createGmailDraft(
   data: QuittanceData,
@@ -617,7 +834,7 @@ export async function createGmailDraft(
 
   const raw = Buffer.from(mime).toString('base64url')
 
-  const auth = makeGmailAuth()
+  const auth = makeGoogleAuth()
   const gmail = google.gmail({ version: 'v1', auth })
   const draft = await gmail.users.drafts.create({
     userId: 'me',

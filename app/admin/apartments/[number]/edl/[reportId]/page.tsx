@@ -99,16 +99,6 @@ export default async function EdlPage({
       {/* Locataire */}
       <PersonBlock title="Locataire" person={tenant} />
 
-      {/* Garant */}
-      {guarantor ? (
-        <PersonBlock title="Garant" person={guarantor} />
-      ) : (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <SectionTitle>Garant</SectionTitle>
-          <p className="text-sm text-gray-400 italic">Pas de garant</p>
-        </div>
-      )}
-
       {/* Installation */}
       {installation && (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">

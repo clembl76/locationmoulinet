@@ -1,4 +1,5 @@
-import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, checkCautionTransaction, getEdlReport, type RentRecord } from '@/lib/adminData'
+import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, checkCautionTransaction, getEdlReport, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
+import { getDriveTenantFolderUrl, getDriveEdlEntryUrl } from '@/lib/quittance'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
 import QuittanceCautionButton from '@/components/admin/QuittanceCautionButton'
@@ -37,18 +38,21 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [transactions, rentRecord, hasCautionTransaction, edlReport] = await Promise.all([
+  const [transactions, rentRecord, hasCautionTransaction, edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
     getApartmentTransactions(number, apt?.tenant_last_name ?? null, 24),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
     apt?.lease_id ? getEdlReport(apt.lease_id) : Promise.resolve(null),
+    apt?.lease_id ? getGuarantorForLease(apt.lease_id) : Promise.resolve(null),
+    apt?.tenant_last_name ? getDriveTenantFolderUrl(number, apt.tenant_last_name) : Promise.resolve(null),
+    apt?.tenant_last_name ? getDriveEdlEntryUrl(number, apt.tenant_last_name) : Promise.resolve(null),
   ])
 
   if (!apt) notFound()
 
   const mois = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
   const moisCourt = now.toLocaleString('fr-FR', { month: 'long' })
-  const isOccupied = !!apt.lease_id && !apt.move_out_date
+  const isOccupied = !!apt.lease_id
   const isUnpaid = !!rentRecord && rentRecord.amount_received == null
 
   const hasTenant = !!apt.tenant_last_name
@@ -107,6 +111,39 @@ export default async function AdminApartmentDetailPage({
               <p className="text-sm text-gray-400">Appartement vacant.</p>
             )}
           </div>
+
+          {/* Garant */}
+          {hasTenant && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Garant</h2>
+              {guarantor ? (
+                <>
+                  <p className="font-semibold text-gray-900 mb-2">
+                    {[guarantor.title, guarantor.first_name, guarantor.last_name].filter(Boolean).join(' ')}
+                  </p>
+                  {guarantor.email && <InfoRow label="Email" value={guarantor.email} />}
+                  {guarantor.phone && <InfoRow label="Téléphone" value={guarantor.phone} />}
+                </>
+              ) : (
+                <p className="text-sm text-gray-400">Aucun garant enregistré pour ce bail.</p>
+              )}
+            </div>
+          )}
+
+          {/* Bail Google Drive */}
+          {driveLeaseUrl && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Bail</h2>
+              <a
+                href={driveLeaseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+              >
+                Ouvrir le bail sur Google Drive →
+              </a>
+            </div>
+          )}
 
           {/* Historique des transactions */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
@@ -247,6 +284,16 @@ export default async function AdminApartmentDetailPage({
                   aptNumber={apt.number}
                   moveInDate={apt.move_in_date}
                 />
+              )}
+              {driveEdlUrl && (
+                <a
+                  href={driveEdlUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                >
+                  PDF d&apos;entrée sur Google Drive →
+                </a>
               )}
             </div>
           )}

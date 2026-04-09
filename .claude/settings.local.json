@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "WebSearch",
+      "WebFetch(domain:help.tidycal.com)",
+      "Read(//c/Users/cleme\" 2>/dev/**)",
+      "Bash(grep -E \"\\\\.py$|\\\\.json$|\\\\.env|\\\\.md|\\\\.js$\")",
+      "Bash(ls -lh /c/Users/cleme/gestion-locative/*.py)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\cleme\\locationmoulinet"
     ]
   }
 }

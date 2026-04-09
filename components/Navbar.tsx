@@ -25,6 +25,12 @@ export default function Navbar() {
           >
             Contact
           </a>
+          <a
+            href="/visiter"
+            className="bg-blue-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+          >
+            {lang === 'fr' ? 'Prendre RDV' : 'Book a visit'}
+          </a>
           <LanguageSwitch />
         </div>
       </div>

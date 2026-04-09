@@ -164,8 +164,8 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
 
   const surfaces = apartments.map(a => a.surface_area).filter(Boolean)
   const prices = apartments.map(a => a.rent_including_charges).filter(Boolean)
-  const surfaceBounds: [number, number] = [Math.min(...surfaces), Math.max(...surfaces)]
-  const priceBounds: [number, number] = [Math.min(...prices), Math.max(...prices)]
+  const surfaceBounds: [number, number] = [Math.floor(Math.min(...surfaces)), Math.ceil(Math.max(...surfaces))]
+  const priceBounds: [number, number] = [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))]
 
   const [filters, setFilters] = useState<Filters>({
     statuses: new Set<ApartmentStatus>(['available', 'soon', 'rented']),
@@ -227,6 +227,15 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
           priceBounds={priceBounds}
           lang={lang}
         />
+
+        <div className="flex justify-center mb-8">
+          <a
+            href="/visiter"
+            className="inline-block bg-blue-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-dark transition-colors text-sm"
+          >
+            {lang === 'fr' ? 'Prendre rendez-vous pour une visite' : 'Book a visit'}
+          </a>
+        </div>
 
         {displayed.length === 0 ? (
           <p className="text-gray-500 text-center py-16">

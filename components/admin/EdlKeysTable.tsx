@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { updateKeyQuantityExitAction } from '@/app/admin/apartments/[number]/edl/[reportId]/actions'
+import { updateKeyQuantityExitAction, updateKeyQuantityEntryAction } from '@/app/admin/apartments/[number]/edl/[reportId]/actions'
 import type { EdlKey } from '@/lib/adminData'
 
-function QuantityInput({ keyId, value, onChange }: {
-  keyId: string
+function QuantityInput({ value, onSave }: {
   value: number | null
-  onChange: (v: number | null) => void
+  onSave: (v: number | null) => void
 }) {
   const [draft, setDraft] = useState(value != null ? String(value) : '')
   const [, startTransition] = useTransition()
@@ -20,8 +19,8 @@ function QuantityInput({ keyId, value, onChange }: {
       onChange={e => setDraft(e.target.value)}
       onBlur={() => {
         const v = draft.trim() !== '' ? Number(draft) : null
-        onChange(v)
-        startTransition(async () => { await updateKeyQuantityExitAction(keyId, v) })
+        onSave(v)
+        startTransition(async () => { /* saved via parent */ })
       }}
       placeholder="—"
       className="w-16 text-center text-sm text-gray-700 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-primary focus:outline-none py-0.5 placeholder:text-gray-300"
@@ -31,9 +30,16 @@ function QuantityInput({ keyId, value, onChange }: {
 
 export default function EdlKeysTable({ initialKeys }: { initialKeys: EdlKey[] }) {
   const [keys, setKeys] = useState(initialKeys)
+  const [, startTransition] = useTransition()
 
-  function update(id: string, patch: Partial<EdlKey>) {
-    setKeys(prev => prev.map(k => k.id === id ? { ...k, ...patch } : k))
+  function updateEntry(id: string, v: number | null) {
+    setKeys(prev => prev.map(k => k.id === id ? { ...k, quantity: v ?? 0 } : k))
+    startTransition(async () => { await updateKeyQuantityEntryAction(id, v) })
+  }
+
+  function updateExit(id: string, v: number | null) {
+    setKeys(prev => prev.map(k => k.id === id ? { ...k, quantity_exit: v } : k))
+    startTransition(async () => { await updateKeyQuantityExitAction(id, v) })
   }
 
   return (
@@ -49,12 +55,16 @@ export default function EdlKeysTable({ initialKeys }: { initialKeys: EdlKey[] })
         {keys.map(k => (
           <tr key={k.id}>
             <td className="pr-16 py-1.5 text-gray-700">{k.key_type}</td>
-            <td className="pr-12 py-1.5 text-center font-semibold text-gray-900">{k.quantity}</td>
+            <td className="pr-12 py-1.5 text-center">
+              <QuantityInput
+                value={k.quantity}
+                onSave={v => updateEntry(k.id, v)}
+              />
+            </td>
             <td className="py-1.5 text-center">
               <QuantityInput
-                keyId={k.id}
                 value={k.quantity_exit}
-                onChange={v => update(k.id, { quantity_exit: v })}
+                onSave={v => updateExit(k.id, v)}
               />
             </td>
           </tr>

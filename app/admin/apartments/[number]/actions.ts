@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation } from '@/lib/quittance'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent } from '@/lib/quittance'
 import { createEdlReport } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -18,6 +18,14 @@ export async function savePreavisAction(
       .update({ move_out_inspection_date: moveOutDate })
       .eq('id', leaseId)
     if (error) throw new Error(error.message)
+
+    // Créer l'événement calendrier (best-effort — ne bloque pas la sauvegarde)
+    try {
+      await createCalendarPreavisEvent({ leaseId, aptNumber, moveOutDate })
+    } catch {
+      // Calendar creation failure must not block the préavis save
+    }
+
     revalidatePath(`/admin/apartments/${aptNumber}`)
     revalidatePath('/admin/apartments')
     revalidatePath('/admin')

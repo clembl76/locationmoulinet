@@ -480,6 +480,29 @@ export async function getAllTransactions(): Promise<AllTransactionRow[]> {
   `)
 }
 
+// ─── Garant ───────────────────────────────────────────────────────────────────
+
+export type AdminGuarantor = {
+  id: string
+  title: string | null
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+  phone: string | null
+}
+
+export async function getGuarantorForLease(leaseId: string): Promise<AdminGuarantor | null> {
+  // guarantors.tenant_id → tenants, pas de lease_id direct → passer par lease_tenants
+  const rows = await runSql<AdminGuarantor>(`
+    SELECT g.id, g.title, g.first_name, g.last_name, g.email, g.phone
+    FROM guarantors g
+    JOIN lease_tenants lt ON lt.tenant_id = g.tenant_id
+    WHERE lt.lease_id = '${leaseId}'
+    LIMIT 1
+  `)
+  return rows[0] ?? null
+}
+
 // ─── EDL (État des lieux) ─────────────────────────────────────────────────────
 
 export type EdlReport = {
@@ -645,6 +668,108 @@ export async function getEdlPageData(reportId: string, apartmentId: string): Pro
     tenant: tenantRows[0] ?? null,
     guarantor: guarantorRows[0] ?? null,
   }
+}
+
+// ─── Visitors ─────────────────────────────────────────────────────────────────
+
+export type AvailableApartment = {
+  id: string
+  number: string
+  type: string
+  surface_area: number
+  floor_label: string | null
+  rent_including_charges: number
+  building_address: string
+  building_short_name: string
+  status: 'available' | 'coming_soon'
+  available_from: string | null
+}
+
+export async function getAvailableApartments(): Promise<AvailableApartment[]> {
+  return runSql<AvailableApartment>(`
+    SELECT * FROM (
+      SELECT
+        a.id, a.number, a.type, a.surface_area, a.floor_label,
+        a.rent_including_charges,
+        b.address AS building_address,
+        b.short_name AS building_short_name,
+        'available' AS status,
+        NULL::text AS available_from
+      FROM apartments a
+      JOIN buildings b ON b.id = a.building_id
+      WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND a.type::text != 'BUREAU'
+        AND NOT EXISTS (
+          SELECT 1 FROM leases l
+          WHERE l.apartment_id = a.id
+            AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+        )
+
+      UNION ALL
+
+      SELECT
+        a.id, a.number, a.type, a.surface_area, a.floor_label,
+        a.rent_including_charges,
+        b.address AS building_address,
+        b.short_name AS building_short_name,
+        'coming_soon' AS status,
+        l.move_out_inspection_date::text AS available_from
+      FROM apartments a
+      JOIN buildings b ON b.id = a.building_id
+      JOIN leases l ON l.apartment_id = a.id
+        AND l.move_out_inspection_date >= CURRENT_DATE
+        AND l.move_out_inspection_date <= CURRENT_DATE + INTERVAL '3 months'
+      WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND a.type::text != 'BUREAU'
+    ) sub
+    ORDER BY sub.status ASC, sub.number::integer
+  `)
+}
+
+// ─── Candidats ────────────────────────────────────────────────────────────────
+
+export type CandidateApartment = AvailableApartment & {
+  move_out_date: string | null  // alias pour filtrage côté client
+}
+
+// Retourne les appartements disponibles pour une candidature (vacant ou bientôt libre)
+export async function getApartmentsForCandidature(): Promise<CandidateApartment[]> {
+  const apts = await getAvailableApartments()
+  return apts.map(a => ({ ...a, move_out_date: a.available_from }))
+}
+
+export type AdminVisitor = {
+  id: string
+  last_name: string
+  first_name: string
+  email: string
+  phone: string | null
+  visit_date: string
+  visit_time: string
+  desired_duration_months: number | null
+  comments: string | null
+  status: string
+  created_at: string
+  apartment_numbers: string
+}
+
+export async function getAdminVisitors(): Promise<AdminVisitor[]> {
+  return runSql<AdminVisitor>(`
+    SELECT
+      v.id, v.last_name, v.first_name, v.email, v.phone,
+      v.visit_date::text, v.visit_time::text,
+      v.desired_duration_months, v.comments,
+      v.status::text AS status, v.created_at::text,
+      COALESCE(
+        STRING_AGG(a.number, ', ' ORDER BY a.number::integer),
+        '—'
+      ) AS apartment_numbers
+    FROM visitors v
+    LEFT JOIN visitor_apartments va ON va.visitor_id = v.id
+    LEFT JOIN apartments a ON a.id = va.apartment_id
+    GROUP BY v.id
+    ORDER BY v.visit_date DESC, v.visit_time DESC
+  `)
 }
 
 export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {

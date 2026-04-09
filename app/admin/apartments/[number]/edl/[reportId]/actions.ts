@@ -19,6 +19,23 @@ export async function updateKeyQuantityExitAction(
   }
 }
 
+export async function updateKeyQuantityEntryAction(
+  id: string,
+  value: number | null
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('apartment_keys')
+      .update({ quantity: value })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur' }
+  }
+}
+
 type ElementField = 'condition_entry' | 'comment_entry' | 'condition_exit' | 'comment_exit'
 type ItemField = 'quantity_entry' | 'condition_entry' | 'comment_entry' | 'quantity_exit' | 'condition_exit' | 'comment_exit'
 
