@@ -772,6 +772,235 @@ export async function getAdminVisitors(): Promise<AdminVisitor[]> {
   `)
 }
 
+// ─── Mise en location dashboard ───────────────────────────────────────────────
+
+export type LettingKpis = {
+  pending_visits: string
+  total_visits: string
+  pending_applications: string
+  total_applications: string
+}
+
+export type LettingApartment = {
+  id: string
+  number: string
+  floor_label: string | null
+  rent_including_charges: number
+  building_short_name: string
+  status: 'available' | 'coming_soon'
+  available_from: string | null
+  visit_count: string
+  candidate_count: string
+}
+
+export type LettingCandidate = {
+  id: string
+  first_name: string
+  last_name: string
+  email: string | null
+  phone: string | null
+  application_id: string
+  status: string
+  desired_signing_date: string | null
+  created_at: string
+  apartment_number: string
+  floor_label: string | null
+  has_guarantor: boolean
+}
+
+export type LettingVisit = {
+  id: string
+  last_name: string
+  first_name: string
+  email: string
+  phone: string | null
+  visit_date: string
+  visit_time: string
+  status: string
+  created_at: string
+  apartment_numbers: string
+}
+
+export type CandidateDetail = {
+  candidate_id: string
+  title: string | null
+  first_name: string
+  last_name: string
+  email: string | null
+  phone: string | null
+  birth_date: string | null
+  birth_place: string | null
+  address: string | null
+  family_status: string | null
+  created_at: string
+  application_id: string
+  status: string
+  desired_signing_date: string | null
+  apartment_number: string
+  floor_label: string | null
+  rent_including_charges: number
+  // Visiteur lié (peut être null si pas de lien)
+  visitor_id: string | null
+  visitor_visit_date: string | null
+  visitor_visit_time: string | null
+  visitor_total_income: number | null
+  visitor_comments: string | null
+  visitor_desired_duration_months: number | null
+}
+
+export type CandidateGuarantor = {
+  title: string | null
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+  phone: string | null
+  birth_date: string | null
+  birth_place: string | null
+  address: string | null
+}
+
+export type CandidateDocument = {
+  owner: string
+  file_name: string | null
+  drive_url: string | null
+}
+
+export async function getLettingKpis(): Promise<LettingKpis> {
+  const rows = await runSql<LettingKpis>(`
+    SELECT
+      (SELECT COUNT(*) FROM visitors WHERE status::text = 'pending')::text AS pending_visits,
+      (SELECT COUNT(*) FROM visitors)::text AS total_visits,
+      (SELECT COUNT(*) FROM candidate_applications WHERE status::text = 'pending')::text AS pending_applications,
+      (SELECT COUNT(*) FROM candidate_applications)::text AS total_applications
+  `)
+  return rows[0] ?? { pending_visits: '0', total_visits: '0', pending_applications: '0', total_applications: '0' }
+}
+
+export async function getLettingApartments(): Promise<LettingApartment[]> {
+  return runSql<LettingApartment>(`
+    SELECT
+      sub.id, sub.number, sub.floor_label,
+      sub.rent_including_charges,
+      sub.building_short_name, sub.status, sub.available_from,
+      COUNT(DISTINCT va.visitor_id)::text AS visit_count,
+      COUNT(DISTINCT ca.id)::text AS candidate_count
+    FROM (
+      SELECT
+        a.id, a.number, a.floor_label, a.rent_including_charges,
+        b.short_name AS building_short_name,
+        'available' AS status, NULL::text AS available_from
+      FROM apartments a
+      JOIN buildings b ON b.id = a.building_id
+      WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND a.type::text != 'BUREAU'
+        AND NOT EXISTS (
+          SELECT 1 FROM leases l
+          WHERE l.apartment_id = a.id
+            AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+        )
+      UNION ALL
+      SELECT
+        a.id, a.number, a.floor_label, a.rent_including_charges,
+        b.short_name AS building_short_name,
+        'coming_soon' AS status,
+        l.move_out_inspection_date::text AS available_from
+      FROM apartments a
+      JOIN buildings b ON b.id = a.building_id
+      JOIN leases l ON l.apartment_id = a.id
+        AND l.move_out_inspection_date >= CURRENT_DATE
+        AND l.move_out_inspection_date <= CURRENT_DATE + INTERVAL '3 months'
+      WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND a.type::text != 'BUREAU'
+    ) sub
+    LEFT JOIN visitor_apartments va ON va.apartment_id = sub.id
+    LEFT JOIN candidate_applications ca ON ca.apartment_id = sub.id
+    GROUP BY sub.id, sub.number, sub.floor_label, sub.rent_including_charges,
+             sub.building_short_name, sub.status, sub.available_from
+    ORDER BY sub.status ASC, sub.number::integer
+  `)
+}
+
+export async function getRecentCandidates(): Promise<LettingCandidate[]> {
+  return runSql<LettingCandidate>(`
+    SELECT
+      c.id, c.first_name, c.last_name, c.email, c.phone,
+      ca.id AS application_id, ca.status::text AS status,
+      ca.desired_signing_date::date::text,
+      ca.created_at::date::text AS created_at,
+      a.number AS apartment_number, a.floor_label,
+      EXISTS (SELECT 1 FROM candidate_guarantors cg WHERE cg.candidate_id = c.id) AS has_guarantor
+    FROM candidates c
+    JOIN candidate_applications ca ON ca.candidate_id = c.id
+    JOIN apartments a ON a.id = ca.apartment_id
+    ORDER BY ca.created_at DESC
+    LIMIT 30
+  `)
+}
+
+export async function getRecentVisits(): Promise<LettingVisit[]> {
+  return runSql<LettingVisit>(`
+    SELECT
+      v.id, v.last_name, v.first_name, v.email, v.phone,
+      v.visit_date::text, v.visit_time::text,
+      v.status::text AS status, v.created_at::text,
+      COALESCE(
+        STRING_AGG(a.number, ', ' ORDER BY a.number::integer),
+        '—'
+      ) AS apartment_numbers
+    FROM visitors v
+    LEFT JOIN visitor_apartments va ON va.visitor_id = v.id
+    LEFT JOIN apartments a ON a.id = va.apartment_id
+    GROUP BY v.id
+    ORDER BY v.visit_date DESC, v.visit_time DESC
+  `)
+}
+
+export async function getCandidateDetail(applicationId: string): Promise<CandidateDetail | null> {
+  const rows = await runSql<CandidateDetail>(`
+    SELECT
+      c.id AS candidate_id,
+      c.title, c.first_name, c.last_name, c.email, c.phone,
+      c.birth_date::date::text, c.birth_place, c.address, c.family_status,
+      ca.created_at::date::text AS created_at,
+      ca.id AS application_id, ca.status::text AS status,
+      ca.desired_signing_date::date::text,
+      a.number AS apartment_number, a.floor_label, a.rent_including_charges,
+      ca.visitor_id,
+      v.visit_date::date::text AS visitor_visit_date,
+      v.visit_time::text AS visitor_visit_time,
+      v.total_income AS visitor_total_income,
+      v.comments AS visitor_comments,
+      v.desired_duration_months AS visitor_desired_duration_months
+    FROM candidates c
+    JOIN candidate_applications ca ON ca.candidate_id = c.id
+    JOIN apartments a ON a.id = ca.apartment_id
+    LEFT JOIN visitors v ON v.id = ca.visitor_id
+    WHERE ca.id = '${applicationId}'
+    LIMIT 1
+  `)
+  return rows[0] ?? null
+}
+
+export async function getCandidateGuarantor(candidateId: string): Promise<CandidateGuarantor | null> {
+  const rows = await runSql<CandidateGuarantor>(`
+    SELECT title, first_name, last_name, email, phone,
+           birth_date::text, birth_place, address
+    FROM candidate_guarantors
+    WHERE candidate_id = '${candidateId}'
+    LIMIT 1
+  `)
+  return rows[0] ?? null
+}
+
+export async function getCandidateDocuments(applicationId: string): Promise<CandidateDocument[]> {
+  return runSql<CandidateDocument>(`
+    SELECT owner, file_name, drive_url
+    FROM candidate_documents
+    WHERE application_id = '${applicationId}'
+    ORDER BY owner, file_name
+  `)
+}
+
 export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {
   const rows = await runSql<{ count: string }>(`
     SELECT COUNT(*) AS count

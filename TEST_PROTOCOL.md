@@ -101,11 +101,18 @@ Vérifier : tous les champs soumis sont présents, pas de `null` inattendu.
 - `createAdminClient()` (service role) requis pour INSERT / UPDATE / DELETE
 - Enums PostgreSQL sans cast `::text` dans les requêtes → 🔴 Critique (erreur runtime garantie)
 - `ORDER BY` directement dans un `UNION`/`UNION ALL` sans sous-requête → 🔴 Critique (erreur PostgreSQL runtime : "invalid UNION/INTERSECT/EXCEPT ORDER BY clause") — toujours wrapper dans `SELECT * FROM (...) sub ORDER BY sub.col`
+- Champ `TIMESTAMPTZ` ou `TIMESTAMP` casté en `::text` et passé à `fmtDate()` → 🟠 Majeur (produit "Invalid date" dans le navigateur) — toujours caster en `::date::text` pour les champs utilisés en affichage
+- Colonne lue par le code mais absente du schéma Supabase → 🔴 Critique — vérifier avec `SELECT column_name FROM information_schema.columns WHERE table_name = '...'` que toutes les colonnes SELECT existent bien avant de valider
+- Colonnes dupliquées entre deux tables (ex : infos garant à la fois dans `candidates` et `candidate_guarantors`) → 🟠 Majeur — signaler et fournir un script de nettoyage `scripts/cleanup_*.sql`
+- Après toute modification de schéma Supabase (CREATE/ALTER/DROP TABLE), exécuter `NOTIFY pgrst, 'reload schema'` sinon l'API ne voit pas les changements → 🔴 Critique
 
 ### React / Next.js
 - Composant défini dans le corps d'un composant parent → 🟠 Majeur (remount à chaque render)
 - `export const dynamic = 'force-dynamic'` manquant sur les pages admin → 🟠 Majeur
 - `toISOString().slice(0,10)` pour dates locales → 🟠 Majeur (décalage UTC/Paris)
+- Boucle `.map()` retournant plusieurs éléments avec `<>...</>` au lieu de `<Fragment key=...>...</Fragment>` → 🟠 Majeur (warning React "Each child in a list should have a unique key prop")
+- `params` de page dynamique utilisé directement sans `await` (Next.js 15) → 🔴 Critique (produit `undefined` en runtime, erreur SQL "invalid input syntax for type uuid")
+- Libellé ou constante modifié dans un fichier → vérifier systématiquement toutes les occurrences dans le projet (`STATUS_LABELS`, `STATUS_COLORS`, messages UI) — incohérence entre pages → 🟠 Majeur
 
 ### HTML / Accessibilité
 - `<a>` imbriqué dans `<label>` → 🟠 Majeur (HTML invalide)

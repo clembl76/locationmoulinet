@@ -26,7 +26,7 @@ Logiciel de gestion locative pour des **studios meublés à Rouen centre-ville**
 - Les appartements sont regroupés par **bâtiment** (`buildings.short_name`).
 - Type `BUREAU` exclu du site vitrine et de la liste de visites.
 - Un appartement est **disponible** si aucun bail actif n'existe (`leases.move_out_inspection_date IS NULL OR >= CURRENT_DATE`).
-- Un appartement est **prochainement disponible** si le bail se termine dans les **3 mois**.
+- Un appartement est **prochainement disponible** si le bail est actif ET une date d'edl de sortie a été renseignée (`leases.move_out_inspection_date IS NOT NULL)
 - `valid_to` sur les appartements : un appartement périmé n'est pas affiché.
 
 ---
@@ -38,6 +38,23 @@ Logiciel de gestion locative pour des **studios meublés à Rouen centre-ville**
 - `move_out_inspection_date` = date de fin (peut être null si actif).
 - `leases.deposit` = montant de la caution (source de vérité, pas les transactions).
 - Préavis de départ : date minimum = **aujourd'hui + 3 mois**.
+
+---
+
+## Loyers et prorata
+
+- La table `rents` contient une ligne par bail par mois (`lease_id`, `year`, `month`).
+- **Loyer plein** : `amount_expected = rent_including_charges`, `is_prorata = false`.
+- **Prorata d'entrée** (signing_date > 1er du mois) :
+  - `prorataDays = daysInMonth - signingDay + 1` (jour de signing inclus)
+  - `amount_expected = round(prorataDays / daysInMonth × rent_including_charges, 2)`
+  - `is_prorata = true`, `prorata_days = prorataDays`, `days_in_month = daysInMonth`
+- **Prorata de sortie** (move_out_inspection_date < dernier jour du mois) :
+  - `prorataDays = moveOutDay - 1 + 1 = moveOutDay` (du 1er au jour de sortie inclusif)
+  - Même formule de calcul.
+- Si signing_date est le 1er du mois : loyer plein (pas de prorata).
+- La génération des loyers mensuels se fait via `generateMonthlyRents(year, month)` dans `lib/adminData.ts`.
+- À la signature d'un bail ("Bail signé"), la première ligne de loyer est générée immédiatement avec prorata si applicable.
 
 ---
 

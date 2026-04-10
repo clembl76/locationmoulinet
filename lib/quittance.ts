@@ -784,6 +784,39 @@ export async function uploadCandidateDocuments(opts: {
   return { candidateUrls, guarantorUrls }
 }
 
+// ─── Google Drive — déplacer dossier candidat vers locataires ─────────────────
+// Conserve le même nom {aptNum}-NOM, change uniquement le dossier parent
+
+export async function moveCandidateFolderToTenants(opts: {
+  aptNumber: string
+  candidateLastName: string
+}): Promise<void> {
+  const candidatesRootId = process.env.GDRIVE_CANDIDATES_FOLDER_ID
+  const tenantsRootId = process.env.GDRIVE_TENANTS_FOLDER_ID
+  if (!candidatesRootId || !tenantsRootId) return
+
+  const auth = makeGoogleAuth()
+  const drive = google.drive({ version: 'v3', auth })
+
+  // Trouver le dossier source dans /candidats
+  const srcName = `${opts.aptNumber}-${opts.candidateLastName.toUpperCase()}`
+  const srcRes = await drive.files.list({
+    q: `'${candidatesRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${srcName}' and trashed = false`,
+    fields: 'files(id)',
+    pageSize: 1,
+  })
+  const srcFolder = srcRes.data.files?.[0]
+  if (!srcFolder?.id) return  // dossier pas trouvé — non bloquant
+
+  // Déplacer dans /locataires (addParents + removeParents) — même nom {aptNum}-NOM
+  await drive.files.update({
+    fileId: srcFolder.id,
+    addParents: tenantsRootId,
+    removeParents: candidatesRootId,
+    fields: 'id',
+  })
+}
+
 // ─── Gmail draft ──────────────────────────────────────────────────────────────
 
 export async function createGmailDraft(

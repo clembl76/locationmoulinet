@@ -403,7 +403,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
 
       {/* ── Vos informations ───────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
         <SectionTitle>Vos informations</SectionTitle>
         <PersonBlock
           prefix=""
@@ -414,6 +414,16 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
           onPhoneBlur={v => validatePhone(v, setPhoneError)}
           onPhoneChange={v => { if (phoneError) validatePhone(v, setPhoneError) }}
         />
+        <Field label="Situation familiale" required>
+          <SelectInput name="family_status" required>
+            <option value="">—</option>
+            <option value="Célibataire">Célibataire</option>
+            <option value="Marié(e)">Marié(e)</option>
+            <option value="Pacsé(e)">Pacsé(e)</option>
+            <option value="Divorcé(e)">Divorcé(e)</option>
+            <option value="Veuf/Veuve">Veuf/Veuve</option>
+          </SelectInput>
+        </Field>
       </div>
 
       {/* ── Date souhaitée ─────────────────────────────────────────────────── */}
@@ -514,6 +524,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
       )}
 
       {/* ── Vos justificatifs ──────────────────────────────────────────────── */}
+      {hasGuarantor !== null && (
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
         <SectionTitle>Vos justificatifs</SectionTitle>
 
@@ -549,6 +560,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
           onFilesChange={setSection('candidate_status')}
         />
       </div>
+      )}
 
       {/* ── Erreur serveur ────────────────────────────────────────────────── */}
       {result && !result.ok && (

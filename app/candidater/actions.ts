@@ -12,14 +12,15 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
     const admin = createAdminClient()
 
     // ── Champs candidat ──────────────────────────────────────────────────────
-    const title       = formData.get('title') as string | null
-    const firstName   = (formData.get('first_name') as string).trim()
-    const lastName    = (formData.get('last_name') as string).trim()
-    const email       = (formData.get('email') as string).trim()
-    const phone       = (formData.get('phone') as string | null)?.trim() || null
-    const birthDate   = (formData.get('birth_date') as string | null) || null
-    const birthPlace  = (formData.get('birth_place') as string | null)?.trim() || null
-    const address     = (formData.get('address') as string | null)?.trim() || null
+    const title        = formData.get('title') as string | null
+    const firstName    = (formData.get('first_name') as string).trim()
+    const lastName     = (formData.get('last_name') as string).trim()
+    const email        = (formData.get('email') as string).trim()
+    const phone        = (formData.get('phone') as string | null)?.trim() || null
+    const birthDate    = (formData.get('birth_date') as string | null) || null
+    const birthPlace   = (formData.get('birth_place') as string | null)?.trim() || null
+    const address      = (formData.get('address') as string | null)?.trim() || null
+    const familyStatus = (formData.get('family_status') as string | null)?.trim() || null
 
     // ── Demande de bail ──────────────────────────────────────────────────────
     const apartmentId      = (formData.get('apartment_id') as string).trim()
@@ -63,7 +64,7 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
     // ── Insérer candidat ─────────────────────────────────────────────────────
     const { data: candidate, error: cErr } = await admin
       .from('candidates')
-      .insert({ title, first_name: firstName, last_name: lastName, email, phone, birth_date: birthDate, birth_place: birthPlace, address })
+      .insert({ title, first_name: firstName, last_name: lastName, email, phone, birth_date: birthDate, birth_place: birthPlace, address, family_status: familyStatus })
       .select('id')
       .single()
     if (cErr) throw new Error(cErr.message)
@@ -77,10 +78,40 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
       if (gErr) throw new Error(gErr.message)
     }
 
+    // ── Chercher un visiteur lié (email ou téléphone) — best-effort ───────────
+    let visitorId: string | null = null
+    try {
+      const emailNorm = email.toLowerCase()
+      const phoneNorm = phone?.replace(/\s/g, '') ?? null
+
+      const { data: byEmail } = await admin
+        .from('visitors')
+        .select('id')
+        .eq('email', emailNorm)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (byEmail) {
+        visitorId = byEmail.id
+      } else if (phoneNorm) {
+        const { data: byPhone } = await admin
+          .from('visitors')
+          .select('id')
+          .ilike('phone', `%${phoneNorm.slice(-9)}%`)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        if (byPhone) visitorId = byPhone.id
+      }
+    } catch {
+      // Pas de visiteur trouvé — non bloquant
+    }
+
     // ── Insérer demande de bail ───────────────────────────────────────────────
     const { data: application, error: aErr } = await admin
       .from('candidate_applications')
-      .insert({ candidate_id: candidateId, apartment_id: apartmentId, desired_signing_date: desiredSigningDate, status: 'pending' })
+      .insert({ candidate_id: candidateId, apartment_id: apartmentId, desired_signing_date: desiredSigningDate, status: 'pending', visitor_id: visitorId })
       .select('id')
       .single()
     if (aErr) throw new Error(aErr.message)

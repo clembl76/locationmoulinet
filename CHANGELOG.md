@@ -2,6 +2,68 @@
 
 ## [Non publié]
 
+### 2026-04-10 — Prorata loyer 1er mois à la signature du bail (spec SPEC.md)
+- "Bail signé" génère maintenant la 1ère ligne `rents` avec prorata si signing_date > 1er du mois
+- Formule : `prorataDays = daysInMonth - signingDay + 1`, `amount = round(prorataDays / daysInMonth × loyer CC, 2)`
+- Récupération du `rent_including_charges` depuis la jointure `candidate_applications → apartments`
+- Règle de prorata documentée dans `BUSINESS_RULES.md §Loyers et prorata`
+- Fichiers : `app/admin/mise-en-location/candidats/[id]/actions.ts`, `BUSINESS_RULES.md`
+
+### 2026-04-10 — Fix statuts candidats dans LettingTable + nomenclature Drive (spec SPEC.md)
+- LettingTable : statuts en français (Nouvelle/Acceptée/Rejetée/Plus intéressé/Bail signé), couleurs cohérentes avec page détail (Bleu/Vert/Rouge/Gris/Vert foncé)
+- `moveCandidateFolderToTenants` : ne renomme plus le dossier, conserve `{aptNum}-NOM` dans `/locataires`
+- Fichiers : `app/admin/mise-en-location/LettingTable.tsx`, `lib/quittance.ts`
+
+### 2026-04-10 — Actions candidat : Rejeter/Choisir/Plus intéressé/Bail signé (spec SPEC.md)
+- `/candidater` : lookup visiteur rendu strictement non-bloquant (try/catch)
+- Bloc "Demande de bail" : ajout durée de location souhaitée du visiteur (`desired_duration_months`)
+- Boutons Actions refondus : "Rejeter" et "Choisir" mettent à jour le statut candidat ET le statut visiteur lié (best-effort)
+- Nouveau bouton "Plus intéressé" : statut `withdrawn`, désactive toutes les actions après
+- Après "Choisir" : bouton "Bail signé" → crée locataire, bail, `lease_tenants`, garant si présent, déplace dossier Drive `/candidats` → `/locataires`, marque candidature `signed`
+- Tous les statuts terminaux (`accepted`, `rejected`, `withdrawn`, `signed`) affichent un message et désactivent les boutons
+- Nouveaux statuts : `withdrawn`, `signed` dans `candidate_applications` (script `scripts/add_candidate_statuses.sql`)
+- `lib/quittance.ts` : nouvelle fonction `moveCandidateFolderToTenants` (déplace + renomme dossier Drive)
+- Fichiers : `app/candidater/actions.ts`, `lib/adminData.ts`, `lib/quittance.ts`, `app/admin/mise-en-location/candidats/[id]/actions.ts`, `CandidateActions.tsx`, `page.tsx`
+
+### 2026-04-10 — Liaison candidat/visiteur + refonte page détail candidat (spec SPEC.md)
+- Nouveau script SQL : `scripts/add_visitor_link.sql` — colonne `visitor_id` dans `candidate_applications`
+- `createCandidateAction` : recherche un visiteur par email (exact) puis téléphone (9 derniers chiffres) et enregistre le lien `visitor_id` à la création
+- `getCandidateDetail` : enrichi avec les données du visiteur lié (visit_date, visit_time, total_income, comments)
+- Page détail candidat : layout 2 colonnes, "Demande de bail" remonté en premier, infos visiteur intégrées dedans (date visite, revenus, commentaires), statut retiré du bloc demande
+- Nouveau bloc Actions (colonne droite) : case "Revenus vérifiés" + boutons "Rejeter" / "Choisir" activés uniquement si cochée
+- Documents déplacés en colonne droite sous Actions
+- Nouvelles fichiers : `app/admin/mise-en-location/candidats/[id]/actions.ts`, `CandidateActions.tsx`
+- Fichiers modifiés : `lib/adminData.ts`, `app/candidater/actions.ts`, `app/admin/mise-en-location/candidats/[id]/page.tsx`
+
+### 2026-04-10 — Corrections mise en location post-QA (spec SPEC.md)
+- Fix "Invalid date" : `ca.created_at::text` → `::date::text` dans `getRecentCandidates` et `getCandidateDetail` (timestamp complet incompatible avec fmtDate)
+- Fix "Dossier reçu le" dans le détail candidat : utilise désormais `ca.created_at` (date de la demande) et non `c.created_at` (date d'enregistrement du candidat)
+- Fix React key warning : `<>` → `<Fragment key={apt.id}>` dans LettingTable
+- Fix statut "Nouvelle" non propagé : corrigé dans la page détail candidat (STATUS_LABELS + STATUS_COLORS cohérents avec LettingTable)
+- Script SQL de nettoyage du schéma : `scripts/cleanup_candidates_schema.sql` — supprime colonnes orphelines (`apartment_id`, `desired_signing_date`, `visitor_id`, colonnes `g_*`) dans `candidates` si elles existent
+- Fichiers : `lib/adminData.ts`, `app/admin/mise-en-location/LettingTable.tsx`, `app/admin/mise-en-location/candidats/[id]/page.tsx`, `scripts/cleanup_candidates_schema.sql`
+
+### 2026-04-10 — Améliorations mise en location + fix candidater (spec SPEC.md)
+- Fix bug UUID "undefined" sur page détail candidat : `params` est une Promise en Next.js 15, ajout de `await params`
+- Statut candidature "Nouvelle" remplace "En attente"
+- Appartements + candidatures fusionnés en un seul accordion : clic sur une ligne d'appartement déplie les candidatures
+- Suppression du lien "Fiche →" dans la section appartements
+- Visites : affichage de toutes les visites avec pagination 5 items/page (composant client)
+- CandidateForm : bloc "Vos justificatifs" masqué jusqu'à ce qu'une valeur soit sélectionnée pour "Avez-vous un garant ?"
+- Nouveaux composants : `LettingTable.tsx`, `VisitsTable.tsx` (client components)
+- Fichiers : `app/admin/mise-en-location/page.tsx`, `app/admin/mise-en-location/LettingTable.tsx`, `app/admin/mise-en-location/VisitsTable.tsx`, `app/admin/mise-en-location/candidats/[id]/page.tsx`, `lib/adminData.ts`, `components/CandidateForm.tsx`
+
+### 2026-04-10 — Tableau de bord mise en location /admin/mise-en-location (spec SPEC.md)
+- Nouvelle page `/admin/mise-en-location` remplaçant `/admin/visitors`
+- KPIs : visites en attente / total, candidatures en attente / total, appartements disponibles, prochainement libres
+- Section appartements disponibles ou prochainement libres avec compteurs visites et candidatures
+- Section candidatures regroupées par appartement avec accès au détail
+- Page de détail candidat `/admin/mise-en-location/candidats/[id]` : infos perso, garant, demande de bail, documents Drive cliquables
+- Section visites récentes (10 dernières)
+- Nav admin : "Visites" → "Mise en location"
+- Nouvelles fonctions : `getLettingKpis`, `getLettingApartments`, `getRecentCandidates`, `getRecentVisits`, `getCandidateDetail`, `getCandidateGuarantor`, `getCandidateDocuments`
+- Fichiers : `lib/adminData.ts`, `app/admin/mise-en-location/page.tsx`, `app/admin/mise-en-location/candidats/[id]/page.tsx`, `app/admin/layout.tsx`
+
 ### 2026-04-09 — Fix référencement candidate_documents dans Supabase (spec SPEC.md)
 - Séparation en deux blocs try/catch indépendants : upload Drive d'un côté, insert Supabase `candidate_documents` de l'autre
 - Avant : erreur Supabase masquée par le catch Drive → message "documents non envoyés" affiché alors que Drive avait réussi
