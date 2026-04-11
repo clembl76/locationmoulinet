@@ -1,6 +1,89 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
+import { runSqlAdmin } from '@/lib/adminData'
+import { createVisitCalendarEvent } from '@/lib/quittance'
+
+// ── Helpers créneaux ──────────────────────────────────────────────────────────
+
+function generateSlots(startTime: string, endTime: string, durationMins: number): string[] {
+  const [sh, sm] = startTime.split(':').map(Number)
+  const [eh, em] = endTime.split(':').map(Number)
+  const startMins = sh * 60 + sm
+  const endMins = eh * 60 + em
+  const slots: string[] = []
+  for (let m = startMins; m + durationMins <= endMins; m += durationMins) {
+    const h = Math.floor(m / 60)
+    const min = m % 60
+    slots.push(`${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`)
+  }
+  return slots
+}
+
+// Convertit un getDay() JS (0=Dim) en convention 0=Lun
+function jsDayToRule(jsDay: number) {
+  return (jsDay + 6) % 7
+}
+
+// ── Action publique : créneaux disponibles pour une date ──────────────────────
+
+export async function getAvailableSlotsAction(date: string): Promise<string[]> {
+  try {
+    // 1. Paramètres globaux
+    const settings = await runSqlAdmin<{ active: boolean; slot_duration_minutes: number }>(
+      `SELECT active, slot_duration_minutes FROM visit_settings LIMIT 1`
+    )
+    if (!settings[0]?.active) return []
+
+    const slotDuration = settings[0].slot_duration_minutes
+
+    // 2. Exceptions pour cette date (journée entière ou plages horaires)
+    const exceptions = await runSqlAdmin<{ start_time: string | null; end_time: string | null }>(
+      `SELECT start_time::text, end_time::text
+       FROM visit_availability_exceptions
+       WHERE date = '${date}'::date`
+    )
+    // Exception journée entière (start_time IS NULL)
+    if (exceptions.some(e => e.start_time === null)) return []
+
+    // 3. Règles pour ce jour de la semaine
+    const d = new Date(date + 'T12:00:00')
+    const dayOfWeek = jsDayToRule(d.getDay())
+    const rules = await runSqlAdmin<{ start_time: string; end_time: string }>(
+      `SELECT start_time::text, end_time::text
+       FROM visit_availability_rules
+       WHERE day_of_week = ${dayOfWeek}
+       ORDER BY start_time`
+    )
+    if (rules.length === 0) return []
+
+    // 4. Générer tous les créneaux possibles
+    const allSlots: string[] = []
+    for (const rule of rules) {
+      allSlots.push(...generateSlots(rule.start_time, rule.end_time, slotDuration))
+    }
+
+    // 5. Créneaux bloqués par des exceptions horaires
+    const blockedByException = new Set<string>()
+    for (const ex of exceptions) {
+      if (ex.start_time && ex.end_time) {
+        for (const slot of generateSlots(ex.start_time, ex.end_time, slotDuration)) {
+          blockedByException.add(slot)
+        }
+      }
+    }
+
+    // 6. Créneaux déjà réservés ce jour
+    const booked = await runSqlAdmin<{ visit_time: string }>(
+      `SELECT visit_time::text FROM visitors WHERE visit_date = '${date}'::date`
+    )
+    const bookedSet = new Set(booked.map(r => r.visit_time.slice(0, 5)))
+
+    return allSlots.filter(s => !bookedSet.has(s) && !blockedByException.has(s))
+  } catch {
+    return []
+  }
+}
 
 export type BookingResult =
   | { ok: true; visitorId: string }
@@ -19,6 +102,7 @@ export async function createVisitorAction(data: {
   guarantor_type: 'none' | 'physical' | 'visale' | null
   situation: 'student' | 'other' | null
   total_income: number | null
+  studies_at: string | null
 }): Promise<BookingResult> {
   try {
     if (!data.last_name || !data.first_name || !data.email || !data.phone || !data.visit_date || !data.visit_time) {
@@ -26,6 +110,17 @@ export async function createVisitorAction(data: {
     }
     if (data.apartment_ids.length === 0) {
       return { ok: false, error: 'Veuillez sélectionner au moins un appartement.' }
+    }
+
+    // Vérification cross-building côté serveur
+    const aptBuildings = await runSqlAdmin<{ building_address: string }>(
+      `SELECT DISTINCT b.address AS building_address
+       FROM apartments a
+       JOIN buildings b ON b.id = a.building_id
+       WHERE a.id IN (${data.apartment_ids.map(id => `'${id}'`).join(',')})`
+    )
+    if (aptBuildings.length > 1) {
+      return { ok: false, error: 'Vous ne pouvez pas réserver une visite pour des appartements dans des immeubles différents.' }
     }
 
     const admin = createAdminClient()
@@ -44,6 +139,7 @@ export async function createVisitorAction(data: {
         guarantor_type: data.guarantor_type,
         situation: data.situation,
         total_income: data.total_income,
+        studies_at: data.studies_at,
       })
       .select('id')
       .single()
@@ -57,6 +153,41 @@ export async function createVisitorAction(data: {
 
     const { error: aErr } = await admin.from('visitor_apartments').insert(rows)
     if (aErr) throw new Error(aErr.message)
+
+    // Créer l'événement Google Calendar (best-effort, non bloquant)
+    try {
+      const [buildingInfo, aptNumbers, settings] = await Promise.all([
+        runSqlAdmin<{ building_short_name: string; building_address: string }>(
+          `SELECT DISTINCT b.short_name AS building_short_name, b.address AS building_address
+           FROM apartments a JOIN buildings b ON b.id = a.building_id
+           WHERE a.id IN (${data.apartment_ids.map(id => `'${id}'`).join(',')}) LIMIT 1`
+        ),
+        runSqlAdmin<{ number: string }>(
+          `SELECT a.number FROM apartments a
+           WHERE a.id IN (${data.apartment_ids.map(id => `'${id}'`).join(',')})
+           ORDER BY a.number`
+        ),
+        runSqlAdmin<{ slot_duration_minutes: number; contact_name: string | null; contact_email: string | null; contact_phone: string | null; contact_website: string | null }>(
+          `SELECT slot_duration_minutes, contact_name, contact_email, contact_phone, contact_website
+           FROM visit_settings LIMIT 1`
+        ),
+      ])
+
+      if (buildingInfo[0] && settings[0]) {
+        await createVisitCalendarEvent({
+          visitorEmail: data.email.trim().toLowerCase(),
+          visitDate: data.visit_date,
+          visitTime: data.visit_time,
+          slotDurationMinutes: settings[0].slot_duration_minutes,
+          buildingShortName: buildingInfo[0].building_short_name,
+          buildingAddress: buildingInfo[0].building_address,
+          apartmentNumbers: aptNumbers.map(r => r.number),
+          contact: settings[0],
+        })
+      }
+    } catch {
+      // non-bloquant — la réservation est déjà enregistrée
+    }
 
     return { ok: true, visitorId: visitor.id }
   } catch (e) {

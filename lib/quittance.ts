@@ -721,6 +721,71 @@ export async function createCalendarPreavisEvent(opts: {
   })
 }
 
+// ─── Google Calendar — événement de visite ───────────────────────────────────
+
+export async function createVisitCalendarEvent(opts: {
+  visitorEmail: string
+  visitDate: string          // YYYY-MM-DD
+  visitTime: string          // HH:MM
+  slotDurationMinutes: number
+  buildingShortName: string
+  buildingAddress: string
+  apartmentNumbers: string[]
+  contact: {
+    contact_name: string | null
+    contact_email: string | null
+    contact_phone: string | null
+    contact_website: string | null
+  }
+}): Promise<void> {
+  const calId = process.env.GCAL_GESTION_LOCATIVE_ID
+  if (!calId) return
+
+  const [h, m] = opts.visitTime.split(':').map(Number)
+  const startDateTime = `${opts.visitDate}T${opts.visitTime}:00`
+  const endMins = h * 60 + m + opts.slotDurationMinutes
+  const endH = Math.floor(endMins / 60)
+  const endM = endMins % 60
+  const endDateTime = `${opts.visitDate}T${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`
+
+  const contactLines = [
+    opts.contact.contact_name,
+    opts.contact.contact_phone,
+    opts.contact.contact_email,
+    opts.contact.contact_website,
+  ].filter(Boolean).join('\n')
+
+  const description = [
+    `Visite programmée appartement(s) : ${opts.apartmentNumbers.join(', ')}`,
+    '',
+    `Votre contact :\n${contactLines}`,
+    "Appelez lorsque vous êtes arrivé(e) devant l'immeuble.",
+    'Par respect pour la personne qui vous accueillera, merci de prévenir de toute modification.',
+    '',
+    'Informations utiles :',
+    "Il n'est pas nécessaire d'apporter votre dossier locatif le jour de la visite. Vous pourrez ultérieurement déposer toutes vos pièces justificatives en ligne.",
+    'Conditions indispensables : être étudiant, gagner 3 fois le loyer ou avoir un garant qui gagne 3 fois le loyer.',
+  ].join('\n')
+
+  const attendees = [{ email: opts.visitorEmail }]
+  if (opts.contact.contact_email) attendees.unshift({ email: opts.contact.contact_email })
+
+  const auth = makeGoogleAuth()
+  const calendar = google.calendar({ version: 'v3', auth })
+
+  await calendar.events.insert({
+    calendarId: calId,
+    requestBody: {
+      summary: `Visite Appartement ${opts.buildingShortName}`,
+      description,
+      location: opts.buildingAddress,
+      start: { dateTime: startDateTime, timeZone: 'Europe/Paris' },
+      end:   { dateTime: endDateTime,   timeZone: 'Europe/Paris' },
+      attendees,
+    },
+  })
+}
+
 // ─── Google Drive — upload candidat ──────────────────────────────────────────
 
 async function getOrCreateFolder(

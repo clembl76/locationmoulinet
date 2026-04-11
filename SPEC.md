@@ -4,7 +4,6 @@
 # Page Détail appartement /#apartments/num
 
 ## Page Visiter /visiter
--
 
 ## Page Candidater /candidater
 
@@ -25,4 +24,6 @@
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
-- au clic sur "Bail signé" j'ai une erreur Could not find the 'family_status' column of 'leases' in the schema cache. candidates.family_status et tenants.family_status existent pourtant
+
+## Page Disponibilités visites /admin/visites
+

@@ -846,6 +846,7 @@ export type CandidateDetail = {
   visitor_total_income: number | null
   visitor_comments: string | null
   visitor_desired_duration_months: number | null
+  visitor_studies_at: string | null
 }
 
 export type CandidateGuarantor = {
@@ -970,7 +971,8 @@ export async function getCandidateDetail(applicationId: string): Promise<Candida
       v.visit_time::text AS visitor_visit_time,
       v.total_income AS visitor_total_income,
       v.comments AS visitor_comments,
-      v.desired_duration_months AS visitor_desired_duration_months
+      v.desired_duration_months AS visitor_desired_duration_months,
+      v.studies_at AS visitor_studies_at
     FROM candidates c
     JOIN candidate_applications ca ON ca.candidate_id = c.id
     JOIN apartments a ON a.id = ca.apartment_id
@@ -999,6 +1001,71 @@ export async function getCandidateDocuments(applicationId: string): Promise<Cand
     WHERE application_id = '${applicationId}'
     ORDER BY owner, file_name
   `)
+}
+
+// ─── Disponibilités visites ───────────────────────────────────────────────────
+
+export type VisitSettings = {
+  id: string
+  active: boolean
+  slot_duration_minutes: number
+  contact_name: string | null
+  contact_phone: string | null
+  contact_email: string | null
+  contact_website: string | null
+}
+
+export type VisitAvailabilityRule = {
+  id: string
+  day_of_week: number  // 0=Lundi … 6=Dimanche
+  start_time: string   // "HH:MM"
+  end_time: string     // "HH:MM"
+}
+
+export type VisitAvailabilityException = {
+  id: string
+  date: string          // "YYYY-MM-DD"
+  label: string | null
+  start_time: string | null  // "HH:MM" — null = journée entière
+  end_time: string | null    // "HH:MM" — null = journée entière
+}
+
+export async function getVisitSettings(): Promise<VisitSettings> {
+  try {
+    const rows = await runSql<VisitSettings>(`
+      SELECT id, active, slot_duration_minutes,
+             contact_name, contact_phone, contact_email, contact_website
+      FROM visit_settings LIMIT 1
+    `)
+    return rows[0] ?? { id: '', active: false, slot_duration_minutes: 30, contact_name: null, contact_phone: null, contact_email: null, contact_website: null }
+  } catch {
+    return { id: '', active: false, slot_duration_minutes: 30, contact_name: null, contact_phone: null, contact_email: null, contact_website: null }
+  }
+}
+
+export async function getVisitAvailabilityRules(): Promise<VisitAvailabilityRule[]> {
+  try {
+    return await runSql<VisitAvailabilityRule>(`
+      SELECT id, day_of_week, start_time::text AS start_time, end_time::text AS end_time
+      FROM visit_availability_rules
+      ORDER BY day_of_week, start_time
+    `)
+  } catch {
+    return []
+  }
+}
+
+export async function getVisitAvailabilityExceptions(): Promise<VisitAvailabilityException[]> {
+  try {
+    return await runSql<VisitAvailabilityException>(`
+      SELECT id, date::date::text AS date, label,
+             start_time::text AS start_time, end_time::text AS end_time
+      FROM visit_availability_exceptions
+      ORDER BY date
+    `)
+  } catch {
+    return []
+  }
 }
 
 export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {

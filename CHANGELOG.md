@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-04-11 — Page confirmation visite enrichie + description agenda (spec SPEC.md)
+- Page confirmation `/visiter` : affiche date, heure, adresse, contact complet, instructions et conditions
+- Description événement Google Agenda : "Visite programmée appartement(s) : ..." (suppression de "de l'(des)")
+- `AvailabilityData` étendu avec `contactName/Phone/Email/Website` passés depuis `page.tsx`
+- Fichiers : `components/VisitorForm.tsx`, `app/visiter/page.tsx`, `lib/quittance.ts`
+
 ### 2026-04-10 — Prorata loyer 1er mois à la signature du bail (spec SPEC.md)
 - "Bail signé" génère maintenant la 1ère ligne `rents` avec prorata si signing_date > 1er du mois
 - Formule : `prorataDays = daysInMonth - signingDay + 1`, `amount = round(prorataDays / daysInMonth × loyer CC, 2)`

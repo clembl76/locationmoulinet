@@ -11,6 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <a href="/admin/apartments" className="hover:text-white transition-colors">Appartements</a>
             <a href="/admin/payments" className="hover:text-white transition-colors">Paiements</a>
             <a href="/admin/mise-en-location" className="hover:text-white transition-colors">Mise en location</a>
+            <a href="/admin/visites" className="hover:text-white transition-colors">Visites</a>
           </nav>
         </div>
         <a href="/admin/logout" className="text-xs text-blue-light/60 hover:text-white transition-colors">

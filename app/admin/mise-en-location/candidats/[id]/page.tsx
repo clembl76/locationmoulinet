@@ -119,6 +119,9 @@ export default async function CandidateDetailPage({
                   value={`${fmtDate(detail.visitor_visit_date)}${detail.visitor_visit_time ? ` à ${fmtTime(detail.visitor_visit_time)}` : ''}`}
                 />
               )}
+              {detail.visitor_studies_at && (
+                <Row label="J'étudie à" value={detail.visitor_studies_at} />
+              )}
               {detail.visitor_desired_duration_months != null && (
                 <Row label="Durée souhaitée" value={fmtDuration(detail.visitor_desired_duration_months)} />
               )}

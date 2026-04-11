@@ -1,17 +1,20 @@
 'use client'
 
 import { useState, useTransition, useMemo } from 'react'
-import { createVisitorAction, type BookingResult } from '@/app/visiter/actions'
-import type { AvailableApartment } from '@/lib/adminData'
+import { createVisitorAction, getAvailableSlotsAction, type BookingResult } from '@/app/visiter/actions'
+import type { AvailableApartment, VisitAvailabilityRule } from '@/lib/adminData'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const TIME_SLOTS: string[] = []
-for (let h = 9; h <= 18; h++) {
-  for (let m = 0; m < 60; m += 15) {
-    if (h === 18 && m > 0) break
-    TIME_SLOTS.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
-  }
+type AvailabilityData = {
+  active: boolean
+  rules: VisitAvailabilityRule[]
+  exceptions: string[]           // "YYYY-MM-DD"
+  slotDurationMinutes: number
+  contactName: string | null
+  contactPhone: string | null
+  contactEmail: string | null
+  contactWebsite: string | null
 }
 
 const DURATION_OPTIONS = [
@@ -125,16 +128,25 @@ function RadioGroup<T extends string>({
   )
 }
 
+// Convertit un getDay() JS (0=Dim) en convention rule 0=Lun
+function jsDayToRule(jsDay: number) { return (jsDay + 6) % 7 }
+
 // ─── Calendar picker ──────────────────────────────────────────────────────────
 
 function CalendarPicker({
   selectedDate,
   selectedTime,
+  slots,
+  loadingSlots,
+  availability,
   onDateChange,
   onTimeChange,
 }: {
   selectedDate: string
   selectedTime: string
+  slots: string[]
+  loadingSlots: boolean
+  availability: AvailabilityData | null
   onDateChange: (d: string) => void
   onTimeChange: (t: string) => void
 }) {
@@ -143,6 +155,26 @@ function CalendarPicker({
   const [viewMonth, setViewMonth] = useState(now.getMonth())
 
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+
+  // Precompute availability lookup for quick calendar rendering
+  const availableDayOfWeeks = useMemo(() => {
+    if (!availability?.active) return new Set<number>()
+    const s = new Set<number>()
+    for (const r of availability.rules) s.add(r.day_of_week)
+    return s
+  }, [availability])
+
+  const exceptionSet = useMemo(
+    () => new Set(availability?.exceptions ?? []),
+    [availability]
+  )
+
+  function isDateAvailable(dateStr: string): boolean {
+    if (!availability?.active) return false
+    if (exceptionSet.has(dateStr)) return false
+    const d = new Date(dateStr + 'T12:00:00')
+    return availableDayOfWeeks.has(jsDayToRule(d.getDay()))
+  }
 
   // Build day cells
   const cells = useMemo(() => {
@@ -219,21 +251,23 @@ function CalendarPicker({
             if (!cell.own) {
               return <div key={i} className="h-9 flex items-center justify-center text-sm text-gray-300">{cell.day}</div>
             }
-            const isPast     = cell.dateStr < todayStr
-            const isSelected = cell.dateStr === selectedDate
-            const isToday    = cell.dateStr === todayStr
+            const isPast        = cell.dateStr < todayStr
+            const isUnavailable = !isPast && !isDateAvailable(cell.dateStr)
+            const isDisabled    = isPast || isUnavailable
+            const isSelected    = cell.dateStr === selectedDate
+            const isToday       = cell.dateStr === todayStr
 
             return (
               <button
                 key={i}
                 type="button"
-                disabled={isPast}
+                disabled={isDisabled}
                 onClick={() => { onDateChange(cell.dateStr); onTimeChange('') }}
                 className={`h-9 flex items-center justify-center text-sm rounded-lg transition-colors mx-0.5
-                  ${isPast     ? 'text-gray-300 cursor-not-allowed' :
-                    isSelected ? 'bg-gray-700 text-white font-semibold' :
-                    isToday    ? 'ring-1 ring-blue-primary text-blue-primary font-semibold hover:bg-blue-light' :
-                                 'text-gray-700 hover:bg-white hover:shadow-sm cursor-pointer'
+                  ${isDisabled  ? 'text-gray-300 cursor-not-allowed' :
+                    isSelected  ? 'bg-gray-700 text-white font-semibold' :
+                    isToday     ? 'ring-1 ring-blue-primary text-blue-primary font-semibold hover:bg-blue-light' :
+                                  'text-gray-700 hover:bg-white hover:shadow-sm cursor-pointer'
                   }`}
               >
                 {cell.day}
@@ -248,22 +282,30 @@ function CalendarPicker({
         {selectedDate ? (
           <>
             <p className="text-xs font-semibold text-gray-500 mb-2 capitalize">{fmtDate(selectedDate)}</p>
-            <div className="overflow-y-auto max-h-72 space-y-1 pr-1">
-              {TIME_SLOTS.map(t => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => onTimeChange(t)}
-                  className={`w-full text-sm py-2 rounded-lg border transition-colors ${
-                    selectedTime === t
-                      ? 'bg-blue-primary text-white border-blue-primary font-medium'
-                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+            {loadingSlots ? (
+              <p className="text-xs text-gray-400 mt-4 text-center">Chargement…</p>
+            ) : slots.length === 0 ? (
+              <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed">
+                Aucun créneau<br />disponible ce jour
+              </p>
+            ) : (
+              <div className="overflow-y-auto max-h-72 space-y-1 pr-1">
+                {slots.map(t => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => onTimeChange(t)}
+                    className={`w-full text-sm py-2 rounded-lg border transition-colors ${
+                      selectedTime === t
+                        ? 'bg-blue-primary text-white border-blue-primary font-medium'
+                        : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center">
@@ -334,7 +376,13 @@ function AptCard({
 
 // ─── Main component ────────────────────────────────────────────────────────────
 
-export default function VisitorForm({ apartments }: { apartments: AvailableApartment[] }) {
+export default function VisitorForm({
+  apartments,
+  availabilityData,
+}: {
+  apartments: AvailableApartment[]
+  availabilityData: AvailabilityData | null
+}) {
   const [pending, startTransition] = useTransition()
   const [result, setResult] = useState<BookingResult | null>(null)
 
@@ -347,12 +395,16 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
 
   const [date, setDate]             = useState('')
   const [time, setTime]             = useState('')
-  const [selectedApts, setSelectedApts] = useState<string[]>([])
+  const [slots, setSlots]           = useState<string[]>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
+  const [selectedApts, setSelectedApts]     = useState<string[]>([])
+  const [crossBuildingError, setCrossBuildingError] = useState('')
 
   const [duration, setDuration]     = useState<number | null>(null)
   const [comments, setComments]     = useState('')
 
   const [situation, setSituation]         = useState<'student' | 'other' | ''>('')
+  const [studiesAt, setStudiesAt]         = useState('')
   const [guarantorType, setGuarantorType] = useState<'none' | 'physical' | 'visale' | ''>('')
   const [income, setIncome]               = useState(0)
 
@@ -374,6 +426,7 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
     !pending &&
     apartments.length > 0 &&
     selectedApts.length > 0 &&
+    !crossBuildingError &&
     !!date && !!time &&
     situation !== '' &&
     guarantorType !== '' &&
@@ -398,10 +451,30 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
     )
   }
 
+  async function handleDateChange(d: string) {
+    setDate(d)
+    setTime('')
+    if (!d) { setSlots([]); return }
+    setLoadingSlots(true)
+    const result = await getAvailableSlotsAction(d)
+    setSlots(result)
+    setLoadingSlots(false)
+  }
+
   function toggleApt(id: string) {
-    setSelectedApts(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    )
+    const newSelected = selectedApts.includes(id)
+      ? selectedApts.filter(x => x !== id)
+      : [...selectedApts, id]
+
+    if (newSelected.length > 1) {
+      const buildings = new Set(newSelected.map(aId => apartments.find(a => a.id === aId)?.building_address))
+      if (buildings.size > 1) {
+        setCrossBuildingError('Vous ne pouvez sélectionner que des appartements du même immeuble.')
+        return
+      }
+    }
+    setCrossBuildingError('')
+    setSelectedApts(newSelected)
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -421,6 +494,7 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
         guarantor_type: guarantorType || null,
         situation: situation || null,
         total_income: income > 0 ? income : null,
+        studies_at: situation === 'student' && studiesAt.trim() ? studiesAt.trim() : null,
       })
       setResult(r)
       if (r.ok) window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -430,20 +504,62 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
   // ── Success ───────────────────────────────────────────────────────────────
 
   if (result?.ok) {
+    const buildingAddress = (() => {
+      if (selectedApts.length === 0) return ''
+      const apt = apartments.find(a => a.id === selectedApts[0])
+      return apt?.building_address ?? ''
+    })()
+    const contactLines = [
+      availabilityData?.contactName,
+      availabilityData?.contactPhone,
+      availabilityData?.contactEmail,
+      availabilityData?.contactWebsite,
+    ].filter(Boolean)
+
     return (
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center space-y-3">
-        <div className="text-4xl">✓</div>
-        <h2 className="text-xl font-bold text-green-800">Demande envoyée !</h2>
-        <p className="text-green-700 text-sm">
-          Merci {firstName}, votre demande de visite a bien été reçue.<br />
-          Nous vous contacterons rapidement pour confirmer le rendez-vous.
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl text-green-600">✓</span>
+          <h2 className="text-xl font-bold text-gray-900">Rendez-vous confirmé !</h2>
+        </div>
+
+        <p className="text-sm text-gray-700">
+          Merci {firstName}, vous avez rendez-vous pour une visite d&apos;appartement(s) le{' '}
+          <span className="font-medium">{fmtShortDate(date)}</span> à{' '}
+          <span className="font-medium">{time}</span>
+          {buildingAddress && <> au <span className="font-medium">{buildingAddress}</span></>}.
         </p>
+
+        {contactLines.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-gray-900">Votre contact :</p>
+            {contactLines.map((line, i) => (
+              <p key={i} className="text-sm text-gray-700">{line}</p>
+            ))}
+          </div>
+        )}
+
+        <div className="space-y-1">
+          <p className="text-sm text-gray-700">Appelez lorsque vous êtes arrivé(e) devant l&apos;immeuble.</p>
+          <p className="text-sm text-gray-700">Par respect pour la personne qui vous accueillera, merci de prévenir de toute modification.</p>
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-gray-900">Informations utiles :</p>
+          <p className="text-sm text-gray-700">
+            Il n&apos;est pas nécessaire d&apos;apporter votre dossier locatif le jour de la visite. Vous pourrez ultérieurement déposer toutes vos pièces justificatives en ligne.
+          </p>
+          <p className="text-sm text-gray-700">
+            Conditions indispensables : être étudiant, gagner 3 fois le loyer ou avoir un garant qui gagne 3 fois le loyer.
+          </p>
+        </div>
+
         <button
           onClick={() => {
             setResult(null); setSelectedApts([]); setDate(''); setTime('')
-            setIncome(0); setSituation(''); setGuarantorType('')
+            setSlots([]); setIncome(0); setSituation(''); setGuarantorType('')
           }}
-          className="mt-4 text-sm text-green-600 underline hover:text-green-800"
+          className="text-sm text-blue-primary underline hover:text-blue-dark"
         >
           Faire une nouvelle demande
         </button>
@@ -556,6 +672,12 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
             )}
           </div>
         )}
+        {crossBuildingError && (
+          <div className="flex gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700 mt-3">
+            <span className="shrink-0">⚠</span>
+            <span>{crossBuildingError}</span>
+          </div>
+        )}
       </section>
 
       {/* Date et heure — vue calendrier */}
@@ -563,13 +685,22 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
         <h2 className="text-base font-semibold text-gray-900 pb-2 border-b border-gray-100">
           Date et heure souhaitées <span className="text-red-400">*</span>
         </h2>
-        <CalendarPicker
-          selectedDate={date}
-          selectedTime={time}
-          onDateChange={setDate}
-          onTimeChange={setTime}
-        />
-        {date && !time && (
+        {availabilityData && !availabilityData.active ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
+            Les visites ne sont pas disponibles pour le moment. Revenez plus tard.
+          </div>
+        ) : (
+          <CalendarPicker
+            selectedDate={date}
+            selectedTime={time}
+            slots={slots}
+            loadingSlots={loadingSlots}
+            availability={availabilityData}
+            onDateChange={handleDateChange}
+            onTimeChange={setTime}
+          />
+        )}
+        {date && !loadingSlots && !time && slots.length > 0 && (
           <p className="text-xs text-amber-600">Veuillez sélectionner un créneau horaire.</p>
         )}
         {date && time && (
@@ -602,6 +733,16 @@ export default function VisitorForm({ apartments }: { apartments: AvailableApart
               pas en mesure d&apos;étudier votre dossier, mais nous vous remercions de
               l&apos;intérêt que vous portez à nos appartements.
             </WarningBox>
+          )}
+          {situation === 'student' && (
+            <div className="mt-3">
+              <Label>J&apos;étudie à</Label>
+              <Input
+                value={studiesAt}
+                onChange={e => setStudiesAt(e.target.value)}
+                placeholder="Ex : Université de Rouen, INSA…"
+              />
+            </div>
           )}
         </div>
 
