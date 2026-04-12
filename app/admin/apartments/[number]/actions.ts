@@ -115,6 +115,64 @@ export async function createEdlReportAction(
   redirect(`/admin/apartments/${aptNumber}/edl/${report.id}`)
 }
 
+export async function updateInsuranceAttestationAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ insurance_attestation: value })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateDocusignUrlsAction(
+  leaseId: string,
+  aptNumber: string,
+  leaseUrl: string | null,
+  edlUrl: string | null
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ docusign_lease_url: leaseUrl || null, docusign_edl_url: edlUrl || null })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateDepositPaidAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ deposit_paid: value })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 export async function generateAttestationAction(
   leaseId: string,
   aptNumber: string

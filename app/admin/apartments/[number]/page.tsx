@@ -2,8 +2,10 @@ import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, che
 import { getDriveTenantFolderUrl, getDriveEdlEntryUrl } from '@/lib/quittance'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
-import QuittanceCautionButton from '@/components/admin/QuittanceCautionButton'
+import DepositPaidCheckbox from '@/components/admin/DepositPaidCheckbox'
 import AttestationLocationButton from '@/components/admin/AttestationLocationButton'
+import InsuranceCheckbox from '@/components/admin/InsuranceCheckbox'
+import DocusignUrls from '@/components/admin/DocusignUrls'
 import PreavisButton from '@/components/admin/PreavisButton'
 import EdlButton from '@/components/admin/EdlButton'
 
@@ -38,7 +40,7 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [transactions, rentRecord, hasCautionTransaction, edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
+  const [transactions, rentRecord, , edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
     getApartmentTransactions(number, apt?.tenant_last_name ?? null, 24),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
@@ -130,18 +132,33 @@ export default async function AdminApartmentDetailPage({
             </div>
           )}
 
-          {/* Bail Google Drive */}
-          {driveLeaseUrl && (
+          {/* Bail */}
+          {isOccupied && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Bail</h2>
-              <a
-                href={driveLeaseUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
-              >
-                Ouvrir le bail sur Google Drive →
-              </a>
+              <div className="space-y-2 mb-4">
+                {driveLeaseUrl && (
+                  <a
+                    href={driveLeaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                  >
+                    Ouvrir le bail sur Google Drive →
+                  </a>
+                )}
+              </div>
+              <DocusignUrls
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                initialLeaseUrl={apt.lease_docusign_lease_url}
+                initialEdlUrl={apt.lease_docusign_edl_url}
+              />
+              <InsuranceCheckbox
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                initialValue={apt.lease_insurance_attestation}
+              />
             </div>
           )}
 
@@ -292,7 +309,17 @@ export default async function AdminApartmentDetailPage({
                   rel="noopener noreferrer"
                   className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
                 >
-                  PDF d&apos;entrée sur Google Drive →
+                  Ouvrir l&apos;EDL d&apos;entrée sur Google Drive →
+                </a>
+              )}
+              {apt.lease_docusign_edl_url && (
+                <a
+                  href={apt.lease_docusign_edl_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                >
+                  EDL Entrée sur Docusign →
                 </a>
               )}
             </div>
@@ -302,10 +329,11 @@ export default async function AdminApartmentDetailPage({
           {isOccupied && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Documents</p>
-              <QuittanceCautionButton
+              <DepositPaidCheckbox
                 leaseId={apt.lease_id!}
                 aptNumber={apt.number}
-                hasCautionTransaction={hasCautionTransaction}
+                depositAmount={apt.lease_deposit}
+                initialPaid={apt.lease_deposit_paid}
               />
               <AttestationLocationButton
                 leaseId={apt.lease_id!}

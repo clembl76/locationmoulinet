@@ -2,6 +2,41 @@
 
 ## [Non publié]
 
+### 2026-04-12 — PDF bail : description appartement depuis apartments.description (spec SPEC.md)
+- `{{description_appartement}}` remplacé par `apartments.description` au lieu du champ calculé type/surface/étage
+- Fichiers : `lib/quittance.ts`
+
+### 2026-04-12 — PDF bail : déplacement vers dossier candidat au clic "Choisir" (spec SPEC.md)
+- PDF généré au clic "Choisir" (`accepted`) via `updateApplicationStatusAction` au lieu de `signLeaseAction`
+- Données candidat/garant/appartement récupérées depuis la DB dans `updateApplicationStatusAction`
+- PDF enregistré dans `/candidats/[aptNum]-[NOM]/` (via `GDRIVE_CANDIDATES_FOLDER_ID`) au lieu de `/locataires/`
+- Fichiers : `lib/quittance.ts`, `app/admin/mise-en-location/candidats/[id]/actions.ts`
+
+### 2026-04-12 — Génération PDF bail depuis template Google Docs (spec SPEC.md)
+- `generateBailAndUploadToDrive()` dans `lib/quittance.ts` : copie le template Docs, remplace les champs `{{FIELD}}`, exporte en PDF, upload dans le dossier Drive du locataire
+- 2 templates : sans garant (`GDOCS_BAIL_SANS_GARANT_ID`) et avec garant (`GDOCS_BAIL_AVEC_GARANT_ID`)
+- Déclenché au clic "Bail signé" en step 11 de `signLeaseAction` (non-bloquant)
+- Fichier nommé : `{signing_date}_Bail_{aptNum}-{NOM}.pdf`
+- Garant : ajout de `title`, `birthDate`, `birthPlace`, `address` dans les opts de `signLeaseAction` et le type de `CandidateActions`
+- Scope Google requis : `https://www.googleapis.com/auth/documents` (pour batchUpdate Docs API)
+- Fichiers : `lib/quittance.ts`, `app/admin/mise-en-location/candidats/[id]/actions.ts`, `CandidateActions.tsx`, `page.tsx`
+
+### 2026-04-12 — Corrections insurance_attestation, URLs Docusign, déplacement checkbox (spec SPEC.md)
+- `insurance_attestation` déplacé de `tenants` vers `leases` (migration `add_insurance_attestation_to_leases.sql`)
+- `InsuranceCheckbox` : prop `tenantId` → `leaseId`, action cible `leases`
+- DocuSign URLs : normaliseur (UUID → URL complète, ajout `https://` si manquant), placeholder correct `apps.docusign.com/send/documents/details/…`
+- Case attestation déplacée du bloc Locataire vers le bloc Bail (sous les liens Docusign)
+- Fichiers : `scripts/add_insurance_attestation_to_leases.sql`, `lib/adminData.ts`, `actions.ts`, `InsuranceCheckbox.tsx`, `DocusignUrls.tsx`, `page.tsx`
+
+### 2026-04-12 — Attestation assurance, caution payée, DocuSign, renommage lien EDL (spec SPEC.md)
+- Locataire : case "Attestation d'assurance fournie" cochable en temps réel (colonne `tenants.insurance_attestation`)
+- Documents : remplace bouton "Quittance de caution" par case "Caution payée ?" avec montant caution ; cochage propose de générer la quittance (colonne `leases.deposit_paid`)
+- Bail : lien DocuSign "Bail signé sur Docusign" si envelope trouvée
+- EDL : lien DocuSign "EDL Entrée sur Docusign" si envelope trouvée ; renommage "PDF d'entrée → Ouvrir l'EDL d'entrée sur Google Drive"
+- DocuSign : stockage manuel des URLs (colonnes `leases.docusign_lease_url` / `docusign_edl_url`) — composant `DocusignUrls` avec 2 champs éditables dans le bloc Bail
+- Migrations SQL : `scripts/add_insurance_deposit_paid.sql` + `scripts/add_docusign_urls.sql`
+- Fichiers : `lib/adminData.ts`, `lib/docusign.ts`, `app/admin/apartments/[number]/page.tsx`, `app/admin/apartments/[number]/actions.ts`, `components/admin/InsuranceCheckbox.tsx`, `components/admin/DepositPaidCheckbox.tsx`
+
 ### 2026-04-11 — Page confirmation visite enrichie + description agenda (spec SPEC.md)
 - Page confirmation `/visiter` : affiche date, heure, adresse, contact complet, instructions et conditions
 - Description événement Google Agenda : "Visite programmée appartement(s) : ..." (suppression de "de l'(des)")

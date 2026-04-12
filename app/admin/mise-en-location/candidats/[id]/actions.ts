@@ -1,7 +1,8 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { moveCandidateFolderToTenants } from '@/lib/quittance'
+import { runSqlAdmin } from '@/lib/adminData'
+import { moveCandidateFolderToTenants, generateBailAndUploadToDrive } from '@/lib/quittance'
 import { revalidatePath } from 'next/cache'
 
 // ── Mettre à jour le statut candidat (+ visiteur si lié) ─────────────────────
@@ -25,6 +26,88 @@ export async function updateApplicationStatusAction(
     if (visitorId && (candidateStatus === 'accepted' || candidateStatus === 'rejected')) {
       const visitorStatus = candidateStatus === 'accepted' ? 'confirmed' : 'cancelled'
       await admin.from('visitors').update({ status: visitorStatus }).eq('id', visitorId)
+    }
+
+    // Génération du PDF bail au moment où le candidat est retenu (best-effort)
+    if (candidateStatus === 'accepted') {
+      type BailRow = {
+        candidate_id: string
+        title: string | null
+        first_name: string
+        last_name: string
+        email: string | null
+        phone: string | null
+        birth_date: string | null
+        birth_place: string | null
+        address: string | null
+        family_status: string | null
+        desired_signing_date: string | null
+        apartment_number: string
+        rent_including_charges: number | null
+        rent_excluding_charges: number | null
+        charges: number | null
+        g_title: string | null
+        g_first_name: string | null
+        g_last_name: string | null
+        g_email: string | null
+        g_phone: string | null
+        g_birth_date: string | null
+        g_birth_place: string | null
+        g_address: string | null
+      }
+      const rows = await runSqlAdmin<BailRow>(`
+        SELECT
+          c.id AS candidate_id,
+          c.title, c.first_name, c.last_name, c.email, c.phone,
+          c.birth_date::date::text, c.birth_place, c.address, c.family_status,
+          ca.desired_signing_date::date::text,
+          a.number AS apartment_number,
+          a.rent_including_charges, a.rent_excluding_charges, a.charges,
+          cg.title AS g_title, cg.first_name AS g_first_name, cg.last_name AS g_last_name,
+          cg.email AS g_email, cg.phone AS g_phone,
+          cg.birth_date::text AS g_birth_date, cg.birth_place AS g_birth_place, cg.address AS g_address
+        FROM candidates c
+        JOIN candidate_applications ca ON ca.candidate_id = c.id
+        JOIN apartments a ON a.id = ca.apartment_id
+        LEFT JOIN candidate_guarantors cg ON cg.candidate_id = c.id
+        WHERE ca.id = '${applicationId}'
+        LIMIT 1
+      `)
+      const row = rows[0]
+      if (row) {
+        const signingDate = row.desired_signing_date ?? new Date().toISOString().slice(0, 10)
+        const endDateObj = new Date(signingDate + 'T12:00:00')
+        endDateObj.setFullYear(endDateObj.getFullYear() + 1)
+        endDateObj.setDate(endDateObj.getDate() - 1)
+        const endDate = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`
+        const rentCC = row.rent_including_charges ?? 0
+        generateBailAndUploadToDrive({
+          aptNumber: row.apartment_number,
+          signingDate,
+          endDate,
+          rentCC,
+          rentHC: row.rent_excluding_charges,
+          charges: row.charges,
+          deposit: rentCC,
+          tenantTitle: row.title,
+          tenantFirstName: row.first_name,
+          tenantLastName: row.last_name,
+          tenantEmail: row.email,
+          tenantPhone: row.phone,
+          tenantBirthDate: row.birth_date,
+          tenantBirthPlace: row.birth_place,
+          tenantAddress: row.address,
+          tenantFamilyStatus: row.family_status,
+          guarantorTitle: row.g_title,
+          guarantorFirstName: row.g_first_name,
+          guarantorLastName: row.g_last_name,
+          guarantorEmail: row.g_email,
+          guarantorPhone: row.g_phone,
+          guarantorBirthDate: row.g_birth_date,
+          guarantorBirthPlace: row.g_birth_place,
+          guarantorAddress: row.g_address,
+        }).catch(() => { /* non-bloquant */ })
+      }
     }
 
     revalidatePath(`/admin/mise-en-location/candidats/${applicationId}`)
@@ -58,10 +141,14 @@ export async function signLeaseAction(opts: {
   candidateAddress: string | null
   candidateFamilyStatus: string | null
   // Garant
+  guarantorTitle: string | null
   guarantorFirstName: string | null
   guarantorLastName: string | null
   guarantorEmail: string | null
   guarantorPhone: string | null
+  guarantorBirthDate: string | null
+  guarantorBirthPlace: string | null
+  guarantorAddress: string | null
 }): Promise<SignLeaseResult> {
   try {
     const admin = createAdminClient()

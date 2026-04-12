@@ -882,6 +882,254 @@ export async function moveCandidateFolderToTenants(opts: {
   })
 }
 
+// ─── Génération PDF bail depuis template Google Docs ─────────────────────────
+//
+// Placeholders dans les templates (format {{champ}}) lus depuis Google Docs :
+//   {{type_contrat}} {{residence}} {{num_appt}} {{etage}} {{start_date}} {{end_date}} {{duree_bail}}
+//   {{civilite}} {{nom}} {{prenom}} {{etat_civil}} {{date_naissance}} {{lieu_naissance}}
+//   {{adresse}} {{telephone}} {{email}} {{surface}} {{description_appartement}}
+//   {{loyerhcchiffres}} {{loyerhclettres}} {{chargeschiffres}} {{chargeslettres}}
+//   {{cautionchiffres}} {{cautionlettres}} {{irl_date}} {{irl_value}}
+//   (avec garant) : {{civilite_garant}} {{nom_garant}} {{prenom_garant}} {{adresse_garant}}
+//                   {{loyerccchiffres}} {{loyercclettres}}
+//
+// IRL : récupéré automatiquement depuis l'API INSEE (fallback : BAIL_IRL_DATE / BAIL_IRL_VALUE dans .env.local)
+// IDs templates (surchargeables via GDOCS_BAIL_SANS_GARANT_ID / GDOCS_BAIL_AVEC_GARANT_ID) :
+const BAIL_TEMPLATE_SANS_GARANT = process.env.GDOCS_BAIL_SANS_GARANT_ID ?? '1AAXh1epC9e1sK1AGjGFmeCfL2FVVP2RiFba76RK4bOw'
+const BAIL_TEMPLATE_AVEC_GARANT = process.env.GDOCS_BAIL_AVEC_GARANT_ID ?? '1B4s9FYNebcF2R9Tzr7xbh-mgK4p8l-DetMVSZ9GVFWU'
+
+function fmtFrDate(iso: string | null): string {
+  if (!iso) return ''
+  return new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  })
+}
+
+// Conversion nombre entier → lettres françaises (pour les montants de loyer)
+function nombreEnLettres(n: number): string {
+  if (n === 0) return 'zéro'
+  const U = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+    'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize',
+    'dix-sept', 'dix-huit', 'dix-neuf']
+  function belowHundred(x: number): string {
+    if (x < 20) return U[x]
+    const d = Math.floor(x / 10), u = x % 10
+    if (d === 7) return 'soixante-' + U[10 + u]
+    if (d === 8) return u === 0 ? 'quatre-vingts' : 'quatre-vingt-' + U[u]
+    if (d === 9) return 'quatre-vingt-' + U[10 + u]
+    const t = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante'][d]
+    return u === 0 ? t : t + (u === 1 ? ' et un' : '-' + U[u])
+  }
+  let res = '', rem = n
+  if (rem >= 1000) {
+    const k = Math.floor(rem / 1000)
+    res += k === 1 ? 'mille ' : nombreEnLettres(k) + ' mille '
+    rem %= 1000
+  }
+  if (rem >= 100) {
+    const c = Math.floor(rem / 100), r = rem % 100
+    res += c === 1 ? 'cent' : U[c] + ' cent'
+    res += r === 0 && c > 1 ? 's ' : r > 0 ? ' ' : ' '
+    rem = r
+  }
+  if (rem > 0) res += belowHundred(rem)
+  return res.trim()
+}
+
+// Récupère le dernier IRL depuis l'API SDMX INSEE (pas d'auth requise)
+async function fetchIrlFromInsee(): Promise<{ date: string; value: string }> {
+  const res = await fetch(
+    'https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/001515333?lastNObservations=1',
+    { next: { revalidate: 86400 } } as RequestInit  // cache 24 h côté Next.js
+  )
+  if (!res.ok) throw new Error(`INSEE API ${res.status}`)
+  const xml = await res.text()
+
+  const periodMatch = xml.match(/ObsDimension[^>]+value="(\d{4})-Q(\d)"/)
+  const valueMatch  = xml.match(/ObsValue[^>]+value="([\d.]+)"/)
+  if (!periodMatch || !valueMatch) throw new Error('Format INSEE inattendu')
+
+  const year    = periodMatch[1]
+  const quarter = parseInt(periodMatch[2])
+  const labels  = ['', '1er', '2e', '3e', '4e']
+  return {
+    date:  `${labels[quarter]} trimestre ${year}`,
+    value: valueMatch[1].replace('.', ','),
+  }
+}
+
+function montantEnLettres(montant: number): string {
+  const entier = Math.floor(montant)
+  const cents = Math.round((montant - entier) * 100)
+  let res = nombreEnLettres(entier) + (entier > 1 ? ' euros' : ' euro')
+  if (cents > 0) res += ' et ' + nombreEnLettres(cents) + (cents > 1 ? ' centimes' : ' centime')
+  return res
+}
+
+export async function generateBailAndUploadToDrive(opts: {
+  aptNumber: string
+  signingDate: string    // YYYY-MM-DD
+  endDate: string        // YYYY-MM-DD
+  rentCC: number
+  rentHC: number | null
+  charges: number | null
+  deposit: number
+  tenantTitle: string | null
+  tenantFirstName: string
+  tenantLastName: string
+  tenantEmail: string | null
+  tenantPhone: string | null
+  tenantBirthDate: string | null
+  tenantBirthPlace: string | null
+  tenantAddress: string | null
+  tenantFamilyStatus: string | null
+  guarantorTitle: string | null
+  guarantorFirstName: string | null
+  guarantorLastName: string | null
+  guarantorEmail: string | null
+  guarantorPhone: string | null
+  guarantorBirthDate: string | null
+  guarantorBirthPlace: string | null
+  guarantorAddress: string | null
+}): Promise<void> {
+  const candidatesRootId = process.env.GDRIVE_CANDIDATES_FOLDER_ID
+  if (!candidatesRootId) return
+
+  const hasGuarantor = !!opts.guarantorLastName
+  const templateId = hasGuarantor ? BAIL_TEMPLATE_AVEC_GARANT : BAIL_TEMPLATE_SANS_GARANT
+
+  // 1. Données appartement + bailleur
+  type AptRow = {
+    apt_type: string | null
+    surface_area: number | null
+    floor_label: string | null
+    building_address: string
+    description: string | null
+  }
+  const aptRows = await runSqlAdmin<AptRow>(`
+    SELECT a.type AS apt_type, a.surface_area, a.floor_label, b.address AS building_address,
+           a.description
+    FROM apartments a
+    JOIN buildings b ON b.id = a.building_id
+    WHERE a.number = '${opts.aptNumber}'
+    LIMIT 1
+  `)
+  const apt = aptRows[0]
+  if (!apt) throw new Error(`Appartement ${opts.aptNumber} introuvable pour la génération du bail`)
+
+  // 2. Champs calculés
+  const r = (v: string | null | undefined) => v ?? ''
+  const rentHC    = opts.rentHC    ?? 0
+  const charges   = opts.charges   ?? 0
+  const deposit   = opts.deposit   ?? 0
+
+  const replacements: Record<string, string> = {
+    // Bail
+    type_contrat:              'Classique',
+    residence:                 'Principale',
+    num_appt:                  opts.aptNumber,
+    etage:                     r(apt.floor_label),
+    start_date:                fmtFrDate(opts.signingDate),
+    end_date:                  fmtFrDate(opts.endDate),
+    duree_bail:                '1 an',
+    // Locataire
+    civilite:                  r(opts.tenantTitle),
+    nom:                       opts.tenantLastName.toUpperCase(),
+    prenom:                    opts.tenantFirstName,
+    etat_civil:                r(opts.tenantFamilyStatus),
+    date_naissance:            fmtFrDate(opts.tenantBirthDate),
+    lieu_naissance:            r(opts.tenantBirthPlace),
+    adresse:                   r(opts.tenantAddress),
+    telephone:                 r(opts.tenantPhone),
+    email:                     r(opts.tenantEmail),
+    // Appartement
+    surface:                   apt.surface_area != null ? String(apt.surface_area) : '',
+    description_appartement:   r(apt.description),
+    // Montants (chiffres)
+    loyerhcchiffres:           String(rentHC),
+    chargeschiffres:           String(charges),
+    cautionchiffres:           String(deposit),
+    loyerccchiffres:           String(opts.rentCC),
+    // Montants (lettres)
+    loyerhclettres:            montantEnLettres(rentHC),
+    chargeslettres:            montantEnLettres(charges),
+    cautionlettres:            montantEnLettres(deposit),
+    loyercclettres:            montantEnLettres(opts.rentCC),
+    // IRL — valeurs remplies après appel INSEE ci-dessous
+    irl_date:                  '',
+    irl_value:                 '',
+    // Garant
+    civilite_garant:           r(opts.guarantorTitle),
+    nom_garant:                opts.guarantorLastName ? opts.guarantorLastName.toUpperCase() : '',
+    prenom_garant:             r(opts.guarantorFirstName),
+    adresse_garant:            r(opts.guarantorAddress),
+  }
+
+  // 2b. IRL depuis INSEE (fallback : variables d'env)
+  try {
+    const irl = await fetchIrlFromInsee()
+    replacements.irl_date  = irl.date
+    replacements.irl_value = irl.value
+  } catch {
+    replacements.irl_date  = process.env.BAIL_IRL_DATE  ?? ''
+    replacements.irl_value = process.env.BAIL_IRL_VALUE ?? ''
+  }
+
+  const auth = makeGoogleAuth()
+  const drive = google.drive({ version: 'v3', auth })
+  const docs  = google.docs({ version: 'v1', auth })
+
+  // 3. Copie temporaire du template
+  const copyRes = await drive.files.copy({
+    fileId: templateId,
+    requestBody: { name: `_tmp_bail_${Date.now()}` },
+    fields: 'id',
+  })
+  const tempId = copyRes.data.id!
+
+  try {
+    // 4. Remplacement des champs {{champ}} via Docs API
+    await docs.documents.batchUpdate({
+      documentId: tempId,
+      requestBody: {
+        requests: Object.entries(replacements).map(([key, value]) => ({
+          replaceAllText: {
+            containsText: { text: `{{${key}}}`, matchCase: true },
+            replaceText: value,
+          },
+        })),
+      },
+    })
+
+    // 5. Export PDF via Drive API
+    const pdfRes = await drive.files.export(
+      { fileId: tempId, mimeType: 'application/pdf' },
+      { responseType: 'arraybuffer' }
+    )
+    const pdfBuffer = Buffer.from(pdfRes.data as ArrayBuffer)
+
+    // 6. Trouver le dossier candidat dans /candidats
+    const folderName = `${opts.aptNumber}-${opts.tenantLastName.toUpperCase()}`
+    const folderRes = await drive.files.list({
+      q: `'${candidatesRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`,
+      fields: 'files(id)',
+      pageSize: 1,
+    })
+    const folderId = folderRes.data.files?.[0]?.id ?? candidatesRootId
+
+    // 7. Upload du PDF dans le dossier candidat
+    const filename = `${opts.signingDate}_Bail_${opts.aptNumber}-${opts.tenantLastName.toUpperCase()}.pdf`
+    await drive.files.create({
+      requestBody: { name: filename, parents: [folderId] },
+      media: { mimeType: 'application/pdf', body: Readable.from(pdfBuffer) },
+      fields: 'id',
+    })
+  } finally {
+    // 8. Suppression de la copie temporaire (best-effort)
+    await drive.files.delete({ fileId: tempId }).catch(() => {})
+  }
+}
+
 // ─── Gmail draft ──────────────────────────────────────────────────────────────
 
 export async function createGmailDraft(

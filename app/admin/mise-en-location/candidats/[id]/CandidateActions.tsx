@@ -31,10 +31,14 @@ export default function CandidateActions({
     familyStatus: string | null
   }
   guarantor: {
+    title: string | null
     firstName: string | null
     lastName: string | null
     email: string | null
     phone: string | null
+    birthDate: string | null
+    birthPlace: string | null
+    address: string | null
   } | null
 }) {
   const [incomeChecked, setIncomeChecked] = useState(false)
@@ -68,10 +72,14 @@ export default function CandidateActions({
         candidateBirthPlace: candidate.birthPlace,
         candidateAddress: candidate.address,
         candidateFamilyStatus: candidate.familyStatus,
+        guarantorTitle: guarantor?.title ?? null,
         guarantorFirstName: guarantor?.firstName ?? null,
         guarantorLastName: guarantor?.lastName ?? null,
         guarantorEmail: guarantor?.email ?? null,
         guarantorPhone: guarantor?.phone ?? null,
+        guarantorBirthDate: guarantor?.birthDate ?? null,
+        guarantorBirthPlace: guarantor?.birthPlace ?? null,
+        guarantorAddress: guarantor?.address ?? null,
       })
       if (result.ok) {
         setSignDone(true)

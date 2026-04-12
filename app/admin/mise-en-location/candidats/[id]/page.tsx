@@ -198,10 +198,14 @@ export default async function CandidateDetailPage({
                 familyStatus: detail.family_status,
               }}
               guarantor={guarantor ? {
+                title: guarantor.title,
                 firstName: guarantor.first_name,
                 lastName: guarantor.last_name,
                 email: guarantor.email,
                 phone: guarantor.phone,
+                birthDate: guarantor.birth_date,
+                birthPlace: guarantor.birth_place,
+                address: guarantor.address,
               } : null}
             />
           </section>

@@ -7,7 +7,14 @@
       "WebFetch(domain:help.tidycal.com)",
       "Read(//c/Users/cleme\" 2>/dev/**)",
       "Bash(grep -E \"\\\\.py$|\\\\.json$|\\\\.env|\\\\.md|\\\\.js$\")",
-      "Bash(ls -lh /c/Users/cleme/gestion-locative/*.py)"
+      "Bash(ls -lh /c/Users/cleme/gestion-locative/*.py)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r \"GDRIVE\\\\|GOOGLE\" /c/Users/cleme/locationmoulinet/.env*)",
+      "Bash(grep -n \"SCOPES\\\\|scope\" /c/Users/cleme/locationmoulinet/lib/*.ts)",
+      "Bash(grep -rn \"from leases\\\\|FROM leases\" /c/Users/cleme/locationmoulinet/lib/*.ts)",
+      "Bash(node scripts/read_bail_templates.mjs)",
+      "WebFetch(domain:www.insee.fr)",
+      "WebFetch(domain:api.insee.fr)"
     ],
     "additionalDirectories": [
       "c:\\Users\\cleme\\locationmoulinet",

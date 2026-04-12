@@ -265,6 +265,12 @@ export type AdminApartmentDetail = AdminApartment & {
   signing_date: string | null
   tenant_id: string | null
   tenant_title: string | null
+  lease_insurance_attestation: boolean
+  lease_id_for_deposit: string | null
+  lease_deposit: number | null
+  lease_deposit_paid: boolean
+  lease_docusign_lease_url: string | null
+  lease_docusign_edl_url: string | null
 }
 
 export async function getAdminApartmentDetail(number: string): Promise<AdminApartmentDetail | null> {
@@ -293,7 +299,13 @@ export async function getAdminApartmentDetail(number: string): Promise<AdminApar
       t.first_name AS tenant_first_name,
       t.phone AS tenant_phone,
       t.email AS tenant_email,
+      COALESCE(l.insurance_attestation, FALSE) AS lease_insurance_attestation,
       l.id AS lease_id,
+      l.id AS lease_id_for_deposit,
+      l.deposit AS lease_deposit,
+      COALESCE(l.deposit_paid, FALSE) AS lease_deposit_paid,
+      l.docusign_lease_url AS lease_docusign_lease_url,
+      l.docusign_edl_url AS lease_docusign_edl_url,
       l.signing_date,
       l.move_in_inspection_date AS move_in_date,
       l.move_out_inspection_date AS move_out_date,
