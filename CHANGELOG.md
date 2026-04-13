@@ -2,6 +2,26 @@
 
 ## [Non publié]
 
+### 2026-04-13 — Linxo : ajout source Vieux Palais (spec SPEC.md)
+- Détection du fichier `vieux palais.csv` (variantes : vieuxpalais, vieux-palais, vieux_palais)
+- Badge amber dans la table, option dans le filtre Source
+- Fichiers : `lib/linxoImport.ts`, `components/admin/LinxoTable.tsx`
+
+### 2026-04-13 — Linxo : filtres, tri et colonnes (spec SPEC.md)
+- Colonnes affichées : Date, Montant, Libellé, Note, Catégorie, Source (Compte supprimé)
+- Tri sur toutes les colonnes (clic sur l'en-tête)
+- Recherche texte sur Libellé et Note
+- Filtres déroulants Catégorie (dynamique) et Source
+- Fichiers : `components/admin/LinxoTable.tsx`
+
+### 2026-04-13 — Paiements : pagination + import Linxo (spec SPEC.md)
+- Pagination 10 éléments/page sur la table Paiements (contrôles précédent/suivant + numéros de pages)
+- Table `transactions_linxo` : colonnes Date, Libellé, Catégorie, Montant, Notes, N° de chèque, Labels, Nom du compte, Nom de la connexion, source, fingerprint, imported_at
+- Import depuis Google Drive (dossier 1PRij2TBgU1I8e7jI5ubnS5Cd-T5-cJmQ) : lit les CSV moulinet/bonsenfants/perso, parse le format Linxo (date DD/MM/YYYY, montant français), déduplique par fingerprint SHA-256
+- Bouton "Importer depuis Drive" avec filtre par source + pagination propre
+- Migration SQL : `supabase/migrations/20260413_transactions_linxo.sql`
+- Fichiers : `lib/linxoImport.ts`, `app/api/admin/import-linxo/route.ts`, `app/api/admin/linxo-transactions/route.ts`, `components/admin/PaymentsClient.tsx`, `components/admin/LinxoTable.tsx`, `app/admin/payments/page.tsx`
+
 ### 2026-04-13 — Tableau de bord : déplacement "Occupation" vers Mois en cours (spec SPEC.md)
 - Section "Occupation" (stat cards Total/Loués/Disponibles/Départ prévu) déplacée de `/admin` vers `/admin/mois`
 - Fichiers : `app/admin/page.tsx`, `app/admin/mois/page.tsx`

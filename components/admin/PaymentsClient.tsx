@@ -17,6 +17,9 @@ export default function PaymentsClient({ transactions }: { transactions: AllTran
   const [filterDir, setFilterDir] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('date')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [page, setPage] = useState(1)
+
+  const PAGE_SIZE = 10
 
   const allSuppliers = useMemo(() => {
     const s = new Set<string>()
@@ -58,6 +61,11 @@ export default function PaymentsClient({ transactions }: { transactions: AllTran
 
     return rows
   }, [transactions, search, filterSupplier, filterType, filterApt, filterDir, sortKey, sortDir])
+
+  // Reset page when filters change
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -130,7 +138,7 @@ export default function PaymentsClient({ transactions }: { transactions: AllTran
         </select>
         {(search || filterSupplier || filterType || filterApt || filterDir) && (
           <button
-            onClick={() => { setSearch(''); setFilterSupplier(''); setFilterType(''); setFilterApt(''); setFilterDir('') }}
+            onClick={() => { setSearch(''); setFilterSupplier(''); setFilterType(''); setFilterApt(''); setFilterDir(''); setPage(1) }}
             className="text-sm text-gray-400 hover:text-gray-700 px-2"
           >
             Réinitialiser
@@ -159,7 +167,7 @@ export default function PaymentsClient({ transactions }: { transactions: AllTran
                 </td>
               </tr>
             ) : (
-              filtered.map((tx, i) => {
+              paginated.map((tx, i) => {
                 const clickable = tx.apartment_num && tx.has_active_tenant
                 return (
                   <tr
@@ -195,6 +203,55 @@ export default function PaymentsClient({ transactions }: { transactions: AllTran
           )}
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-gray-400">
+            Page {safePage} / {totalPages} — {filtered.length} transaction{filtered.length > 1 ? 's' : ''}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={safePage === 1}
+              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Précédent
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 2)
+              .reduce<(number | '...')[]>((acc, p, idx, arr) => {
+                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...')
+                acc.push(p)
+                return acc
+              }, [])
+              .map((p, i) =>
+                p === '...' ? (
+                  <span key={`ellipsis-${i}`} className="px-2 text-xs text-gray-400">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                      p === safePage
+                        ? 'border-blue-primary bg-blue-primary text-white'
+                        : 'border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage === totalPages}
+              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

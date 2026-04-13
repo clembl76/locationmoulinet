@@ -13,7 +13,6 @@
 ## Partout
 
 ## Page Tableau de bord /admin
-- déplace la ligne complète "Occupation" depuis 'Tableau de bord annuel' vers 'Mois en cours'
 
 ## Page Mois en cours /admin/mois
 
@@ -24,6 +23,10 @@
 ## Page EDL /admin/apartments/num/edl/id-edl
 
 ## Page Paiements /admin/payments
+- table transactions-linxo : 
+j'ajoute une 4e source Vieux Palais et un 4e csv dans drive
+
+
 
 ## Page Mise en location /admin/mise-en-location
 
