@@ -69,13 +69,18 @@ export default async function AdminApartmentDetailPage({
         ← Appartements
       </a>
 
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold text-gray-900">
           <a href={`/apartments/${apt.number}`} className="hover:text-blue-primary transition-colors">
             Appartement {apt.number}
           </a>
         </h1>
         <span className="text-sm text-gray-400">{apt.building_short_name} · {apt.surface_area} m²</span>
+        {apt.move_out_date && (
+          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-amber-50 text-amber-700 border-amber-200">
+            Départ prévu
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

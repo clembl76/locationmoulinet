@@ -29,7 +29,13 @@ export default function Navbar() {
             href="/visiter"
             className="bg-blue-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
           >
-            {lang === 'fr' ? 'Prendre RDV' : 'Book a visit'}
+            {lang === 'fr' ? 'Visiter' : 'Book a visit'}
+          </a>
+          <a
+            href="/candidater"
+            className="bg-white text-blue-primary text-sm font-semibold px-4 py-2 rounded-lg border border-blue-primary hover:bg-blue-light transition-colors"
+          >
+            {lang === 'fr' ? 'Déposer mon dossier' : 'Apply'}
           </a>
           <LanguageSwitch />
         </div>

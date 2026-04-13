@@ -36,6 +36,11 @@ export default async function MiseEnLocationPage() {
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Mise en location</h1>
         <div className="flex gap-3 text-sm">
+          <a href="/admin/disponibilites"
+            className="text-blue-primary hover:underline">
+            Page Disponibilités →
+          </a>
+          <span className="text-gray-300">|</span>
           <a href="/visiter" target="_blank" rel="noopener noreferrer"
             className="text-blue-primary hover:underline">
             Page visiter →

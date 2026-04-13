@@ -3,7 +3,7 @@
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { revalidatePath } from 'next/cache'
 
-const REVALIDATE = () => revalidatePath('/admin/visites')
+const REVALIDATE = () => revalidatePath('/admin/disponibilites')
 
 // ── Helper : récupère l'id de la ligne visit_settings (il n'en existe qu'une) ─
 

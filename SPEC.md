@@ -7,6 +7,7 @@
 
 ## Page Candidater /candidater
 
+
 # Admin
 
 ## Partout
@@ -25,5 +26,4 @@
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
 
-## Page Disponibilités visites /admin/visites
-
+## Page Disponibilités visites /admin/disponinilites

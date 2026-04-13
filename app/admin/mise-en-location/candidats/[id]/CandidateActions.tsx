@@ -127,6 +127,15 @@ export default function CandidateActions({
         {signError && (
           <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{signError}</p>
         )}
+        <button
+          onClick={() => handleStatus('withdrawn')}
+          disabled={pending}
+          className="w-full text-sm font-medium py-2 rounded-xl border border-gray-200 text-gray-500
+            hover:border-gray-300 hover:bg-gray-50 transition-colors
+            disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Plus intéressé
+        </button>
       </div>
     )
   }

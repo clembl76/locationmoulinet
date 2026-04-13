@@ -228,15 +228,6 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
           lang={lang}
         />
 
-        <div className="flex justify-center mb-8">
-          <a
-            href="/visiter"
-            className="inline-block bg-blue-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-dark transition-colors text-sm"
-          >
-            {lang === 'fr' ? 'Prendre rendez-vous pour une visite' : 'Book a visit'}
-          </a>
-        </div>
-
         {displayed.length === 0 ? (
           <p className="text-gray-500 text-center py-16">
             {lang === 'fr' ? 'Aucun appartement ne correspond aux filtres.' : 'No apartments match the filters.'}

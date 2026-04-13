@@ -2,6 +2,21 @@
 
 ## [Non publié]
 
+### 2026-04-13 — Mise en location : lien "Page Disponibilités" (spec SPEC.md)
+- Renommage "Page visites →" → "Page Disponibilités →" dans le header de la page mise-en-location
+- Fichiers : `app/admin/mise-en-location/page.tsx`
+
+### 2026-04-13 — Multiples ajustements UI (spec SPEC.md)
+- **Navbar** : "Prendre RDV" → "Visiter" ; ajout bouton "Déposer mon dossier" (→ /candidater)
+- **Home** : suppression du bouton "Prendre rendez-vous pour une visite" sous le filtre
+- **CandidateActions** : bouton "Plus intéressé" reste visible à l'état `accepted` (disparaît seulement après "Bail signé")
+- **Admin header** : suppression du lien "Visites" ; ordre → Mise en location, Appartements, Paiements, Tableau de bord
+- **Dashboard** : "locataires payés" → "locataires ont payé"
+- **Détail appartement** : vignette "Départ prévu" (amber) alignée à droite dans la ligne de titre si `move_out_date` renseigné
+- **Mise en location** : ajout du lien "Page visites →" (→ /admin/disponibilites) dans le header de la page
+- **Visites** : URL `/admin/visites` → `/admin/disponibilites` (dossier renommé, revalidatePath mis à jour)
+- Fichiers : `components/Navbar.tsx`, `components/HomeClient.tsx`, `CandidateActions.tsx`, `app/admin/layout.tsx`, `app/admin/page.tsx`, `app/admin/apartments/[number]/page.tsx`, `app/admin/mise-en-location/page.tsx`, `app/admin/disponibilites/` (ex-visites)
+
 ### 2026-04-12 — PDF bail : description appartement depuis apartments.description (spec SPEC.md)
 - `{{description_appartement}}` remplacé par `apartments.description` au lieu du champ calculé type/surface/étage
 - Fichiers : `lib/quittance.ts`
