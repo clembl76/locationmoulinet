@@ -1080,6 +1080,39 @@ export async function getVisitAvailabilityExceptions(): Promise<VisitAvailabilit
   }
 }
 
+// ─── Calendrier occupation appartements ──────────────────────────────────────
+
+export type CalendarLease = {
+  apartment_number: string
+  tenant_last_name: string | null
+  lease_start: string | null  // null = appartement vacant
+  end_date: string | null     // fin contractuelle
+  move_out_date: string | null // départ effectif/programmé (move_out_inspection_date)
+}
+
+export async function getCalendarLeases(year: number): Promise<CalendarLease[]> {
+  return runSql<CalendarLease>(`
+    SELECT
+      a.number AS apartment_number,
+      t.last_name AS tenant_last_name,
+      l.signing_date::date::text AS lease_start,
+      l.end_date::date::text AS end_date,
+      l.move_out_inspection_date::date::text AS move_out_date
+    FROM apartments a
+    LEFT JOIN leases l ON l.apartment_id = a.id
+      AND (l.signing_date IS NULL OR l.signing_date::date <= '${year}-12-31')
+      AND (
+        l.move_out_inspection_date IS NULL
+        OR l.move_out_inspection_date::date >= '${year}-01-01'
+      )
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+      AND (a.type IS NULL OR a.type::text != 'BUREAU')
+    ORDER BY a.number::integer, l.signing_date NULLS FIRST
+  `)
+}
+
 export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {
   const rows = await runSql<{ count: string }>(`
     SELECT COUNT(*) AS count

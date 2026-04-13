@@ -13,6 +13,9 @@
 ## Partout
 
 ## Page Tableau de bord /admin
+- déplace la ligne complète "Occupation" depuis 'Tableau de bord annuel' vers 'Mois en cours'
+
+## Page Mois en cours /admin/mois
 
 ## Page Appartments /admin/apartments
 
@@ -24,6 +27,7 @@
 
 ## Page Mise en location /admin/mise-en-location
 
+
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
 
-## Page Disponibilités visites /admin/disponinilites
+## Page Disponibilités visites /admin/disponibilites

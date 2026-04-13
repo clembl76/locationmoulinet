@@ -1,6 +1,6 @@
-import { getDashboardStats } from '@/lib/adminData'
-import GenerateRentsButton from '@/components/admin/GenerateRentsButton'
-import SeedTestRentsButton from '@/components/admin/SeedTestRentsButton'
+import { getDashboardStats, getCalendarLeases } from '@/lib/adminData'
+import type { CalendarLease } from '@/lib/adminData'
+import ExportLeasesButton from '@/components/admin/ExportLeasesButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,69 +21,181 @@ function StatCard({
   return href ? <a href={href} className="block">{inner}</a> : <div>{inner}</div>
 }
 
-// ─── Pie chart SVG ────────────────────────────────────────────────────────────
+// ─── Calendrier occupation ────────────────────────────────────────────────────
 
-function PieChart({ paid, unpaid }: { paid: number; unpaid: number }) {
-  const total = paid + unpaid
-  if (total === 0) return <div className="w-28 h-28 rounded-full bg-gray-100" />
+const MONTHS_SHORT = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
 
-  const paidPct = paid / total
-  // SVG arc path for a slice starting at top (−90°)
-  function arc(pct: number, offset: number) {
-    if (pct >= 1) return `M 50 50 m 0 -40 a 40 40 0 1 1 -0.001 0 Z`
-    const startAngle = (offset - 0.25) * 2 * Math.PI
-    const endAngle = (offset + pct - 0.25) * 2 * Math.PI
-    const x1 = 50 + 40 * Math.cos(startAngle)
-    const y1 = 50 + 40 * Math.sin(startAngle)
-    const x2 = 50 + 40 * Math.cos(endAngle)
-    const y2 = 50 + 40 * Math.sin(endAngle)
-    const large = pct > 0.5 ? 1 : 0
-    return `M 50 50 L ${x1} ${y1} A 40 40 0 ${large} 1 ${x2} ${y2} Z`
+const APT_COLORS = [
+  '#10b981', '#3b82f6', '#8b5cf6', '#f43f5e',
+  '#f59e0b', '#14b8a6', '#6366f1', '#ec4899',
+  '#06b6d4', '#f97316', '#84cc16', '#a855f7',
+]
+
+type AptSegment = {
+  tenantName: string | null
+  startPct: number
+  widthPct: number
+  dashed: boolean
+}
+
+type AptGroup = {
+  number: string
+  segments: AptSegment[]
+}
+
+function startDayPct(date: Date, year: number): number {
+  const jan1  = new Date(year, 0, 1)
+  const dec31 = new Date(year, 11, 31)
+  const d = date < jan1 ? jan1 : date > dec31 ? dec31 : date
+  const daysInMonth = new Date(year, d.getMonth() + 1, 0).getDate()
+  return ((d.getMonth() + (d.getDate() - 1) / daysInMonth) / 12) * 100
+}
+
+function endDayPct(date: Date, year: number): number {
+  const jan1  = new Date(year, 0, 1)
+  const dec31 = new Date(year, 11, 31)
+  const d = date < jan1 ? jan1 : date > dec31 ? dec31 : date
+  const daysInMonth = new Date(year, d.getMonth() + 1, 0).getDate()
+  return ((d.getMonth() + d.getDate() / daysInMonth) / 12) * 100
+}
+
+function buildCalendarRows(raw: CalendarLease[], year: number): AptGroup[] {
+  const today   = new Date()
+  const inYear  = today.getFullYear() === year
+  const pastYear = today.getFullYear() > year
+
+  const map: Record<string, AptSegment[]> = {}
+
+  for (const cl of raw) {
+    if (!map[cl.apartment_number]) map[cl.apartment_number] = []
+    if (!cl.lease_start && !cl.move_out_date) continue
+
+    const startDate   = cl.lease_start
+      ? new Date(cl.lease_start + 'T12:00:00')
+      : new Date(year, 0, 1)
+    const moveOutDate = cl.move_out_date ? new Date(cl.move_out_date + 'T12:00:00') : null
+
+    const hasLeft     = moveOutDate !== null && moveOutDate <= today
+    const leavingSoon = moveOutDate !== null && moveOutDate > today
+
+    // ── Segment solide ──────────────────────────────────────────────────────
+    const solidEndDate = hasLeft ? moveOutDate! : (pastYear ? new Date(year, 11, 31) : today)
+    const sp = startDayPct(startDate, year)
+    const ep = endDayPct(solidEndDate, year)
+
+    if (ep > sp) {
+      map[cl.apartment_number].push({
+        tenantName: cl.tenant_last_name,
+        startPct: sp,
+        widthPct: ep - sp,
+        dashed: false,
+      })
+    }
+
+    // ── Segment pointillé (prévisionnel) ────────────────────────────────────
+    if (!hasLeft && !pastYear && (inYear ? today.getMonth() < 11 : true)) {
+      const dashedEndDate = leavingSoon ? moveOutDate! : new Date(year, 11, 31)
+      const dp = startDate > today ? startDayPct(startDate, year) : ep
+      const dpe = endDayPct(dashedEndDate, year)
+
+      if (dpe > dp) {
+        map[cl.apartment_number].push({
+          tenantName: cl.tenant_last_name,
+          startPct: dp,
+          widthPct: dpe - dp,
+          dashed: true,
+        })
+      }
+    }
   }
 
+  const aptNumbers = [...new Set(raw.map(cl => cl.apartment_number))].sort((a, b) => parseInt(a) - parseInt(b))
+  return aptNumbers.map(num => ({ number: num, segments: map[num] ?? [] }))
+}
+
+function OccupationCalendar({ rows, year }: { rows: AptGroup[]; year: number }) {
   return (
-    <svg viewBox="0 0 100 100" className="w-28 h-28 -rotate-0">
-      <path d={arc(paidPct, 0)} fill="#16a34a" />
-      <path d={arc(1 - paidPct, paidPct)} fill="#dc2626" />
-    </svg>
+    <section>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Occupation {year}
+        </h2>
+        <ExportLeasesButton currentYear={year} />
+      </div>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 overflow-x-auto">
+        <div style={{ minWidth: 640 }}>
+          <div className="flex items-center mb-1 pl-12">
+            {MONTHS_SHORT.map(m => (
+              <div key={m} className="flex-1 text-xs font-semibold text-gray-400 text-center">
+                {m}
+              </div>
+            ))}
+          </div>
+
+          {rows.map((apt) => {
+            const color = APT_COLORS[parseInt(apt.number) % APT_COLORS.length]
+            return (
+              <div key={apt.number} className="flex items-center h-8 border-b border-gray-50 last:border-0">
+                <div className="w-12 shrink-0 text-xs font-bold text-gray-500 text-right pr-3">
+                  {apt.number}
+                </div>
+                <div className="flex-1 relative h-5">
+                  {MONTHS_SHORT.map((_, mi) => (
+                    <div
+                      key={mi}
+                      className="absolute top-0 bottom-0"
+                      style={{
+                        left: `${(mi / 12) * 100}%`,
+                        width: `${100 / 12}%`,
+                        background: mi % 2 === 0 ? '#f9fafb' : '#fff',
+                      }}
+                    />
+                  ))}
+                  {apt.segments.map((seg, i) => (
+                    <a
+                      key={i}
+                      href={`/admin/apartments/${apt.number}`}
+                      className="absolute top-0 bottom-0 flex items-center px-1.5 rounded overflow-hidden hover:brightness-90 transition-[filter]"
+                      style={{
+                        left: `${seg.startPct}%`,
+                        width: `${seg.widthPct}%`,
+                        background: seg.dashed ? 'transparent' : color,
+                        border: seg.dashed ? `2px dashed ${color}` : 'none',
+                      }}
+                      title={`Appt ${apt.number} — ${seg.tenantName?.toUpperCase() ?? ''}${seg.dashed ? ' (prévisionnel)' : ''}`}
+                    >
+                      <span className="truncate text-xs font-medium" style={{ color: seg.dashed ? color : '#fff' }}>
+                        {seg.tenantName?.toUpperCase() ?? ''}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
   )
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function AdminDashboard() {
-  const stats = await getDashboardStats()
-
   const now = new Date()
   const year = now.getFullYear()
-  const month = now.getMonth() + 1
-  const mois = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
+
+  const [stats, rawCalendar] = await Promise.all([
+    getDashboardStats(),
+    getCalendarLeases(year),
+  ])
   const annee = year
 
   const caFormatted = stats.caYtd.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
-  const caMonthFormatted = stats.caCurrentMonth.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
-  const paidTotal = stats.paymentPie.amountPaid
-  const unpaidTotal = stats.paymentPie.amountUnpaid
-  const grandTotal = paidTotal + unpaidTotal
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
-        <GenerateRentsButton year={year} month={month} mois={mois} />
-      </div>
-      <SeedTestRentsButton />
-
-      {/* Occupation */}
-      <section>
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Occupation</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatCard label="Total" value={stats.total} href="/admin/apartments" />
-          <StatCard label="Loués" value={stats.occupied} href="/admin/apartments?status=loue" />
-          <StatCard label="Disponibles" value={stats.available} href="/admin/apartments?status=available" />
-          <StatCard label="Départ prévu" value={stats.soon} href="/admin/apartments?status=depart" />
-        </div>
-      </section>
+      <h1 className="text-2xl font-bold text-gray-900">Tableau de bord annuel</h1>
 
       {/* KPIs annuels */}
       <section>
@@ -103,84 +215,8 @@ export default async function AdminDashboard() {
         </div>
       </section>
 
-      {/* Loyers du mois — camembert + CA mois */}
-      <section>
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          Loyers — {mois}
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* CA encaissé mois courant — 1/3 */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">CA encaissé — {mois}</p>
-            <p className="text-3xl font-bold text-blue-dark">{caMonthFormatted}</p>
-            <p className="text-xs text-gray-400 mt-1">{stats.paymentPie.countPaid} locataire{stats.paymentPie.countPaid !== 1 ? 's' : ''} ont payé</p>
-          </div>
-          {/* Pie — 2/3 */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <div className="flex items-center gap-8 flex-wrap">
-              <PieChart paid={paidTotal} unpaid={unpaidTotal} />
-              <div className="space-y-3 flex-1 min-w-[180px]">
-                <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-green-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      Encaissé — {paidTotal.toLocaleString('fr-FR')} €
-                    </p>
-                    <p className="text-xs text-gray-400">{stats.paymentPie.countPaid} locataire{stats.paymentPie.countPaid > 1 ? 's' : ''}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-red-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      Non encaissé — {unpaidTotal.toLocaleString('fr-FR')} €
-                    </p>
-                    <p className="text-xs text-gray-400">{stats.paymentPie.countUnpaid} locataire{stats.paymentPie.countUnpaid > 1 ? 's' : ''}</p>
-                  </div>
-                </div>
-                {grandTotal > 0 && (
-                  <p className="text-xs text-gray-300 pt-1">
-                    Total attendu : {grandTotal.toLocaleString('fr-FR')} €/mois
-                  </p>
-                )}
-              </div>
-              <a
-                href="/admin/apartments"
-                className="ml-auto text-xs text-blue-primary hover:underline flex-shrink-0"
-              >
-                Voir les appartements →
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Départs dans 30 jours */}
-      {stats.departures.length > 0 && (
-        <section>
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-            Départs dans les 30 jours
-          </h2>
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm divide-y divide-gray-50">
-            {stats.departures.map(d => (
-              <div key={d.number} className="flex items-center justify-between px-5 py-3">
-                <div>
-                  <span className="font-semibold text-sm text-gray-900">Appt {d.number}</span>
-                  <span className="text-sm text-gray-500 ml-2">{d.tenant_name}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-medium text-amber-600">
-                    {new Date(d.move_out_date).toLocaleDateString('fr-FR')}
-                  </span>
-                  <span className="text-xs text-gray-400 ml-2">
-                    ({d.days_until === 0 ? "aujourd'hui" : `J-${d.days_until}`})
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Calendrier occupation */}
+      <OccupationCalendar rows={buildCalendarRows(rawCalendar, year)} year={year} />
     </div>
   )
 }

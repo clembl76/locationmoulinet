@@ -2,6 +2,65 @@
 
 ## [Non publié]
 
+### 2026-04-13 — Tableau de bord : déplacement "Occupation" vers Mois en cours (spec SPEC.md)
+- Section "Occupation" (stat cards Total/Loués/Disponibles/Départ prévu) déplacée de `/admin` vers `/admin/mois`
+- Fichiers : `app/admin/page.tsx`, `app/admin/mois/page.tsx`
+
+### 2026-04-13 — Tableau de bord : séparation en deux pages (spec SPEC.md)
+- `/admin` → "Tableau de bord annuel" : occupation (stat cards), indicateurs annuels (CA YTD, taux, durée), calendrier
+- `/admin/mois` → "Mois en cours" : génération des loyers, CA mois, camembert payé/impayé, départs dans 30 jours
+- Navigation mise à jour avec les deux liens
+- Fichiers : `app/admin/page.tsx`, `app/admin/mois/page.tsx`, `app/admin/layout.tsx`
+
+### 2026-04-13 — Calendrier : démarrage du prévisionnel (spec SPEC.md)
+- Correction : pour les baux futurs (signing_date > aujourd'hui), le segment pointillé démarrait à la position d'aujourd'hui au lieu de la date de début du bail
+- Ex: appt 31 GAZAGNES (24/05/2026) → pointillé commence en mai, pas en avril
+- Fichiers : `app/admin/page.tsx`
+
+### 2026-04-13 — Calendrier : appartements manquants (spec SPEC.md)
+- Correction du filtre SQL : `a.type != 'BUREAU'` → `(a.type IS NULL OR a.type::text != 'BUREAU')` — les appartements sans type étaient exclus
+- Correction du JOIN : utilisation de `move_out_inspection_date` seul (sans COALESCE avec end_date) — un bail dont end_date est expiré mais sans départ effectif était exclu à tort
+- Idem dans l'export CSV
+- Fichiers : `lib/adminData.ts`, `app/api/admin/export-leases/route.ts`, `app/admin/page.tsx`
+
+### 2026-04-13 — Export CSV : corrections (spec SPEC.md)
+- Sélecteur d'année : plage 2016 → année en cours (ordre décroissant), au lieu de ±2 ans
+- Loyer HC, Charges, Loyer CC : COALESCE sur les valeurs de l'appartement quand le bail ne les renseigne pas
+- Fichiers : `components/admin/ExportLeasesButton.tsx`, `app/api/admin/export-leases/route.ts`
+
+### 2026-04-13 — Calendrier : export CSV des baux par année (spec SPEC.md)
+- Bouton "Exporter CSV" avec sélecteur d'année (±2 ans) dans l'en-tête du calendrier
+- Route API `/api/admin/export-leases?year=YYYY` : génère un CSV UTF-8 avec BOM (compatible Excel)
+- Colonnes : Appartement, Nom Prénom, Date entrée, Date sortie, Loyer HC, Charges, Loyer CC, Date de naissance
+- Un appartement avec plusieurs locataires dans l'année génère plusieurs lignes
+- Fichiers : `app/api/admin/export-leases/route.ts`, `components/admin/ExportLeasesButton.tsx`, `app/admin/page.tsx`
+
+### 2026-04-13 — Calendrier : nom dans pointillés + zones cliquables (spec SPEC.md)
+- Nom du locataire affiché aussi dans les zones prévisionnelles (pointillées), en couleur
+- Chaque barre (solide ou pointillée) est cliquable vers /admin/apartments/{number}
+- Fichiers : `app/admin/page.tsx`
+
+### 2026-04-13 — Calendrier : positionnement au jour près + label sans numéro (spec SPEC.md)
+- Positionnement des barres au jour près (helpers startDayPct/endDayPct) — un bail démarrant le 15 commence visuellement au milieu de la colonne du mois
+- Suppression du numéro d'appartement dans la barre colorée (nom du locataire uniquement)
+- Fichiers : `app/admin/page.tsx`
+
+### 2026-04-13 — Calendrier : vue prévisionnelle en pointillés (spec SPEC.md)
+- Segment solide = occupation confirmée (passé jusqu'à aujourd'hui)
+- Segment pointillé = prévisionnel futur :
+  - Sans date de départ → barres pointillées jusqu'en décembre
+  - Avec date de départ programmée → barres pointillées jusqu'à cette date, vide après
+  - Locataire parti (move_out dans le passé) → barre pleine seulement
+- `CalendarLease` : `lease_end` → `end_date` + `move_out_date` séparés
+- Fichiers : `lib/adminData.ts`, `app/admin/page.tsx`
+
+### 2026-04-13 — Dashboard : calendrier d'occupation + script purge (spec SPEC.md)
+- **Calendrier occupation** : vue annuelle en bas du dashboard — une ligne par appartement, barres colorées par locataire, appartements vacants affichés vides
+- Nouvelle fonction `getCalendarLeases(year)` dans `lib/adminData.ts`
+- Composants `OccupationCalendar` et `buildCalendarRows` ajoutés dans `app/admin/page.tsx`
+- **Script purge** : `scripts/purge_visites_candidatures.py` — supprime en cascade visitors/candidates dans Supabase et les dossiers Drive dans /candidats
+- Fichiers : `lib/adminData.ts`, `app/admin/page.tsx`, `scripts/purge_visites_candidatures.py`
+
 ### 2026-04-13 — Mise en location : lien "Page Disponibilités" (spec SPEC.md)
 - Renommage "Page visites →" → "Page Disponibilités →" dans le header de la page mise-en-location
 - Fichiers : `app/admin/mise-en-location/page.tsx`
