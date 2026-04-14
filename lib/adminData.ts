@@ -1113,6 +1113,33 @@ export async function getCalendarLeases(year: number): Promise<CalendarLease[]> 
   `)
 }
 
+// ─── CA mensuel par bâtiment ──────────────────────────────────────────────────
+
+export type CaMonthRow = {
+  month: number
+  building: string
+  ca_cc: number
+  ca_hc: number
+}
+
+export async function getCaByMonth(year: number): Promise<CaMonthRow[]> {
+  return runSql<CaMonthRow>(`
+    SELECT
+      r.month,
+      b.short_name AS building,
+      COALESCE(SUM(r.amount_received), 0)::float AS ca_cc,
+      COALESCE(SUM(r.amount_received - COALESCE(l.charges, 0)), 0)::float AS ca_hc
+    FROM rents r
+    JOIN leases l ON l.id = r.lease_id
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN buildings b ON b.id = a.building_id
+    WHERE r.year = ${year}
+      AND r.amount_received IS NOT NULL
+    GROUP BY r.month, b.short_name
+    ORDER BY r.month, b.short_name
+  `)
+}
+
 export async function checkCautionTransaction(aptNumber: string): Promise<boolean> {
   const rows = await runSql<{ count: string }>(`
     SELECT COUNT(*) AS count

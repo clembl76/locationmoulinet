@@ -2,6 +2,18 @@
 
 ## [Non publié]
 
+### 2026-04-14 — Tableau de bord annuel : corrections bar chart (spec SPEC.md)
+- Filtre bâtiment : même style avec bordures que le filtre Affichage (BUILDING_TOGGLE_COLORS)
+- Correction hydration error : suppression de `<title>` dans `<rect>` SVG (locale-dépendant)
+- Fichiers : `components/admin/CaBarChartClient.tsx`
+
+### 2026-04-14 — Tableau de bord annuel : bar chart CA mensuel (spec SPEC.md)
+- Bar chart SVG du CA encaissé par mois sur l'année, barres empilées par bâtiment
+- Filtre bâtiment (toggles dynamiques, tous actifs par défaut)
+- Deux modes d'affichage : Loyers CC (montant reçu) et Loyers HC (reçu - charges)
+- YTD dynamique selon filtres actifs
+- Fichiers : `lib/adminData.ts` (getCaByMonth), `components/admin/CaBarChartClient.tsx` (nouveau), `app/admin/page.tsx`
+
 ### 2026-04-14 — Mois en cours : filtres Occupation + Bâtiment dans section Loyers (spec SPEC.md)
 - Section Loyers remplacée par composant client `MoisLoyersClient`
 - Filtre Occupation (Loué / Disponible / Départ prévu) identique à la page Appartements

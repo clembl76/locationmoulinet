@@ -1,6 +1,7 @@
-import { getDashboardStats, getCalendarLeases } from '@/lib/adminData'
+import { getDashboardStats, getCalendarLeases, getCaByMonth } from '@/lib/adminData'
 import type { CalendarLease } from '@/lib/adminData'
 import ExportLeasesButton from '@/components/admin/ExportLeasesButton'
+import CaBarChartClient from '@/components/admin/CaBarChartClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -185,9 +186,10 @@ export default async function AdminDashboard() {
   const now = new Date()
   const year = now.getFullYear()
 
-  const [stats, rawCalendar] = await Promise.all([
+  const [stats, rawCalendar, caByMonth] = await Promise.all([
     getDashboardStats(),
     getCalendarLeases(year),
+    getCaByMonth(year),
   ])
   const annee = year
 
@@ -214,6 +216,9 @@ export default async function AdminDashboard() {
           />
         </div>
       </section>
+
+      {/* Bar chart CA mensuel */}
+      <CaBarChartClient data={caByMonth} year={year} />
 
       {/* Calendrier occupation */}
       <OccupationCalendar rows={buildCalendarRows(rawCalendar, year)} year={year} />
