@@ -19,7 +19,15 @@
       "Bash(ls -la /c/Users/cleme/locationmoulinet/app/admin/apartments/[number]/)",
       "Bash(ls -la /c/Users/cleme/locationmoulinet/app/admin/apartments/[number]/edl/)",
       "Bash(ls -la /c/Users/cleme/locationmoulinet/app/admin/apartments/[number]/edl/[reportId]/)",
-      "Bash(grep -l \"tenant\\\\|lease\\\\|guarantor\" /c/Users/cleme/locationmoulinet/*.md)"
+      "Bash(grep -l \"tenant\\\\|lease\\\\|guarantor\" /c/Users/cleme/locationmoulinet/*.md)",
+      "Bash(supabase --version)",
+      "Bash(pg_dump --version)",
+      "Bash(node scripts/backup.mjs)",
+      "Bash(node -e \"require\\('dotenv'\\)\")",
+      "Bash(node -e ':*)",
+      "Bash(node --input-type=module -e ':*)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://rskfplsmhgbqbxnjxnmn.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJza2ZwbHNtaGdicWJ4bmp4bm1uIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTEyMDgzNSwiZXhwIjoyMDkwNjk2ODM1fQ.ssENk_Rf-8GYbRgCNwabnB8dtO4oztlQA7qYZ82z1VI node scripts/backup.mjs)",
+      "Bash(node -e \"const p = require\\('./node_modules/next/package.json'\\); console.log\\(p.version\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\cleme\\locationmoulinet",

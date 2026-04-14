@@ -1,4 +1,4 @@
-import { getAdminApartmentDetail, getApartmentTransactions, getRentForMonth, checkCautionTransaction, getEdlReport, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
+import { getAdminApartmentDetail, getLinxoTransactionsForApartment, getRentForMonth, checkCautionTransaction, getEdlReport, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
 import { getDriveTenantFolderUrl, getDriveEdlEntryUrl } from '@/lib/quittance'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
@@ -40,8 +40,8 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [transactions, rentRecord, , edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
-    getApartmentTransactions(number, apt?.tenant_last_name ?? null, 24),
+  const [linxoTxs, rentRecord, , edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
+    getLinxoTransactionsForApartment(number).catch(() => []),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
     apt?.lease_id ? getEdlReport(apt.lease_id) : Promise.resolve(null),
@@ -175,29 +175,45 @@ export default async function AdminApartmentDetailPage({
             </div>
           )}
 
-          {/* Historique des transactions */}
+          {/* Transactions Linxo */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
             <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              Transactions récentes
+              Transactions Linxo
             </h2>
-            {transactions.length === 0 ? (
-              <p className="text-sm text-gray-400">Aucune transaction.</p>
+            {linxoTxs.length === 0 ? (
+              <p className="text-sm text-gray-400">Aucune transaction Linxo pour cet appartement.</p>
             ) : (
-              <div className="divide-y divide-gray-50">
-                {transactions.map((tx, i) => (
-                  <div key={tx.id ?? i} className="flex items-center justify-between py-2">
-                    <div>
-                      <span className="text-sm text-gray-700">
-                        {new Date(tx.date).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
-                      </span>
-                      {tx.type && <span className="text-xs text-gray-400 ml-2">{tx.type}</span>}
-                      {tx.payment_method && <span className="text-xs text-gray-300 ml-1">· {tx.payment_method}</span>}
-                    </div>
-                    <span className={`text-sm font-semibold ${tx.direction === 'CREDIT' ? 'text-green-600' : 'text-red-500'}`}>
-                      {tx.direction === 'CREDIT' ? '+' : '−'}{tx.amount} €
-                    </span>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-50">
+                      <th className="text-left py-2 pr-4 whitespace-nowrap">Date</th>
+                      <th className="text-left py-2 pr-4 whitespace-nowrap">Type</th>
+                      <th className="text-left py-2">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {linxoTxs.map((tx, i) => {
+                      const d = new Date(tx.date)
+                      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                      return (
+                        <tr key={tx.id ?? i}>
+                          <td className="py-2 pr-4 text-gray-700 whitespace-nowrap">{dateStr}</td>
+                          <td className="py-2 pr-4">
+                            {tx.type ? (
+                              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                                {tx.type}
+                              </span>
+                            ) : (
+                              <span className="text-gray-300">—</span>
+                            )}
+                          </td>
+                          <td className="py-2 text-gray-600 text-xs">{tx.description ?? '—'}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

@@ -129,6 +129,39 @@ Ces trois entités restent **séparées** (tables distinctes, pas de migration a
 
 ---
 
+## Catégorisation des transactions Linxo
+
+Les transactions de la table `transactions_linxo` disposent de colonnes de catégorisation :
+
+| Colonne DB | Libellé affiché | Description |
+|---|---|---|
+| `supplier` | Fournisseur | Nom normalisé du fournisseur |
+| `type` | Type | Catégorie comptable (LOYER, ACHAT, TRAVAUX, SERVICES, GESTION, ENTRETIEN, IMPOTS, PRET, INTERNE) |
+| `description` | Description | Description libre, pré-remplie pour les loyers |
+| `apartment_num` | Appt | Numéro d'appartement lié |
+| `tenant_name` | Locataire | Nom du locataire lié |
+| `validated` | Validé | Booléen — la ligne a été vérifiée manuellement |
+
+### Règles de catégorisation automatique (priorité décroissante)
+
+1. **Nom de locataire actif** trouvé dans `libelle` ou `notes` (recherche insensible à la casse et aux accents) :
+   - `type = LOYER`, `supplier = NOM_DU_LOCATAIRE`, `apartment_num = numéro de son appartement`, `tenant_name = prénom + nom`
+   - Si `montant ≈ rent_including_charges` (±1 €) : `description = LOYER - [num] - [NOM] - [mois année]` (ex: `LOYER - 7 - DUPONT - janv. 2026`)
+2. **Nom de garant actif** trouvé dans `libelle` ou `notes` :
+   - Même règle que locataire, `apartment_num` = appartement du locataire associé au garant
+3. **Table `linxo_mappings`** : recherche du `libelle_pattern` dans le libellé (ILIKE, pattern le plus long en premier)
+   - Applique le `type` et `supplier` correspondants
+
+### Apprentissage automatique
+
+Lors de la validation d'une transaction (`validated = true`), si aucune règle dans `linxo_mappings` ne correspond déjà au libellé, une nouvelle entrée est insérée automatiquement avec `libelle_pattern = libelle`, `type` et `supplier` de la transaction.
+
+### Table `linxo_mappings`
+
+Stocke les patterns de reconnaissance : `libelle_pattern TEXT`, `type TEXT`, `supplier TEXT`. Pré-alimentée avec ~120 entrées de référence (voir migration `20260414_categorisation_linxo.sql`).
+
+---
+
 ## Conventions UI / Style
 
 - **Tailwind v4** — couleurs personnalisées définies dans le thème :

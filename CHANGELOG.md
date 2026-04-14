@@ -2,6 +2,68 @@
 
 ## [Non publié]
 
+### 2026-04-14 — Détail appartement : Linxo au lieu de transactions + ordre Paiements (spec SPEC.md)
+- Page /admin/apartments/[num] : bloc "Transactions récentes" remplacé par "Transactions Linxo" (filtrées par apartment_num), colonnes Date / Type / Description
+- Nouvelle fonction `getLinxoTransactionsForApartment()` dans adminData.ts
+- Page /admin/payments : Transactions Linxo affichée en premier, puis Transactions
+- Fichiers : `lib/adminData.ts`, `app/admin/apartments/[number]/page.tsx`, `app/admin/payments/page.tsx`
+
+### 2026-04-14 — Scripts de sauvegarde/restauration base de données (spec SPEC.md)
+- `scripts/backup.mjs` : exporte toutes les tables (26) en JSON horodaté dans `backups/`
+- `scripts/restore.mjs` : restaure depuis un fichier JSON (TRUNCATE CASCADE + INSERT par chunks de 200)
+- Lecture automatique de `.env.local` (pas besoin de passer les vars à la main)
+- `/backups/` ajouté au `.gitignore`
+- Usage : `node scripts/backup.mjs` / `node scripts/restore.mjs backups/backup_YYYY-MM-DDTHH-MM-SS.json`
+
+### 2026-04-14 — LinxoTable : fix requête locataires (GROUP BY + bool_or, sans CTE) (spec SPEC.md)
+- Réécriture de `getTenantOptions()` sans CTE ni window functions (incompatibles avec run_sql RPC)
+- Utilise GROUP BY + bool_or pour détecter les locataires actuels, COALESCE pour préférer l'appt actuel
+- Fichiers : `lib/adminData.ts`
+
+### 2026-04-14 — LinxoTable : fix requête locataires + ajout CAUTION (spec SPEC.md)
+- Fix requête `getTenantOptions()` : utilise ROW_NUMBER() + cast sécurisé pour éviter crash SQL silencieux
+- Locataires actuels en premier (triés par appt), puis anciens locataires — groupés en optgroup
+- Ajout de "CAUTION" dans les types disponibles (colonne Type et filtre)
+- Fichiers : `lib/adminData.ts`, `components/admin/LinxoTable.tsx`
+
+### 2026-04-14 — LinxoTable : dropdown Locataire inclut les anciens locataires (spec SPEC.md)
+- `getTenantOptions()` retourne maintenant tous les locataires (actuels + anciens), triés : actuels par appt croissant, puis anciens par nom
+- `TenantOption` : ajout du champ `is_current: boolean`
+- `SelectCell` : supporte les `<optgroup>` via un prop `groups`
+- Dropdown Locataire (cellule + filtre) : groupes "Locataires actuels" / "Anciens locataires"
+- Fichiers : `lib/adminData.ts`, `components/admin/LinxoTable.tsx`
+
+### 2026-04-14 — LinxoTable : filtre Type, tri locataires par appt, Appt sans dropdown (spec SPEC.md)
+- Filtre Type ajouté (liste déroulante alphabétique : ACHAT, ENTRETIEN, GESTION, IMPOTS, INTERNE, LOYER, PRET, SERVICES, TRAVAUX)
+- Liste déroulante Locataire dans les lignes triée par numéro d'appartement croissant
+- Colonne Appt : plus de liste déroulante (texte lecture seule, déjà fait cycle précédent)
+- Fichiers : `components/admin/LinxoTable.tsx`, `lib/adminData.ts`
+
+### 2026-04-14 — LinxoTable : tri toutes colonnes, Type dropdown, Appt en lecture seule (spec SPEC.md)
+- Toutes les colonnes désormais triables (Fournisseur, Type, Description, Appt, Locataire, Validé)
+- Colonne Type remplacée par une liste déroulante (LOYER, ACHAT, ENTRETIEN, GESTION, IMPOTS, INTERNE, PRET, SERVICES, TRAVAUX)
+- Colonne Appt en lecture seule (texte), mise à jour automatique lors du choix du locataire
+- Suppression de `apartmentOptions` (plus nécessaire)
+- Fichiers : `components/admin/LinxoTable.tsx`, `app/admin/payments/page.tsx`
+
+### 2026-04-14 — Filtres Fournisseur/Locataire + dropdowns Appt/Locataire dans LinxoTable (spec SPEC.md)
+- Filtre Fournisseur (liste déroulante dynamique depuis les données)
+- Filtre Locataire (liste déroulante depuis les locataires actifs)
+- Colonne Appt : remplacée par une `SelectCell` liée aux appartements réels
+- Colonne Locataire : remplacée par une `SelectCell` liée aux locataires actifs ; sélection auto-remplit apartment_num
+- Fichiers : `components/admin/LinxoTable.tsx`, `lib/adminData.ts`, `app/admin/payments/page.tsx`
+
+### 2026-04-14 — Catégorisation transactions Linxo (spec SPEC.md)
+- Nouveaux champs sur `transactions_linxo` : supplier, type, description, apartment_num, tenant_name, validated
+- Table `linxo_mappings` avec ~120 mappings libellé → type + fournisseur (migration SQL)
+- Catégorisation automatique : priorité locataire/garant → mappings table
+- Apprentissage : validation d'une transaction insère un nouveau mapping si absent
+- UI : colonnes éditables inline (clic → input → blur/Enter), case à cocher Validé
+- Filtre "Validé" dans la barre de filtres, lignes validées en fond vert
+- Bouton "Catégoriser" qui appelle POST /api/admin/categorize-linxo
+- Règles documentées dans BUSINESS_RULES.md §Catégorisation des transactions Linxo
+- Fichiers : `supabase/migrations/20260414_categorisation_linxo.sql`, `lib/linxoCategorization.ts`, `app/api/admin/categorize-linxo/route.ts`, `app/api/admin/linxo-transactions/[id]/route.ts`, `components/admin/LinxoTable.tsx`, `lib/linxoImport.ts`
+
 ### 2026-04-14 — Tableau de bord annuel : corrections bar chart (spec SPEC.md)
 - Filtre bâtiment : même style avec bordures que le filtre Affichage (BUILDING_TOGGLE_COLORS)
 - Correction hydration error : suppression de `<title>` dans `<rect>` SVG (locale-dépendant)

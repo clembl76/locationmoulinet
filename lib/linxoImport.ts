@@ -250,6 +250,13 @@ export type LinxoTransaction = {
   nom_de_la_connexion: string | null
   source: string
   imported_at: string
+  // Catégorisation
+  supplier: string | null
+  type: string | null
+  description: string | null
+  apartment_num: string | null
+  tenant_name: string | null
+  validated: boolean
 }
 
 export async function getLinxoTransactions(): Promise<LinxoTransaction[]> {

@@ -347,6 +347,27 @@ export async function getApartmentTransactions(
   `)
 }
 
+// ─── Transactions Linxo pour un appartement ───────────────────────────────────
+
+export type ApartmentLinxoTransaction = {
+  id: string
+  date: string
+  type: string | null
+  description: string | null
+}
+
+export async function getLinxoTransactionsForApartment(
+  aptNumber: string
+): Promise<ApartmentLinxoTransaction[]> {
+  return runSql<ApartmentLinxoTransaction>(`
+    SELECT id, date, type, description
+    FROM transactions_linxo
+    WHERE apartment_num = '${aptNumber}'
+    ORDER BY date DESC
+    LIMIT 50
+  `)
+}
+
 // ─── Rents (loyers attendus) ──────────────────────────────────────────────────
 
 export type RentRecord = {
@@ -1110,6 +1131,45 @@ export async function getCalendarLeases(year: number): Promise<CalendarLease[]> 
     WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
       AND (a.type IS NULL OR a.type::text != 'BUREAU')
     ORDER BY a.number::integer, l.signing_date NULLS FIRST
+  `)
+}
+
+// ─── Options pour dropdowns Linxo ────────────────────────────────────────────
+
+export type TenantOption = { id: string; name: string; apartment_num: string; is_current: boolean }
+export type ApartmentOption = { number: string }
+
+export async function getTenantOptions(): Promise<TenantOption[]> {
+  return runSql<TenantOption>(`
+    SELECT id, name, apartment_num, is_current
+    FROM (
+      SELECT
+        t.id,
+        TRIM(COALESCE(t.first_name || ' ', '') || t.last_name) AS name,
+        COALESCE(
+          MAX(CASE WHEN l.move_out_inspection_date IS NULL THEN a.number END),
+          MAX(a.number)
+        ) AS apartment_num,
+        bool_or(l.move_out_inspection_date IS NULL) AS is_current
+      FROM tenants t
+      JOIN lease_tenants lt ON lt.tenant_id = t.id
+      JOIN leases l ON l.id = lt.lease_id
+      JOIN apartments a ON a.id = l.apartment_id
+      GROUP BY t.id, t.first_name, t.last_name
+    ) sub
+    ORDER BY
+      is_current DESC,
+      (CASE WHEN apartment_num ~ '^[0-9]+$' THEN apartment_num::integer ELSE 9999 END) ASC,
+      name ASC
+  `)
+}
+
+export async function getApartmentOptions(): Promise<ApartmentOption[]> {
+  return runSql<ApartmentOption>(`
+    SELECT number FROM apartments
+    WHERE (valid_to IS NULL OR valid_to >= CURRENT_DATE)
+      AND (type IS NULL OR type::text != 'BUREAU')
+    ORDER BY number::integer
   `)
 }
 
