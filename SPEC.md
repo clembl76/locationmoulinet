@@ -15,6 +15,8 @@
 ## Page Tableau de bord /admin
 
 ## Page Mois en cours /admin/mois
+- Annule tout ce que tu as fait a ton dernier lancement pour réaliser cette spec : dans la section Loyers, ajoute un filtre Occupation (Loué, Disponible, Départ prévu) comme dans la page Appartements
+- dans la section Loyers, ajoute un filtre sur le building
 
 ## Page Appartments /admin/apartments
 

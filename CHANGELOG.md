@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-04-14 — Mois en cours : filtres Occupation + Bâtiment dans section Loyers (spec SPEC.md)
+- Section Loyers remplacée par composant client `MoisLoyersClient`
+- Filtre Occupation (Loué / Disponible / Départ prévu) identique à la page Appartements
+- Filtre Bâtiment (toggles dynamiques issus des données, tous actifs par défaut)
+- CA encaissé et pie chart réactifs aux deux filtres combinés
+- Fichiers : `components/admin/MoisLoyersClient.tsx` (nouveau), `app/admin/mois/page.tsx`
+
 ### 2026-04-14 — Corrections UX vitrine + formulaire nouveau bail (spec SPEC.md)
 - Vitrine appartement : bloc "Conditions de location" rendu sticky avec le bloc loyer (colonne droite entière sticky)
 - Formulaire nouveau bail : tous les champs obligatoires (required HTML5 + label avec *)
