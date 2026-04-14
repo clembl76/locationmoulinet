@@ -23,13 +23,8 @@
 ## Page EDL /admin/apartments/num/edl/id-edl
 
 ## Page Paiements /admin/payments
-- table transactions-linxo : 
-j'ajoute une 4e source Vieux Palais et un 4e csv dans drive
-
-
 
 ## Page Mise en location /admin/mise-en-location
-
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
 

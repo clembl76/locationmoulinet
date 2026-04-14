@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-04-13 — Nettoyage base et code mort (spec SPEC.md)
+- Script SQL de truncate des tables de test : `supabase/migrations/20260413_truncate_test_data.sql`
+- Suppression de la route morte `/admin/visitors` (remplacée par mise-en-location)
+- Inspection complète : toutes les autres tables et colonnes sont effectivement utilisées dans le code
+- Fichiers supprimés : `app/admin/visitors/page.tsx`
+
 ### 2026-04-13 — Linxo : ajout source Vieux Palais (spec SPEC.md)
 - Détection du fichier `vieux palais.csv` (variantes : vieuxpalais, vieux-palais, vieux_palais)
 - Badge amber dans la table, option dans le filtre Source

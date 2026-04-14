@@ -14,14 +14,16 @@
       "Bash(grep -rn \"from leases\\\\|FROM leases\" /c/Users/cleme/locationmoulinet/lib/*.ts)",
       "Bash(node scripts/read_bail_templates.mjs)",
       "WebFetch(domain:www.insee.fr)",
-      "WebFetch(domain:api.insee.fr)"
+      "WebFetch(domain:api.insee.fr)",
+      "Bash(gh repo:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\cleme\\locationmoulinet",
       "c:\\Users\\cleme\\locationmoulinet\\app\\admin\\mise-en-location\\candidats",
       "c:\\Users\\cleme\\locationmoulinet\\app\\admin\\mise-en-location\\candidats\\[id]",
       "C:\\Users\\cleme\\locationmoulinet\\app\\admin\\mise-en-location\\candidats\\[id]",
-      "c:\\Users\\cleme\\locationmoulinet\\supabase"
+      "c:\\Users\\cleme\\locationmoulinet\\supabase",
+      "c:\\Users\\cleme\\gestion-locative"
     ]
   }
 }
