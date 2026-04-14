@@ -115,7 +115,15 @@ export default async function AdminApartmentDetailPage({
                 )}
               </>
             ) : (
-              <p className="text-sm text-gray-400">Appartement vacant.</p>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-400">Appartement vacant.</p>
+                <a
+                  href={`/admin/apartments/${apt.number}/nouveau-bail`}
+                  className="inline-block bg-blue-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                >
+                  + Créer un bail
+                </a>
+              </div>
             )}
           </div>
 

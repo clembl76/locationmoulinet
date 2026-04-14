@@ -15,7 +15,11 @@
       "Bash(node scripts/read_bail_templates.mjs)",
       "WebFetch(domain:www.insee.fr)",
       "WebFetch(domain:api.insee.fr)",
-      "Bash(gh repo:*)"
+      "Bash(gh repo:*)",
+      "Bash(ls -la /c/Users/cleme/locationmoulinet/app/admin/apartments/[number]/)",
+      "Bash(ls -la /c/Users/cleme/locationmoulinet/app/admin/apartments/[number]/edl/)",
+      "Bash(ls -la /c/Users/cleme/locationmoulinet/app/admin/apartments/[number]/edl/[reportId]/)",
+      "Bash(grep -l \"tenant\\\\|lease\\\\|guarantor\" /c/Users/cleme/locationmoulinet/*.md)"
     ],
     "additionalDirectories": [
       "c:\\Users\\cleme\\locationmoulinet",

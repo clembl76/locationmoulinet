@@ -2,6 +2,22 @@
 
 ## [Non publié]
 
+### 2026-04-14 — Corrections UX vitrine + formulaire nouveau bail (spec SPEC.md)
+- Vitrine appartement : bloc "Conditions de location" rendu sticky avec le bloc loyer (colonne droite entière sticky)
+- Formulaire nouveau bail : tous les champs obligatoires (required HTML5 + label avec *)
+- Fichiers : `components/ApartmentDetail.tsx`, `app/admin/apartments/[number]/nouveau-bail/NouveauBailForm.tsx`
+
+### 2026-04-14 — Saisie manuelle d'un bail (spec SPEC.md)
+- Nouvelle page `/admin/apartments/[number]/nouveau-bail` avec formulaire complet
+- Sections : Bail, Locataire, Garant (optionnel via checkbox)
+- Champs bail : date signature (peut être dans le passé), date EDL entrée, durée, loyer HC/charges/CC, caution, type résidence, type bail, notes
+- Champs locataire : civilité, prénom/nom, email, téléphone, date/lieu de naissance, situation familiale
+- Champs garant : civilité, prénom/nom, email, téléphone, date/lieu de naissance, adresse
+- Bouton "+ Créer un bail" affiché sur la fiche appartement quand vacant
+- Redirection vers la fiche appartement après création
+- Fichiers : `app/admin/apartments/[number]/nouveau-bail/page.tsx`, `NouveauBailForm.tsx`, `actions.ts`
+- Modifié : `app/admin/apartments/[number]/page.tsx`
+
 ### 2026-04-13 — Nettoyage base et code mort (spec SPEC.md)
 - Script SQL de truncate des tables de test : `supabase/migrations/20260413_truncate_test_data.sql`
 - Suppression de la route morte `/admin/visitors` (remplacée par mise-en-location)

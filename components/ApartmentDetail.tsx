@@ -296,8 +296,8 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
           </div>
 
           {/* Right: price card + conditions de location */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-20">
+          <div className="lg:col-span-1 space-y-4 sticky top-20 self-start">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">{t.pricing}</p>
 
               <div className="text-4xl font-bold text-blue-dark mb-1">{priceCC} €</div>
