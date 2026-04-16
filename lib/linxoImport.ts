@@ -189,6 +189,9 @@ export async function importLinxoCsvs(): Promise<LinxoImportResult> {
 
     debug.push(`${file.name}: indices col — date:${iDate} libelle:${iLibelle} montant:${iMontant} categorie:${iCateg}`)
 
+    const today = new Date()
+    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
     const toInsert: Record<string, unknown>[] = []
 
     for (const row of rows) {
@@ -197,6 +200,14 @@ export async function importLinxoCsvs(): Promise<LinxoImportResult> {
       const dateRaw    = iDate >= 0 ? (row[iDate] ?? '') : ''
       const libelle    = iLibelle >= 0 ? (row[iLibelle] ?? '') : ''
       const montantRaw = iMontant >= 0 ? (row[iMontant] ?? '') : ''
+
+      // Ignorer les transactions prévisionnelles (date >= aujourd'hui)
+      const parsedDate = parseDate(dateRaw)
+      if (parsedDate && parsedDate >= todayIso) {
+        skipped++
+        continue
+      }
+
       const fp = makeFingerprint(source, dateRaw, libelle, montantRaw)
 
       toInsert.push({
