@@ -2,6 +2,16 @@
 
 ## [Non publié]
 
+### 2026-04-14 — Attestation CAF (spec SPEC.md §Page Détail d'un appartment)
+- Bouton "Attestation CAF" activé sur la page /admin/apartments/[num] (section Documents)
+- Génère un PDF "ATTESTATION DE LOYER" (sections bailleur, locataire, logement, loyer mensuel + signature)
+- Upload du PDF dans le dossier Drive du locataire (best-effort, non bloquant)
+- Crée un brouillon Gmail avec le PDF en pièce jointe, destinataire = email locataire
+- Objet : "Votre attestation de loyer pour la CAF"
+- Nom fichier : `yyyy-mm_AttestationCAF_[numéro appt]-[NOM].pdf`
+- Infos contact propriétaire hardcodées par immeuble (Vieux Palais → FRANCOIS, autres → ALAOUI)
+- Fichiers : `lib/quittance.ts`, `app/admin/apartments/[number]/actions.ts`, `components/admin/AttestationCafButton.tsx`, `app/admin/apartments/[number]/page.tsx`
+
 ### 2026-04-14 — Détail appartement : Linxo au lieu de transactions + ordre Paiements (spec SPEC.md)
 - Page /admin/apartments/[num] : bloc "Transactions récentes" remplacé par "Transactions Linxo" (filtrées par apartment_num), colonnes Date / Type / Description
 - Nouvelle fonction `getLinxoTransactionsForApartment()` dans adminData.ts

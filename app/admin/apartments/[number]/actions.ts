@@ -190,3 +190,4 @@ export async function generateAttestationAction(
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }
 }
+

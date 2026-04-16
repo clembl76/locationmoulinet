@@ -1,6 +1,7 @@
 import { google } from 'googleapis'
 import { createHash } from 'crypto'
 import { createAdminClient } from './supabaseAdmin'
+import { runSqlAdmin } from './adminData'
 
 const LINXO_FOLDER_ID = '1PRij2TBgU1I8e7jI5ubnS5Cd-T5-cJmQ'
 
@@ -260,13 +261,8 @@ export type LinxoTransaction = {
 }
 
 export async function getLinxoTransactions(): Promise<LinxoTransaction[]> {
-  const admin = createAdminClient()
-  const { data, error } = await admin
-    .from('transactions_linxo')
-    .select('*')
-    .order('date', { ascending: false })
-    .order('imported_at', { ascending: false })
-
-  if (error) throw new Error(error.message)
-  return (data ?? []) as LinxoTransaction[]
+  return runSqlAdmin<LinxoTransaction>(`
+    SELECT * FROM transactions_linxo
+    ORDER BY date DESC, imported_at DESC
+  `)
 }
