@@ -161,7 +161,7 @@ export async function signLeaseAction(opts: {
       .single()
     if (appErr || !appRow) throw new Error('Candidature introuvable')
     const apartmentId = appRow.apartment_id as string
-    const aptData = appRow.apartments as {
+    const aptData = appRow.apartments as unknown as {
       rent_including_charges: number
       rent_excluding_charges: number
       charges: number

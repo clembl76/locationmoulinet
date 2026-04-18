@@ -49,9 +49,9 @@ export default function CandidateActions({
   const isTerminal = ['accepted', 'rejected', 'withdrawn', 'signed'].includes(currentStatus)
 
   function handleStatus(status: 'accepted' | 'rejected' | 'withdrawn') {
-    startTransition(() =>
-      updateApplicationStatusAction(applicationId, status, visitorId)
-    )
+    startTransition(() => {
+      void updateApplicationStatusAction(applicationId, status, visitorId)
+    })
   }
 
   function handleSign() {
