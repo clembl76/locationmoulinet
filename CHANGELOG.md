@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-04-18 — Navbar mobile-first avec menu hamburger
+- Menu hamburger (3 lignes animées → croix) sur mobile (<768px), dropdown vertical avec tous les liens + switch FR/EN
+- Navigation horizontale conservée sur desktop (≥768px)
+- Standards mobile-first ajoutés à `AGENTS.md` (NAVBAR/GRILLE/HERO/Règles générales)
+- Fichiers : `components/Navbar.tsx`, `AGENTS.md`
+
 ### 2026-04-18 — Page détail appartement : boutons et coches (spec SPEC.md)
 - Boutons "Nous contacter" et "Visiter" : taille réduite (py-2 px-4 text-sm rounded-lg), espacement mt-2 entre les deux
 - Conditions de location : remplacement des bullets • par des coches ✓ (même style que le bloc Loyer mensuel)

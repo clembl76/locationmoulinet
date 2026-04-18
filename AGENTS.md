@@ -67,6 +67,31 @@ Sans précision de mode, l'agent se comporte comme DEV par défaut.
 
 ---
 
+## Standards Mobile-First (obligatoires pour tout DEV/QA)
+
+### NAVBAR
+- Sur mobile (<768px) : hamburger 3 lignes à droite, menu vertical en dropdown (tous les liens + switch FR/EN)
+- Sur desktop (≥768px) : liens horizontaux inline
+- Hauteur fixe 64px, fond blanc, légère ombre ou bordure basse
+- Implémenter avec `useState` dans un Client Component
+
+### GRILLE de cartes
+- 1 colonne sur mobile, 2 colonnes à partir de `sm` (640px), 3 colonnes à partir de `lg` (1024px)
+- Hauteur de carte uniforme, images en ratio 16:9
+
+### HERO / sections de titre
+- `py-8` mobile → `py-16` desktop
+- `text-2xl` mobile → `text-4xl` desktop
+- Tags/badges en `flex-wrap`
+
+### Règles générales
+- Toujours mobile-first : écrire le style de base pour mobile, surcharger avec `sm:`, `md:`, `lg:`
+- Interdire tout défilement horizontal (`overflow-x: hidden` sur body si nécessaire)
+- Zones tactiles min 44px de hauteur
+- Tester mentalement à 375px (iPhone SE) avant de valider
+
+---
+
 ## Fichiers de référence
 
 | Fichier | Usage |
