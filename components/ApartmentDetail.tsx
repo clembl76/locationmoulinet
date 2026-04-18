@@ -204,6 +204,7 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
     charges: lang === 'fr' ? 'Charges' : 'Service charges',
     address: lang === 'fr' ? 'Adresse' : 'Address',
     contact: lang === 'fr' ? 'Nous contacter' : 'Contact us',
+    visit: lang === 'fr' ? 'Visiter' : 'Book a visit',
     quartierTitle: lang === 'fr' ? 'Quartier & commodités' : 'Neighbourhood & amenities',
     conditionsTitle: lang === 'fr' ? 'Conditions de location' : 'Rental conditions',
   }
@@ -342,10 +343,18 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
                 </div>
               ) : (
                 <button onClick={() => setShowEmail(true)}
-                  className="w-full bg-blue-primary hover:bg-blue-dark text-white font-semibold py-3 rounded-xl transition-colors">
+                  className="w-full bg-blue-primary hover:bg-blue-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
                   {t.contact}
                 </button>
               )}
+              <div className="mt-2">
+                <a
+                  href="/visiter"
+                  className="block w-full text-center bg-white text-blue-primary text-sm font-semibold px-4 py-2 rounded-lg border border-blue-primary hover:bg-blue-light transition-colors"
+                >
+                  {t.visit}
+                </a>
+              </div>
             </div>
 
             {/* Conditions de location — même esprit que le bloc loyer */}
@@ -362,7 +371,7 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
                   'Provide proof of identity and proof of income.',
                 ]).map(b => (
                   <li key={b} className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="text-blue-primary mt-0.5 flex-shrink-0">•</span>
+                    <span className="text-blue-primary mt-0.5 flex-shrink-0">✓</span>
                     <span>{b}</span>
                   </li>
                 ))}

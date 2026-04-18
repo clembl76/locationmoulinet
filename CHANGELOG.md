@@ -2,6 +2,16 @@
 
 ## [Non publié]
 
+### 2026-04-18 — Page détail appartement : boutons et coches (spec SPEC.md)
+- Boutons "Nous contacter" et "Visiter" : taille réduite (py-2 px-4 text-sm rounded-lg), espacement mt-2 entre les deux
+- Conditions de location : remplacement des bullets • par des coches ✓ (même style que le bloc Loyer mensuel)
+- Fichiers : `components/ApartmentDetail.tsx`
+
+### 2026-04-18 — Header responsive + bouton Visiter sur détail appartement (spec SPEC.md)
+- Navbar : suppression des liens "Appartements" et "Contact", whitespace-nowrap sur le titre et les boutons, gap réduit sur mobile
+- Page détail appartement : ajout du bouton "Visiter" / "Book a visit" sous le bouton "Nous contacter", lien vers /visiter
+- Fichiers : `components/Navbar.tsx`, `components/ApartmentDetail.tsx`
+
 ### 2026-04-14 — Attestation CAF (spec SPEC.md §Page Détail d'un appartment)
 - Bouton "Attestation CAF" activé sur la page /admin/apartments/[num] (section Documents)
 - Génère un PDF "ATTESTATION DE LOYER" (sections bailleur, locataire, logement, loyer mensuel + signature)
