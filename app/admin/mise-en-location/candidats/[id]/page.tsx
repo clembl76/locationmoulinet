@@ -101,7 +101,7 @@ export default async function CandidateDetailPage({
       </div>
 
       {/* Layout 2 colonnes */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
         {/* ── Colonne gauche ─────────────────────────────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-6">
@@ -174,7 +174,7 @@ export default async function CandidateDetailPage({
         </div>
 
         {/* ── Colonne droite ─────────────────────────────────────────────────── */}
-        <div className="w-72 shrink-0 space-y-4">
+        <div className="w-full lg:w-72 lg:shrink-0 space-y-4">
 
           {/* Actions */}
           <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">

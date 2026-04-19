@@ -113,7 +113,8 @@ export default function LettingTable({
                 {isOpen && aptCandidates.length > 0 && (
                   <tr key={`${apt.id}-candidates`}>
                     <td colSpan={6} className="px-0 py-0 bg-blue-50/20 border-t border-blue-100">
-                      <table className="w-full text-sm">
+                      <div className="overflow-x-auto">
+                      <table className="w-full text-sm" style={{ minWidth: 600 }}>
                         <thead>
                           <tr className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-blue-100">
                             <th className="text-left pl-10 pr-4 py-2">Candidat</th>
@@ -169,6 +170,7 @@ export default function LettingTable({
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     </td>
                   </tr>
                 )}

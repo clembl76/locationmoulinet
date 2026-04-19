@@ -2,6 +2,17 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Admin mobile-first : hamburger menu + sidebars responsive
+- `AdminNavbar` (client component) : hamburger animé sur mobile, dropdown vertical, nav horizontale sur desktop ≥768px
+- Page détail candidat : sidebar droite empilée verticalement sur mobile (`flex-col lg:flex-row`, `w-full lg:w-72`)
+- `LettingTable` : tableau des candidatures expandable avec `overflow-x-auto` + `minWidth: 600`
+- Fichiers : `components/admin/AdminNavbar.tsx` (nouveau), `app/admin/layout.tsx`, `app/admin/mise-en-location/candidats/[id]/page.tsx`, `app/admin/mise-en-location/LettingTable.tsx`
+
+### 2026-04-19 — Désactivation RLS sur toutes les tables serveur
+- Root cause : nouveau format de clé Supabase (`sb_publishable_*`) empêche le bypass RLS via `createAdminClient()`
+- Toutes les tables accédées uniquement via Server Actions Next.js ont leur RLS désactivé (21 tables)
+- Migration : `supabase/migrations/20260419_disable_rls_all_server_tables.sql`
+
 ### 2026-04-18 — Navbar mobile-first avec menu hamburger
 - Menu hamburger (3 lignes animées → croix) sur mobile (<768px), dropdown vertical avec tous les liens + switch FR/EN
 - Navigation horizontale conservée sur desktop (≥768px)
