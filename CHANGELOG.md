@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Fix soumission formulaire candidature sur mobile
+- Augmentation de la limite body des Server Actions : 1 Mo → 15 Mo (`serverActionsBodySizeLimit`)
+- Cause : photos de documents mobiles (passeport, fiches de paie) dépassaient la limite par défaut
+- Fichier : `next.config.ts`
+
 ### 2026-04-19 — Admin mobile-first : hamburger menu + sidebars responsive
 - `AdminNavbar` (client component) : hamburger animé sur mobile, dropdown vertical, nav horizontale sur desktop ≥768px
 - Page détail candidat : sidebar droite empilée verticalement sur mobile (`flex-col lg:flex-row`, `w-full lg:w-72`)
