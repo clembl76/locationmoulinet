@@ -36,6 +36,38 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`
 }
 
+async function compressIfImage(file: File): Promise<File> {
+  if (!file.type.startsWith('image/')) return file
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const MAX = 1400
+      let { width, height } = img
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round(height * MAX / width); width = MAX }
+        else { width = Math.round(width * MAX / height); height = MAX }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+      canvas.toBlob(
+        blob => {
+          if (!blob) { resolve(file); return }
+          const name = file.name.replace(/\.[^.]+$/, '.jpg')
+          resolve(new File([blob], name, { type: 'image/jpeg' }))
+        },
+        'image/jpeg',
+        0.75,
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
+    img.src = url
+  })
+}
+
 // ─── Small UI components ──────────────────────────────────────────────────────
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -97,13 +129,13 @@ function FileSection({
   const inputRef = useRef<HTMLInputElement>(null)
   const canAdd = files.length < MAX_FILES
 
-  function handleAdd(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? [])
     if (!picked.length) return
-    const merged = [...files, ...picked].slice(0, MAX_FILES)
-    onFilesChange(merged)
-    // Reset the input so the same file can be re-picked if needed
     e.target.value = ''
+    const compressed = await Promise.all(picked.map(compressIfImage))
+    const merged = [...files, ...compressed].slice(0, MAX_FILES)
+    onFilesChange(merged)
   }
 
   function removeFile(index: number) {
