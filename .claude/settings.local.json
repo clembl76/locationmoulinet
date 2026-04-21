@@ -27,7 +27,10 @@
       "Bash(node -e ':*)",
       "Bash(node --input-type=module -e ':*)",
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://rskfplsmhgbqbxnjxnmn.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJza2ZwbHNtaGdicWJ4bmp4bm1uIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTEyMDgzNSwiZXhwIjoyMDkwNjk2ODM1fQ.ssENk_Rf-8GYbRgCNwabnB8dtO4oztlQA7qYZ82z1VI node scripts/backup.mjs)",
-      "Bash(node -e \"const p = require\\('./node_modules/next/package.json'\\); console.log\\(p.version\\)\")"
+      "Bash(node -e \"const p = require\\('./node_modules/next/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(node -e \" const t = require\\('/c/Users/cleme/locationmoulinet/node_modules/next/dist/server/config-schema.js'\\); const keys = Object.keys\\(t.configSchema?.shape ?? t.default?.shape ?? {}\\); console.log\\(keys.filter\\(k => k.toLowerCase\\(\\).includes\\('action'\\) || k.toLowerCase\\(\\).includes\\('body'\\) || k.toLowerCase\\(\\).includes\\('size'\\)\\)\\); \")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const s = require\\('C:\\\\\\\\Users\\\\\\\\cleme\\\\\\\\locationmoulinet\\\\\\\\node_modules\\\\\\\\next\\\\\\\\dist\\\\\\\\server\\\\\\\\config-schema.js'\\); const top = s.configSchema ?? s.default; const topKeys = Object.keys\\(top?.shape ?? {}\\); console.log\\('top server/action:', topKeys.filter\\(k => /server|action/i.test\\(k\\)\\)\\); const expShape = top?.shape?.experimental?._def?.shape?.\\(\\) ?? {}; const expKeys = Object.keys\\(expShape\\); console.log\\('exp server/action/body:', expKeys.filter\\(k => /server|action|body/i.test\\(k\\)\\)\\);\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\cleme\\locationmoulinet",

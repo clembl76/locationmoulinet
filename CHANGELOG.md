@@ -2,11 +2,12 @@
 
 ## [Non publié]
 
-### 2026-04-19 — Fix soumission formulaire candidature sur mobile
-- Compression automatique côté client des photos avant envoi (canvas, max 1400px, JPEG 75%)
-- Les PDFs sont transmis sans modification ; seules les images (jpg/png) sont compressées
-- Une photo mobile de 6 Mo → ~250 Ko, le formulaire reste sous la limite 1 Mo par défaut Next.js
-- Fichier : `components/CandidateForm.tsx`
+### 2026-04-19 — Fix soumission formulaire candidature : limite fichiers + config serveur
+- Config `serverActions.bodySizeLimit: '20mb'` dans `next.config.ts` (syntaxe Next.js 16)
+- Validation côté client : max 5 Mo par fichier, max 18 Mo total — message d'erreur explicite
+- Barre de progression du poids total visible en temps réel (bleu → orange → rouge)
+- Compression images inchangée (canvas 1400px JPEG 75%)
+- Fichiers : `next.config.ts`, `components/CandidateForm.tsx`
 
 ### 2026-04-19 — Admin mobile-first : hamburger menu + sidebars responsive
 - `AdminNavbar` (client component) : hamburger animé sur mobile, dropdown vertical, nav horizontale sur desktop ≥768px

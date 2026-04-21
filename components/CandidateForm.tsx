@@ -10,6 +10,8 @@ const PHONE_RE = /^(\+33|0033|0)[1-9](\s?\d{2}){4}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DEFAULT_BIRTH_DATE = '2000-01-01'
 const MAX_FILES = 5
+const MAX_FILE_BYTES = 5 * 1024 * 1024   // 5 Mo par fichier
+const MAX_TOTAL_BYTES = 18 * 1024 * 1024  // 18 Mo total (limite serveur 20 Mo)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -127,18 +129,31 @@ function FileSection({
   onFilesChange: (files: File[]) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [addError, setAddError] = useState('')
   const canAdd = files.length < MAX_FILES
 
   async function handleAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? [])
     if (!picked.length) return
     e.target.value = ''
+    setAddError('')
+
     const compressed = await Promise.all(picked.map(compressIfImage))
+
+    const oversized = compressed.filter(f => f.size > MAX_FILE_BYTES)
+    if (oversized.length > 0) {
+      setAddError(
+        `Fichier trop volumineux : ${oversized.map(f => `${f.name} (${formatBytes(f.size)})`).join(', ')}. Maximum 5 Mo par fichier. Compressez votre PDF ou réduisez sa qualité d'impression.`
+      )
+      return
+    }
+
     const merged = [...files, ...compressed].slice(0, MAX_FILES)
     onFilesChange(merged)
   }
 
   function removeFile(index: number) {
+    setAddError('')
     onFilesChange(files.filter((_, i) => i !== index))
   }
 
@@ -155,9 +170,9 @@ function FileSection({
       {files.length > 0 && (
         <ul className="space-y-1">
           {files.map((f, i) => (
-            <li key={i} className="flex items-center justify-between bg-blue-light rounded-lg px-3 py-1.5 text-xs">
+            <li key={i} className={`flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${f.size > MAX_FILE_BYTES ? 'bg-red-50 border border-red-200' : 'bg-blue-light'}`}>
               <span className="text-gray-700 truncate max-w-[70%]">{f.name}</span>
-              <span className="text-gray-400 ml-2 flex-shrink-0">{formatBytes(f.size)}</span>
+              <span className={`ml-2 flex-shrink-0 ${f.size > MAX_FILE_BYTES ? 'text-red-500 font-semibold' : 'text-gray-400'}`}>{formatBytes(f.size)}</span>
               <button
                 type="button"
                 onClick={() => removeFile(i)}
@@ -169,6 +184,10 @@ function FileSection({
             </li>
           ))}
         </ul>
+      )}
+
+      {addError && (
+        <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{addError}</p>
       )}
 
       {/* Bouton ajouter */}
@@ -383,12 +402,28 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
     e.preventDefault()
     if (hasErrors) return
     const form = e.currentTarget
-    // Build FormData from the form fields (text inputs, selects, radios, hidden)
-    // then inject files from state (avoids DataTransfer/hidden-input unreliability)
+
+    const allFiles = Object.values(fileSections).flat()
+    const totalBytes = allFiles.reduce((sum, f) => sum + f.size, 0)
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      setResult({
+        ok: false,
+        error: `Poids total des fichiers trop élevé : ${formatBytes(totalBytes)} (maximum ${formatBytes(MAX_TOTAL_BYTES)}). Supprimez ou compressez certains documents.`,
+      })
+      return
+    }
+    const oversized = allFiles.filter(f => f.size > MAX_FILE_BYTES)
+    if (oversized.length > 0) {
+      setResult({
+        ok: false,
+        error: `Certains fichiers dépassent 5 Mo : ${oversized.map(f => f.name).join(', ')}. Veuillez les supprimer et les remplacer par des versions allégées.`,
+      })
+      return
+    }
+
     const formData = new FormData(form)
     if (selectedApt) formData.set('apt_number', selectedApt.number)
 
-    // Remove any stale file entries from the form, then inject from state
     for (const key of ['candidate_docs_identity','candidate_docs_income','candidate_docs_status','guarantor_docs_identity','guarantor_docs_income']) {
       formData.delete(key)
     }
@@ -593,6 +628,32 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
         />
       </div>
       )}
+
+      {/* ── Indicateur poids total ───────────────────────────────────────── */}
+      {(() => {
+        const allFiles = Object.values(fileSections).flat()
+        if (allFiles.length === 0) return null
+        const total = allFiles.reduce((s, f) => s + f.size, 0)
+        const pct = Math.min(100, Math.round(total / MAX_TOTAL_BYTES * 100))
+        const overLimit = total > MAX_TOTAL_BYTES
+        return (
+          <div className={`rounded-xl border px-4 py-3 text-sm ${overLimit ? 'bg-red-50 border-red-200 text-red-700' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
+            <div className="flex justify-between mb-1.5">
+              <span>Poids total des pièces jointes</span>
+              <span className="font-semibold">{formatBytes(total)} / {formatBytes(MAX_TOTAL_BYTES)}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div
+                className={`h-1.5 rounded-full transition-all ${overLimit ? 'bg-red-500' : pct > 80 ? 'bg-amber-400' : 'bg-blue-primary'}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            {overLimit && (
+              <p className="mt-1.5 text-xs">Supprimez ou allégez des fichiers pour pouvoir envoyer votre dossier.</p>
+            )}
+          </div>
+        )
+      })()}
 
       {/* ── Erreur serveur ────────────────────────────────────────────────── */}
       {result && !result.ok && (
