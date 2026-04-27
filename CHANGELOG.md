@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Correction sécurité : ré-activation RLS sur toutes les tables
+- RLS ré-activé sur les 21 tables (service role bypasse automatiquement, aucune policy nécessaire)
+- Corrige la vulnérabilité : clé anon publique ne peut plus accéder directement aux tables via REST API
+- Migration : `supabase/migrations/20260419_reenable_rls_all_tables.sql`
+
 ### 2026-04-19 — Fix soumission formulaire candidature : limite fichiers + config serveur
 - Config `serverActions.bodySizeLimit: '20mb'` dans `next.config.ts` (syntaxe Next.js 16)
 - Validation côté client : max 5 Mo par fichier, max 18 Mo total — message d'erreur explicite
