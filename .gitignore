@@ -47,3 +47,4 @@ next-env.d.ts
 
 # Claude Code (peut contenir des secrets dans l'historique des commandes)
 .claude/
+settings.local.json
