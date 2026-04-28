@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Page Visiter : filtre créneaux passés + buffer 2h (spec SPEC.md)
+- Pour le jour courant, seuls les créneaux >= heure Paris + 2h sont proposés
+- Exemple : il est 9h31 → premier créneau proposé est 11h45 (slot >= 11h31)
+- Calcul en heure Europe/Paris (pas UTC) pour éviter les décalages DST
+- Fichier : `app/visiter/actions.ts`
+
 ### 2026-04-19 — Correction sécurité : ré-activation RLS sur toutes les tables
 - RLS ré-activé sur les 21 tables (service role bypasse automatiquement, aucune policy nécessaire)
 - Corrige la vulnérabilité : clé anon publique ne peut plus accéder directement aux tables via REST API

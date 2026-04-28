@@ -3,8 +3,7 @@
 
 
 # Page Détail appartement /#apartments/num
-- Tu dois mieux gérer les espacements entre les boutons Nous contacter et Visiter, là ils sont collés. Ils n'ont pas besoin d'être aussi gros, ils peuvent faire comme pour le header comme taille.
-- Dans le bloc condition de location remplace les bullet par des coches (comme celles dans LOYER MENSUEL)
+
 
 ## Page Visiter /visiter
 

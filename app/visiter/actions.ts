@@ -79,7 +79,19 @@ export async function getAvailableSlotsAction(date: string): Promise<string[]> {
     )
     const bookedSet = new Set(booked.map(r => r.visit_time.slice(0, 5)))
 
-    return allSlots.filter(s => !bookedSet.has(s) && !blockedByException.has(s))
+    // 7. Pour le jour courant : exclure les créneaux avant heure actuelle + 2h (heure de Paris)
+    const parisNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+    const todayStr = `${parisNow.getFullYear()}-${String(parisNow.getMonth() + 1).padStart(2, '0')}-${String(parisNow.getDate()).padStart(2, '0')}`
+    const minMins = date === todayStr ? parisNow.getHours() * 60 + parisNow.getMinutes() + 120 : 0
+
+    return allSlots.filter(s => {
+      if (bookedSet.has(s) || blockedByException.has(s)) return false
+      if (minMins > 0) {
+        const [h, m] = s.split(':').map(Number)
+        return h * 60 + m >= minMins
+      }
+      return true
+    })
   } catch {
     return []
   }
