@@ -42,6 +42,16 @@ Sans précision de mode, l'agent se comporte comme DEV par défaut.
 - Pas d'entités HTML dans le JSX — UTF-8 direct uniquement
 - Pas de composants React définis à l'intérieur d'autres composants
 
+**Tests obligatoires** — pour chaque modification de code (pas uniquement les nouvelles features) :
+- Identifier les fonctions pures et composants client impactés
+- Créer ou mettre à jour le fichier de test colocalisé dans `src/`
+- Couvrir : happy path, cas limites, interactions utilisateur, messages d'erreur
+- Exécuter `npm run test:coverage` — tous les tests doivent passer avant de livrer
+- Stack : Vitest + React Testing Library + user-event (voir `vitest.config.ts`)
+- **Toujours afficher en fin de réponse** :
+  1. Le récap des tests (N passés / N échoués / durée)
+  2. Le tableau de couverture par fichier (% Stmts / Branch / Funcs / Lines + lignes non couvertes)
+
 **En fin de tâche**, produire obligatoirement un bloc Handoff :
 
 ```

@@ -15,6 +15,20 @@ export default async function LoginPage({
 
         <form action={loginAction} className="space-y-4">
           <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email <span className="text-gray-400 font-normal">(gestionnaire uniquement)</span>
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="Laisser vide pour connexion admin"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary text-gray-700 placeholder:text-gray-300"
+            />
+          </div>
+
+          <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Mot de passe
             </label>
@@ -29,7 +43,7 @@ export default async function LoginPage({
           </div>
 
           {error && (
-            <p className="text-sm text-red-600">Mot de passe incorrect.</p>
+            <p className="text-sm text-red-600">Identifiants incorrects.</p>
           )}
 
           <button

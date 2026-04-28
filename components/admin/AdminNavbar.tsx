@@ -1,17 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import type { SessionRole } from '@/lib/session'
 
-const NAV_LINKS = [
-  { href: '/admin/mise-en-location', label: 'Mise en location' },
-  { href: '/admin/apartments', label: 'Appartements' },
-  { href: '/admin/payments', label: 'Paiements' },
-  { href: '/admin/mois', label: 'Mois en cours' },
-  { href: '/admin', label: 'Tableau de bord' },
+const ALL_NAV_LINKS = [
+  { href: '/admin/mise-en-location', label: 'Mise en location', adminOnly: true },
+  { href: '/admin/apartments', label: 'Appartements', adminOnly: false },
+  { href: '/admin/payments', label: 'Paiements', adminOnly: true },
+  { href: '/admin/mois', label: 'Mois en cours', adminOnly: true },
+  { href: '/admin', label: 'Tableau de bord', adminOnly: true },
 ]
 
-export default function AdminNavbar() {
+export default function AdminNavbar({ role }: { role: SessionRole }) {
   const [open, setOpen] = useState(false)
+  const navLinks = ALL_NAV_LINKS.filter(l => !l.adminOnly || role === 'admin')
 
   return (
     <header className="bg-blue-dark text-white sticky top-0 z-50">
@@ -22,7 +24,7 @@ export default function AdminNavbar() {
           </a>
           {/* Desktop nav */}
           <nav className="hidden md:flex gap-4 text-sm text-blue-light/80">
-            {NAV_LINKS.map(link => (
+            {navLinks.map(link => (
               <a key={link.href} href={link.href} className="hover:text-white transition-colors whitespace-nowrap">
                 {link.label}
               </a>
@@ -31,6 +33,9 @@ export default function AdminNavbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          {role === 'viewer' && (
+            <span className="hidden md:block text-xs text-blue-light/40 italic">Lecture seule</span>
+          )}
           <a href="/admin/logout" className="hidden md:block text-xs text-blue-light/60 hover:text-white transition-colors">
             Déconnexion
           </a>
@@ -50,7 +55,7 @@ export default function AdminNavbar() {
       {/* Mobile dropdown */}
       {open && (
         <div className="md:hidden border-t border-white/10 bg-blue-dark px-4 py-4 flex flex-col gap-1">
-          {NAV_LINKS.map(link => (
+          {navLinks.map(link => (
             <a
               key={link.href}
               href={link.href}
@@ -60,6 +65,9 @@ export default function AdminNavbar() {
               {link.label}
             </a>
           ))}
+          {role === 'viewer' && (
+            <p className="pt-2 text-xs text-blue-light/40 italic">Accès lecture seule</p>
+          )}
           <a
             href="/admin/logout"
             onClick={() => setOpen(false)}

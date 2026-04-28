@@ -3,27 +3,7 @@
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
 import { createVisitCalendarEvent } from '@/lib/quittance'
-
-// ── Helpers créneaux ──────────────────────────────────────────────────────────
-
-function generateSlots(startTime: string, endTime: string, durationMins: number): string[] {
-  const [sh, sm] = startTime.split(':').map(Number)
-  const [eh, em] = endTime.split(':').map(Number)
-  const startMins = sh * 60 + sm
-  const endMins = eh * 60 + em
-  const slots: string[] = []
-  for (let m = startMins; m + durationMins <= endMins; m += durationMins) {
-    const h = Math.floor(m / 60)
-    const min = m % 60
-    slots.push(`${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`)
-  }
-  return slots
-}
-
-// Convertit un getDay() JS (0=Dim) en convention 0=Lun
-function jsDayToRule(jsDay: number) {
-  return (jsDay + 6) % 7
-}
+import { generateSlots, jsDayToRule, filterSlotsForToday } from '@/lib/visitSlotUtils'
 
 // ── Action publique : créneaux disponibles pour une date ──────────────────────
 
@@ -82,16 +62,13 @@ export async function getAvailableSlotsAction(date: string): Promise<string[]> {
     // 7. Pour le jour courant : exclure les créneaux avant heure actuelle + 2h (heure de Paris)
     const parisNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
     const todayStr = `${parisNow.getFullYear()}-${String(parisNow.getMonth() + 1).padStart(2, '0')}-${String(parisNow.getDate()).padStart(2, '0')}`
-    const minMins = date === todayStr ? parisNow.getHours() * 60 + parisNow.getMinutes() + 120 : 0
+    const nowMins = parisNow.getHours() * 60 + parisNow.getMinutes()
 
-    return allSlots.filter(s => {
-      if (bookedSet.has(s) || blockedByException.has(s)) return false
-      if (minMins > 0) {
-        const [h, m] = s.split(':').map(Number)
-        return h * 60 + m >= minMins
-      }
-      return true
-    })
+    let available = allSlots.filter(s => !bookedSet.has(s) && !blockedByException.has(s))
+    if (date === todayStr) {
+      available = filterSlotsForToday(available, nowMins, 120)
+    }
+    return available
   } catch {
     return []
   }

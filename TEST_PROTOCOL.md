@@ -9,7 +9,67 @@
 
 ---
 
+## Stack de test
+
+- **Runner** : Vitest — `npm test` (CI), `npm run test:watch` (développement)
+- **Rendu** : `@testing-library/react` + `@testing-library/user-event`
+- **Matchers** : `@testing-library/jest-dom`
+- **Environnement** : jsdom
+- **Config** : `vitest.config.ts` — alias `@/` → racine du projet
+- **Setup global** : `src/test/setup.ts`
+- **Localisation** : fichiers `*.test.{ts,tsx}` dans `src/`, colocalisés avec les sources
+
+---
+
 ## Étapes — dans l'ordre, sans en sauter aucune
+
+### Étape 0 — Tests automatisés (obligatoire à chaque modification de code)
+
+> Avant toute autre chose, exécuter `npm test` et vérifier que **tous les tests passent**.
+> Si des tests échouent, corriger avant de continuer.
+
+```bash
+npm test
+```
+
+**Pour chaque nouvelle feature ou modification** :
+
+1. Identifier les fonctions pures et les composants client concernés
+2. Créer ou mettre à jour le fichier de test colocalisé (`src/.../*.test.{ts,tsx}`)
+3. Couvrir au minimum :
+   - **Happy path** : comportement normal, rendu attendu
+   - **Cas limites** : valeurs vides, valeurs extrêmes, états d'erreur
+   - **Interactions utilisateur** (composants) : clics, saisies, navigation via `userEvent`
+   - **Validations** : messages d'erreur affichés, champs requis, formats invalides
+4. Relancer `npm test` — les nouveaux tests doivent passer
+
+**Conventions de nommage** :
+- Fonctions pures → `src/lib/*.test.ts`
+- Composants → `src/components/**/*.test.tsx`
+- Pages → `src/app/**/*.test.tsx`
+
+**Mocks** :
+- Server Actions → `vi.mock('@/app/.../actions', () => ({ actionName: vi.fn() }))`
+- Next.js router → `vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))`
+- Supabase → `vi.mock('@/lib/supabaseAdmin', () => ({ createAdminClient: () => ({ from: vi.fn() }) }))`
+
+**Rapport de test** : inclure systématiquement dans chaque réponse après exécution des tests :
+
+```
+### Résultats des tests
+- X tests passés / Y échoués — Z fichiers — durée
+
+### Couverture
+| Fichier | % Stmts | % Branch | % Funcs | % Lines | Ce qui n'est pas couvert (et pourquoi) |
+|---------|---------|----------|---------|---------|----------------------------------------|
+| ...     | ...     | ...      | ...     | ...     | ex. "submit complet — nécessite Canvas + Next.js runtime" |
+```
+
+La colonne "Ce qui n'est pas couvert" doit expliquer **ce qui manque ET pourquoi** :
+- fonctionnalité non testée + raison technique (dépend du runtime Next.js, Canvas, cookies, redirect…)
+- ou simplement "—" si couverture 100%
+
+Commande : `npm run test:coverage`
 
 ### Étape 1 — Analyse statique
 - Vérifie la structure des fichiers et l'organisation du projet
