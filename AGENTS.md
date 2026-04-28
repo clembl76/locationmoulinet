@@ -110,3 +110,5 @@ Sans précision de mode, l'agent se comporte comme DEV par défaut.
 | `TEST_PROTOCOL.md` | Protocole complet de l'agent QA |
 | `CHANGELOG.md` | Mis à jour par DEV après chaque feature |
 | `reports/` | Rapports QA — jamais modifié par DEV |
+| `SPEC.md` | Specs prêtes à implémenter — source de vérité pour DEV/QA |
+| `BACKLOG.md` | Idées brutes non confirmées — **ne pas lire ni implémenter** |
