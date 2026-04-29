@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Fond bleu arrondi -->
+  <rect width="32" height="32" rx="7" fill="#185FA5"/>
+  <!-- Toit -->
+  <polygon points="16,4 27,14 5,14" fill="white"/>
+  <!-- Corps de la maison -->
+  <rect x="6" y="14" width="20" height="14" rx="1" fill="white"/>
+  <!-- Porte -->
+  <rect x="12" y="20" width="8" height="8" rx="1" fill="#185FA5"/>
+</svg>
