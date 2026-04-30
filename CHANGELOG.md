@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Fix régression filtre home page (disponible/prochainement/loué)
+- Root cause : le client anon de la home page ne pouvait plus lire `leases` après activation du RLS (pas de policy anon sur leases)
+- Fix : réécriture de `app/page.tsx` via `runSqlAdmin` (bypass RLS) — cohérent avec les autres pages server-side
+- La jointure LEFT JOIN sur leases filtre désormais sur baux actifs/futurs uniquement
+- `lease_id IS NULL` distingue "pas de bail" de "bail actif sans date de départ" → statuts corrects
+- Fichier : `app/page.tsx`
+
 ### 2026-04-19 — Page Visiter : filtre créneaux passés + buffer 2h (spec SPEC.md)
 - Pour le jour courant, seuls les créneaux >= heure Paris + 2h sont proposés
 - Exemple : il est 9h31 → premier créneau proposé est 11h45 (slot >= 11h31)
