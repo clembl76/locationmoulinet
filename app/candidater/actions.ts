@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { uploadCandidateDocuments } from '@/lib/quittance'
+import { uploadCandidateDocuments, sendCandidateNotificationEmail } from '@/lib/quittance'
 
 export type CandidateResult =
   | { ok: true; applicationId: string; driveWarning?: string }
@@ -168,6 +168,15 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
         }
       }
     }
+
+    // ── Notification email (best-effort, non bloquant) ───────────────────────
+    const aptNumber = (formData.get('apt_number') as string | null)?.trim() ?? apartmentId
+    sendCandidateNotificationEmail({
+      aptNumber,
+      lastName,
+      firstName,
+      desiredSigningDate,
+    }).catch(() => { /* non-bloquant */ })
 
     return { ok: true, applicationId, driveWarning }
   } catch (e) {

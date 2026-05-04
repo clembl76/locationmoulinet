@@ -1189,3 +1189,46 @@ export async function createGmailDraft(
 
   return draft.data.id ?? ''
 }
+
+// ─── Notification email — nouvelle candidature ────────────────────────────────
+
+export async function sendCandidateNotificationEmail(opts: {
+  aptNumber: string
+  lastName: string
+  firstName: string
+  desiredSigningDate: string
+}): Promise<void> {
+  const to = 'location.moulinet@gmail.com'
+  const subject = `Nouvelle candidature pour l'appartement ${opts.aptNumber}`
+
+  const dateFormatted = (() => {
+    const d = new Date(opts.desiredSigningDate + 'T12:00:00')
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+  })()
+
+  const body = [
+    `Nouvelle candidature pour l'appartement ${opts.aptNumber}`,
+    ``,
+    `${opts.lastName.toUpperCase()} ${opts.firstName}`,
+    `Date de début de bail souhaitée : ${dateFormatted}`,
+    `Durée : 1 an`,
+  ].join('\n')
+
+  const mime = [
+    `To: ${to}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/plain; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.messages.send({
+    userId: 'me',
+    requestBody: { raw },
+  })
+}

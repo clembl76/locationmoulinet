@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Email notification nouvelle candidature + fix LettingTable mobile (spec SPEC.md)
+- Candidater : envoi d'un email à location.moulinet@gmail.com à chaque soumission (objet, nom/prénom, date bail souhaitée, durée 1 an) via Gmail API — best-effort non bloquant
+- LettingTable : scroll horizontal sur mobile via `overflow-x-auto` + `minWidth: 560` sur la table principale, les lignes et candidatures sont désormais accessibles sur mobile
+- Fichiers : `lib/quittance.ts`, `app/candidater/actions.ts`, `app/admin/mise-en-location/LettingTable.tsx`
+
 ### 2026-04-19 — Fix régression filtre home page (disponible/prochainement/loué)
 - Root cause : le client anon de la home page ne pouvait plus lire `leases` après activation du RLS (pas de policy anon sur leases)
 - Fix : réécriture de `app/page.tsx` via `runSqlAdmin` (bypass RLS) — cohérent avec les autres pages server-side

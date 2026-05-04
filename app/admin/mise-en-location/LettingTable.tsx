@@ -52,7 +52,8 @@ export default function LettingTable({
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full text-sm" style={{ minWidth: 560 }}>
         <thead className="bg-gray-50 border-b border-gray-100">
           <tr className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
             <th className="text-left px-4 py-3">Appartement</th>
@@ -179,6 +180,7 @@ export default function LettingTable({
           })}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }
