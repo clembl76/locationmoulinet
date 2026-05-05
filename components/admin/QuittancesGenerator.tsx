@@ -23,17 +23,18 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
   const [selected, setSelected]     = useState<Set<number>>(new Set())
   const [results, setResults]       = useState<MonthResult[] | null>(null)
   const [loadingRents, setLoadingRents] = useState(false)
+  const [loadError, setLoadError]       = useState<string | null>(null)
   const [pending, startTransition]  = useTransition()
 
   useEffect(() => {
     if (!leaseId) return
     setSelected(new Set())
     setResults(null)
+    setLoadError(null)
     setLoadingRents(true)
-    getRentsForYearAction(leaseId, year).then(r => {
-      setRents(r)
-      setLoadingRents(false)
-    })
+    getRentsForYearAction(leaseId, year)
+      .then(r => { setRents(r); setLoadingRents(false) })
+      .catch(e => { setLoadError(e instanceof Error ? e.message : 'Erreur'); setLoadingRents(false) })
   }, [leaseId, year])
 
   function toggleMonth(m: number) {
@@ -59,7 +60,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
     })
   }
 
-  const yearOptions = Array.from({ length: 5 }, (_, i) => now.getFullYear() - i)
+  const yearOptions = Array.from({ length: 6 }, (_, i) => now.getFullYear() - i)
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
@@ -115,8 +116,15 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
 
         {loadingRents ? (
           <p className="text-sm text-gray-400">Chargement…</p>
+        ) : loadError ? (
+          <p className="text-sm text-red-500">{loadError}</p>
         ) : rents.length === 0 ? (
-          <p className="text-sm text-gray-400 italic">Aucun loyer enregistré pour {year}.</p>
+          <p className="text-sm text-gray-400 italic">
+            Aucun loyer enregistré pour {year}.
+            {year === now.getFullYear() && (
+              <span className="block mt-1">Essaie une année précédente ou génère d&apos;abord les loyers depuis le tableau de bord.</span>
+            )}
+          </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {rents.map(r => {

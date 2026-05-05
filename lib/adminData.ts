@@ -407,17 +407,23 @@ export type ApartmentWithLease = {
 
 export async function getApartmentsWithActiveLease(): Promise<ApartmentWithLease[]> {
   return runSql<ApartmentWithLease>(`
-    SELECT DISTINCT ON (a.number)
-      l.id   AS lease_id,
-      a.number AS apartment_number,
-      (t.first_name || ' ' || UPPER(t.last_name)) AS tenant_name
-    FROM leases l
-    JOIN apartments a ON a.id = l.apartment_id
-    JOIN lease_tenants lt ON lt.lease_id = l.id
-    JOIN tenants t ON t.id = lt.tenant_id
-    WHERE l.move_out_inspection_date IS NULL
-       OR l.move_out_inspection_date >= CURRENT_DATE
-    ORDER BY a.number::integer
+    SELECT lease_id, apartment_number, tenant_name
+    FROM (
+      SELECT DISTINCT ON (a.id)
+        l.id   AS lease_id,
+        a.number AS apartment_number,
+        a.number::integer AS sort_num,
+        (t.first_name || ' ' || UPPER(t.last_name)) AS tenant_name
+      FROM leases l
+      JOIN apartments a ON a.id = l.apartment_id
+      JOIN lease_tenants lt ON lt.lease_id = l.id
+      JOIN tenants t ON t.id = lt.tenant_id
+      WHERE (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+        AND (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND a.type::text != 'BUREAU'
+      ORDER BY a.id, t.last_name
+    ) sub
+    ORDER BY sort_num
   `)
 }
 
