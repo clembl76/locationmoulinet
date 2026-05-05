@@ -14,7 +14,7 @@ export async function loginAction(formData: FormData) {
 
   let role: 'admin' | 'viewer' | null = null
 
-  if (!email && password === adminPassword) {
+  if (password === adminPassword) {
     role = 'admin'
   } else if (email && email === viewerEmail && password === viewerPassword) {
     role = 'viewer'

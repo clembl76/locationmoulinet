@@ -399,6 +399,41 @@ export async function getRentForMonth(
   return rows[0] ?? null
 }
 
+export type ApartmentWithLease = {
+  lease_id: string
+  apartment_number: string
+  tenant_name: string
+}
+
+export async function getApartmentsWithActiveLease(): Promise<ApartmentWithLease[]> {
+  return runSql<ApartmentWithLease>(`
+    SELECT DISTINCT ON (a.number)
+      l.id   AS lease_id,
+      a.number AS apartment_number,
+      (t.first_name || ' ' || UPPER(t.last_name)) AS tenant_name
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t ON t.id = lt.tenant_id
+    WHERE l.move_out_inspection_date IS NULL
+       OR l.move_out_inspection_date >= CURRENT_DATE
+    ORDER BY a.number::integer
+  `)
+}
+
+export async function getRentsForLeaseYear(
+  leaseId: string,
+  year: number
+): Promise<RentRecord[]> {
+  return runSql<RentRecord>(`
+    SELECT id, lease_id, year, month, amount_expected, is_prorata, prorata_days,
+           days_in_month, amount_received, received_at, notes
+    FROM rents
+    WHERE lease_id = '${leaseId}' AND year = ${year}
+    ORDER BY month
+  `)
+}
+
 export async function generateMonthlyRents(
   year: number,
   month: number

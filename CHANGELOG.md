@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Générateur de quittances à la demande sur /admin/payments (spec SPEC.md)
+- Sélection appartement + année + un/plusieurs/tous les mois
+- Affiche les montants réels (prorata inclus) par mois
+- Génère autant de brouillons Gmail que de mois sélectionnés
+- Retour visuel par mois : ✓ brouillon créé ou message d'erreur
+- Fichiers : `lib/adminData.ts`, `app/admin/payments/quittancesActions.ts` (nouveau), `components/admin/QuittancesGenerator.tsx` (nouveau), `app/admin/payments/page.tsx`
+
 ### 2026-04-19 — Fix régression quittance (spec SPEC.md §Page Détail appartement)
 - `markReceivedAndGenerateQuittance` : lecture et mise à jour de `rents` via `runSqlAdmin` au lieu de `createAdminClient()` — bypasse le RLS sans dépendre des policies service_role
 - `sendCandidateNotificationEmail` : corrigé pour utiliser `drafts.create` (scope `gmail.compose`) au lieu de `messages.send` (scope `gmail.send` non disponible) — évitait une erreur OAuth pouvant perturber les tokens Google
