@@ -1227,8 +1227,9 @@ export async function sendCandidateNotificationEmail(opts: {
   const raw = Buffer.from(mime).toString('base64url')
   const auth = makeGoogleAuth()
   const gmail = google.gmail({ version: 'v1', auth })
-  await gmail.users.messages.send({
+  // Crée un brouillon (scope gmail.compose, cohérent avec les autres notifications)
+  await gmail.users.drafts.create({
     userId: 'me',
-    requestBody: { raw },
+    requestBody: { message: { raw } },
   })
 }

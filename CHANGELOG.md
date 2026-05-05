@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-04-19 — Fix régression quittance (spec SPEC.md §Page Détail appartement)
+- `markReceivedAndGenerateQuittance` : lecture et mise à jour de `rents` via `runSqlAdmin` au lieu de `createAdminClient()` — bypasse le RLS sans dépendre des policies service_role
+- `sendCandidateNotificationEmail` : corrigé pour utiliser `drafts.create` (scope `gmail.compose`) au lieu de `messages.send` (scope `gmail.send` non disponible) — évitait une erreur OAuth pouvant perturber les tokens Google
+- Fichiers : `app/admin/apartments/[number]/actions.ts`, `lib/quittance.ts`
+
 ### 2026-04-19 — Email notification nouvelle candidature + fix LettingTable mobile (spec SPEC.md)
 - Candidater : envoi d'un email à location.moulinet@gmail.com à chaque soumission (objet, nom/prénom, date bail souhaitée, durée 1 an) via Gmail API — best-effort non bloquant
 - LettingTable : scroll horizontal sur mobile via `overflow-x-auto` + `minWidth: 560` sur la table principale, les lignes et candidatures sont désormais accessibles sur mobile

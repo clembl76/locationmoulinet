@@ -2,7 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent } from '@/lib/quittance'
-import { createEdlReport } from '@/lib/adminData'
+import { createEdlReport, runSqlAdmin } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -47,26 +47,19 @@ export async function markReceivedAndGenerateQuittance(
   month: number
 ): Promise<QuittanceActionResult> {
   try {
-    // 1. Récupérer le montant attendu pour mettre à jour rents
-    const admin = createAdminClient()
-    const { data: rentRow, error: fetchErr } = await admin
-      .from('rents')
-      .select('amount_expected')
-      .eq('id', rentId)
-      .single()
+    // 1. Récupérer le montant attendu via runSqlAdmin (bypasse RLS)
+    const rentRows = await runSqlAdmin<{ amount_expected: number }>(
+      `SELECT amount_expected FROM rents WHERE id = '${rentId}' LIMIT 1`
+    )
+    if (!rentRows[0]) throw new Error('Loyer introuvable')
+    const amountExpected = rentRows[0].amount_expected
 
-    if (fetchErr || !rentRow) throw new Error('Loyer introuvable')
-
-    const amountExpected = rentRow.amount_expected as number
-    const today = new Date().toISOString().slice(0, 10)
-
-    // 2. Marquer comme encaissé
-    const { error: updateErr } = await admin
-      .from('rents')
-      .update({ amount_received: amountExpected, received_at: today })
-      .eq('id', rentId)
-
-    if (updateErr) throw new Error(updateErr.message)
+    // 2. Marquer comme encaissé via runSqlAdmin (bypasse RLS)
+    const now = new Date()
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    await runSqlAdmin(
+      `UPDATE rents SET amount_received = ${amountExpected}, received_at = '${todayStr}' WHERE id = '${rentId}'`
+    )
 
     // 3. Générer le PDF quittance
     const qData = await getQuittanceData(leaseId)
