@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-05-14 — Email alerte nouvelle visite (spec SPEC.md §Page Visiter)
+- Envoi d'un brouillon Gmail à location.moulinet@gmail.com à chaque nouvelle visite programmée
+- Objet : "Nouvelle visite le [date] à [heure]" — Corps : date/heure, appartements, nom/prénom, email, téléphone, situation, garant, revenus, durée souhaitée, commentaires
+- Best-effort non bloquant — la réservation est enregistrée même si l'email échoue
+- Fichiers : `lib/quittance.ts`, `app/visiter/actions.ts`
+
 ### 2026-04-19 — Générateur de quittances à la demande sur /admin/payments (spec SPEC.md)
 - Sélection appartement + année + un/plusieurs/tous les mois
 - Affiche les montants réels (prorata inclus) par mois

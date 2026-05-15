@@ -1190,6 +1190,71 @@ export async function createGmailDraft(
   return draft.data.id ?? ''
 }
 
+// ─── Notification email — nouvelle visite programmée ─────────────────────────
+
+export async function sendVisitNotificationEmail(opts: {
+  visitDate: string
+  visitTime: string
+  apartmentNumbers: string[]
+  lastName: string
+  firstName: string
+  email: string
+  phone: string
+  situation: 'student' | 'other' | null
+  guarantorType: 'none' | 'physical' | 'visale' | null
+  totalIncome: number | null
+  desiredDurationMonths: number | null
+  comments: string
+}): Promise<void> {
+  const to = 'location.moulinet@gmail.com'
+
+  const dateFr = new Date(opts.visitDate + 'T' + opts.visitTime).toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  })
+  const heure = opts.visitTime.slice(0, 5)
+  const subject = `Nouvelle visite le ${dateFr} à ${heure}`
+
+  const situationLabel = opts.situation === 'student' ? 'Étudiant(e)' : opts.situation === 'other' ? 'Autre' : '—'
+  const guarantorLabel = opts.guarantorType === 'none' ? 'Non' : opts.guarantorType === 'physical' ? 'Garant physique' : opts.guarantorType === 'visale' ? 'Visale' : '—'
+  const durationLabel = opts.desiredDurationMonths
+    ? opts.desiredDurationMonths < 12
+      ? `${opts.desiredDurationMonths} mois`
+      : `${Math.floor(opts.desiredDurationMonths / 12)} an${Math.floor(opts.desiredDurationMonths / 12) > 1 ? 's' : ''}${opts.desiredDurationMonths % 12 > 0 ? ` et ${opts.desiredDurationMonths % 12} mois` : ''}`
+    : '—'
+
+  const body = [
+    `${dateFr} à ${heure}`,
+    `Appartements : ${opts.apartmentNumbers.map(n => `n°${n}`).join(', ')}`,
+    ``,
+    `Nom / Prénom  : ${opts.lastName.toUpperCase()} ${opts.firstName}`,
+    `Email         : ${opts.email}`,
+    `Téléphone     : ${opts.phone}`,
+    `Situation     : ${situationLabel}`,
+    `Garant        : ${guarantorLabel}`,
+    `Revenus       : ${opts.totalIncome ? `${opts.totalIncome.toLocaleString('fr-FR')} €/mois` : '—'}`,
+    `Durée souhait.: ${durationLabel}`,
+    `Commentaires  : ${opts.comments || '—'}`,
+  ].join('\n')
+
+  const mime = [
+    `To: ${to}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/plain; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.messages.send({
+    userId: 'me',
+    requestBody: { raw },
+  })
+}
+
 // ─── Notification email — nouvelle candidature ────────────────────────────────
 
 export async function sendCandidateNotificationEmail(opts: {

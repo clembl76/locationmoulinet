@@ -2,7 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
-import { createVisitCalendarEvent } from '@/lib/quittance'
+import { createVisitCalendarEvent, sendVisitNotificationEmail } from '@/lib/quittance'
 import { generateSlots, jsDayToRule, filterSlotsForToday } from '@/lib/visitSlotUtils'
 
 // ── Action publique : créneaux disponibles pour une date ──────────────────────
@@ -174,6 +174,21 @@ export async function createVisitorAction(data: {
           contact: settings[0],
         })
       }
+
+      sendVisitNotificationEmail({
+        visitDate: data.visit_date,
+        visitTime: data.visit_time,
+        apartmentNumbers: aptNumbers.map(r => r.number),
+        lastName: data.last_name.trim(),
+        firstName: data.first_name.trim(),
+        email: data.email.trim().toLowerCase(),
+        phone: data.phone.trim(),
+        situation: data.situation,
+        guarantorType: data.guarantor_type,
+        totalIncome: data.total_income,
+        desiredDurationMonths: data.desired_duration_months,
+        comments: data.comments.trim(),
+      }).catch(() => { /* non-bloquant */ })
     } catch {
       // non-bloquant — la réservation est déjà enregistrée
     }
