@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { SessionRole } from '@/lib/session'
 
 const ALL_NAV_LINKS = [
-  { href: '/admin/mise-en-location', label: 'Mise en location', adminOnly: true },
+  { href: '/admin/mise-en-location', label: 'Mise en location', adminOnly: false },
   { href: '/admin/apartments', label: 'Appartements', adminOnly: false },
   { href: '/admin/payments', label: 'Paiements', adminOnly: true },
   { href: '/admin/mois', label: 'Mois en cours', adminOnly: true },

@@ -20,10 +20,10 @@ describe('AdminNavbar — rôle admin', () => {
 })
 
 describe('AdminNavbar — rôle viewer', () => {
-  it('affiche uniquement le lien Appartements', () => {
+  it('affiche Appartements et Mise en location, masque les liens admin', () => {
     render(<AdminNavbar role="viewer" />)
     expect(screen.getAllByText('Appartements').length).toBeGreaterThan(0)
-    expect(screen.queryByText('Mise en location')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Mise en location').length).toBeGreaterThan(0)
     expect(screen.queryByText('Paiements')).not.toBeInTheDocument()
     expect(screen.queryByText('Mois en cours')).not.toBeInTheDocument()
     expect(screen.queryByText('Tableau de bord')).not.toBeInTheDocument()

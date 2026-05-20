@@ -4,6 +4,7 @@ import {
   getCandidateGuarantor,
   getCandidateDocuments,
 } from '@/lib/adminData'
+import { getSession } from '@/lib/session'
 import CandidateActions from './CandidateActions'
 
 export const dynamic = 'force-dynamic'
@@ -65,6 +66,8 @@ export default async function CandidateDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const session = await getSession()
+  const isViewer = session?.role === 'viewer'
   const [detail, docs] = await Promise.all([
     getCandidateDetail(id),
     getCandidateDocuments(id),
@@ -179,7 +182,9 @@ export default async function CandidateDetailPage({
           {/* Actions */}
           <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Actions</h2>
-            <CandidateActions
+            {isViewer ? (
+              <p className="text-sm text-gray-400 italic">Accès lecture seule.</p>
+            ) : <CandidateActions
               applicationId={detail.application_id}
               currentStatus={detail.status}
               visitorId={detail.visitor_id}
@@ -207,7 +212,7 @@ export default async function CandidateDetailPage({
                 birthPlace: guarantor.birth_place,
                 address: guarantor.address,
               } : null}
-            />
+            />}
           </section>
 
           {/* Documents */}
