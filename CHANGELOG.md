@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-05-21 — Fix déconnexion viewer + date préavis (spec SPEC.md)
+- Déconnexion viewer : `/admin/logout` ajouté aux chemins passants dans `proxy.ts` (était intercepté par la restriction viewer et redirigé vers /admin/apartments)
+- Préavis : date par défaut = aujourd'hui + 1 mois (getFullYear/getMonth/getDate), plus de contrainte min, n'importe quelle date acceptée
+- Fichiers : `proxy.ts`, `components/admin/PreavisButton.tsx`
+
 ### 2026-05-14 — Email alerte nouvelle visite (spec SPEC.md §Page Visiter)
 - Envoi d'un brouillon Gmail à location.moulinet@gmail.com à chaque nouvelle visite programmée
 - Objet : "Nouvelle visite le [date] à [heure]" — Corps : date/heure, appartements, nom/prénom, email, téléphone, situation, garant, revenus, durée souhaitée, commentaires

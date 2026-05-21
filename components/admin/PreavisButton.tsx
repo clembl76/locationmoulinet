@@ -3,10 +3,10 @@
 import { useState, useTransition } from 'react'
 import { savePreavisAction } from '@/app/admin/apartments/[number]/actions'
 
-function getMinDate(): string {
+function defaultDate(): string {
   const d = new Date()
-  d.setMonth(d.getMonth() + 3)
-  return d.toISOString().slice(0, 10)
+  d.setMonth(d.getMonth() + 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 export default function PreavisButton({
@@ -19,18 +19,13 @@ export default function PreavisButton({
   currentMoveOut: string | null
 }) {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState(currentMoveOut ?? '')
+  const [date, setDate] = useState(currentMoveOut ?? defaultDate())
   const [pending, startTransition] = useTransition()
   const [result, setResult] = useState<{ ok: boolean; error?: string } | null>(null)
-  const minDate = getMinDate()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!date) return
-    if (date < minDate) {
-      setResult({ ok: false, error: 'La date doit être au moins 3 mois à partir d\'aujourd\'hui.' })
-      return
-    }
     startTransition(async () => {
       const r = await savePreavisAction(leaseId, aptNumber, date)
       setResult(r)
@@ -41,7 +36,7 @@ export default function PreavisButton({
   if (result?.ok) {
     return (
       <div className="w-full text-sm px-3 py-2 rounded-lg border border-green-200 bg-green-50 text-green-700">
-        ✓ Préavis enregistré — départ le {new Date(date).toLocaleDateString('fr-FR')}
+        ✓ Préavis enregistré — départ le {new Date(date + 'T12:00:00').toLocaleDateString('fr-FR')}
       </div>
     )
   }
@@ -63,7 +58,6 @@ export default function PreavisButton({
       <input
         type="date"
         value={date}
-        min={minDate}
         onChange={e => setDate(e.target.value)}
         required
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary"
