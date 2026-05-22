@@ -2,6 +2,19 @@
 
 ## [Non publié]
 
+### 2026-05-21 — Préavis : brouillon Gmail confirmation locataire (spec SPEC.md)
+- Brouillon Gmail créé automatiquement à la saisie du préavis (best-effort non bloquant)
+- Destinataire : email du locataire ; objet : "Préavis de sortie Appartement [n°] - [adresse]"
+- Corps HTML : dates fin de bail / EDL, loyer prorata, rappels état des lieux, restitution caution
+- Fichiers : `lib/quittance.ts`, `app/admin/apartments/[number]/actions.ts`
+
+### 2026-05-21 — Préavis : mise à jour end_date + loyer prorata (spec SPEC.md)
+- `savePreavisAction` : met à jour `leases.end_date = moveOutDate` en plus de `move_out_inspection_date`
+- Génère le loyer prorata du mois de départ : `moveOutDay / daysInMonth × rentCC` (arrondi au centime)
+- Si un loyer existe déjà pour ce mois → mis à jour (upsert) ; sinon → créé
+- Non-bloquant : le préavis est enregistré même si la création du loyer échoue
+- Fichier : `app/admin/apartments/[number]/actions.ts`
+
 ### 2026-05-21 — Fix déconnexion viewer + date préavis (spec SPEC.md)
 - Déconnexion viewer : `/admin/logout` ajouté aux chemins passants dans `proxy.ts` (était intercepté par la restriction viewer et redirigé vers /admin/apartments)
 - Préavis : date par défaut = aujourd'hui + 1 mois (getFullYear/getMonth/getDate), plus de contrainte min, n'importe quelle date acceptée

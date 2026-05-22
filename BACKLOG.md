@@ -15,5 +15,6 @@ Un locataire peut déclarer son préavis et infos sur les dates et où envoyer.
 Ajouter la possibilité d'ajouter ou supprimer un élément d'edl ex 30 ajout couvre lit et suppression patère chat. Gestion d'objets standards
 
 
+
 ## Infrastructure / Tech
 

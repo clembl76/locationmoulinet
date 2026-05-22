@@ -1190,6 +1190,75 @@ export async function createGmailDraft(
   return draft.data.id ?? ''
 }
 
+// ─── Brouillon Gmail — confirmation préavis ───────────────────────────────────
+
+export async function createGmailDraftPreavis(opts: {
+  tenantEmail: string
+  aptNumber: string
+  buildingShortName: string
+  buildingAddress: string
+  endDate: string
+  moveOutDate: string
+  prorataAmount: number
+  deposit: number | null
+}): Promise<void> {
+  const fmtDate = (iso: string) =>
+    new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    })
+
+  const isMoulinet = opts.buildingShortName === 'Moulinet'
+
+  const subject = isMoulinet
+    ? `Préavis de sortie Appartement ${opts.aptNumber} - ${opts.buildingAddress}`
+    : `Préavis de sortie - ${opts.buildingAddress}`
+
+  const logementPhrase = isMoulinet
+    ? `l'appartement ${opts.aptNumber} au ${opts.buildingAddress}`
+    : `l'appartement au ${opts.buildingAddress}`
+
+  const body = `<p>Bonjour,</p>
+<p>Je vous confirme que j'ai bien reçu votre préavis de sortie pour ${logementPhrase}.</p>
+<p>
+<ul>
+  <li>Date de fin du bail : ${fmtDate(opts.endDate)}</li>
+  <li>Date souhaitée d'état des lieux : ${fmtDate(opts.moveOutDate)}</li>
+</ul>
+</p>
+<p>Le loyer du dernier mois sera donc de ${opts.prorataAmount.toFixed(2)} €.</p>
+<p>Nous prendrons prochainement rendez-vous pour un état des lieux et inventaire de sortie.</p>
+<p>Le jour de l'état des lieux, l'appartement devra être nettoyé et vidé, et les petites réparations éventuelles effectuées. Sinon des frais de remise en état vous seront demandés. N'oubliez pas notamment les points suivants :
+<ul>
+  <li>Dégivrage frigo au moins 3 jours avant. Penser à mettre une serpillère dès que vous éteignez le frigo pour absorber l'eau qui va décongeler.</li>
+  <li>Détartrer les toilettes (l'acide chlorhydrique fonctionne très bien).</li>
+  <li>Détartrer bouilloire, machine à café…</li>
+  <li>Changer les ampoules ou tout autre élément cassé.</li>
+</ul>
+</p>
+${opts.deposit ? `<p>Si tout est ok, votre caution de ${opts.deposit} € vous sera rendue sous 1 mois maximum. Pensez à m'envoyer un RIB.</p>` : ''}
+<p>Je reste à votre disposition pour toute question.</p>
+<p>Cordialement</p>
+<p>Mme ALAOUI M'HAMMEDI</p>`
+
+  const mime = [
+    `To: ${opts.tenantEmail}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/html; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.drafts.create({
+    userId: 'me',
+    requestBody: { message: { raw } },
+  })
+}
+
 // ─── Notification email — nouvelle visite programmée ─────────────────────────
 
 export async function sendVisitNotificationEmail(opts: {

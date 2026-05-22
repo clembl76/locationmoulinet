@@ -1,8 +1,8 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent } from '@/lib/quittance'
-import { createEdlReport } from '@/lib/adminData'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis } from '@/lib/quittance'
+import { createEdlReport, runSqlAdmin } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -13,17 +13,98 @@ export async function savePreavisAction(
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const admin = createAdminClient()
+
+    // 1. Mettre à jour move_out_inspection_date ET end_date
     const { error } = await admin
       .from('leases')
-      .update({ move_out_inspection_date: moveOutDate })
+      .update({ move_out_inspection_date: moveOutDate, end_date: moveOutDate })
       .eq('id', leaseId)
     if (error) throw new Error(error.message)
 
-    // Créer l'événement calendrier (best-effort — ne bloque pas la sauvegarde)
+    // 2. Générer le loyer prorata du mois de départ
+    try {
+      const d = new Date(moveOutDate + 'T12:00:00')
+      const year = d.getFullYear()
+      const month = d.getMonth() + 1
+      const moveOutDay = d.getDate()
+      const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
+
+      // Récupérer le loyer CC, la caution et les infos locataire/logement depuis le bail
+      const leaseRows = await runSqlAdmin<{
+        rent_including_charges: number
+        deposit: number | null
+        tenant_email: string | null
+        building_address: string
+        building_short_name: string
+      }>(
+        `SELECT l.rent_including_charges, l.deposit,
+                t.email AS tenant_email,
+                b.address AS building_address,
+                b.short_name AS building_short_name
+         FROM leases l
+         JOIN apartments a ON a.id = l.apartment_id
+         JOIN buildings b ON b.id = a.building_id
+         LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+         LEFT JOIN tenants t ON t.id = lt.tenant_id
+         WHERE l.id = '${leaseId}'
+         LIMIT 1`
+      )
+      const rentCC = leaseRows[0]?.rent_including_charges ?? 0
+
+      if (rentCC > 0) {
+        const amount = Math.round((moveOutDay / daysInMonth) * rentCC * 100) / 100
+
+        // Upsert : mettre à jour si le loyer du mois existe déjà, sinon créer
+        const existing = await runSqlAdmin<{ id: string }>(
+          `SELECT id FROM rents WHERE lease_id = '${leaseId}' AND year = ${year} AND month = ${month} LIMIT 1`
+        )
+
+        if (existing[0]) {
+          await admin
+            .from('rents')
+            .update({
+              amount_expected: amount,
+              is_prorata: true,
+              prorata_days: moveOutDay,
+              days_in_month: daysInMonth,
+            })
+            .eq('id', existing[0].id)
+        } else {
+          await admin
+            .from('rents')
+            .insert({
+              lease_id: leaseId,
+              year,
+              month,
+              amount_expected: amount,
+              is_prorata: true,
+              prorata_days: moveOutDay,
+              days_in_month: daysInMonth,
+            })
+        }
+      }
+      // Brouillon Gmail de confirmation préavis (best-effort)
+      if (leaseRows[0]?.tenant_email) {
+        createGmailDraftPreavis({
+          tenantEmail: leaseRows[0].tenant_email,
+          aptNumber,
+          buildingShortName: leaseRows[0].building_short_name,
+          buildingAddress: leaseRows[0].building_address,
+          endDate: moveOutDate,
+          moveOutDate,
+          prorataAmount: rentCC > 0 ? Math.round((moveOutDay / daysInMonth) * rentCC * 100) / 100 : 0,
+          deposit: leaseRows[0].deposit,
+        }).catch(() => { /* non-bloquant */ })
+      }
+    } catch {
+      // Non-bloquant — le préavis est enregistré même si le loyer échoue
+    }
+
+    // 3. Créer l'événement calendrier (best-effort)
     try {
       await createCalendarPreavisEvent({ leaseId, aptNumber, moveOutDate })
     } catch {
-      // Calendar creation failure must not block the préavis save
+      // Non-bloquant
     }
 
     revalidatePath(`/admin/apartments/${aptNumber}`)
