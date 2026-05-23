@@ -16,5 +16,9 @@ Ajouter la possibilité d'ajouter ou supprimer un élément d'edl ex 30 ajout co
 
 
 
+
+supprime les tables supabase qui ne sont plus utilisées
+
+
 ## Infrastructure / Tech
 

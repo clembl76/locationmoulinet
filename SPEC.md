@@ -33,3 +33,5 @@
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
 
 ## Page Disponibilités visites /admin/disponibilites
+
+## Page Inventaire  /admin/inventory

@@ -2,6 +2,28 @@
 
 ## [Non publié]
 
+### 2026-05-23 — Inventaire : création à la volée dans la bibliothèque (spec SPEC.md)
+- Bouton "+ Créer un nouvel item dans la bibliothèque" dans le formulaire d'ajout
+- Formulaire inline : nom, catégorie, pièce par défaut, prix unitaire, main d'œuvre, URL référence
+- Après création : item sélectionné automatiquement, ajouté à la liste locale sans rechargement
+- Action `createCatalogItemAction` dans `app/admin/inventory/actions.ts`
+- Fichiers : `app/admin/inventory/actions.ts`, `components/admin/InventoryManager.tsx`
+
+### 2026-05-23 — Inventaire : état par défaut "Bon état" + recherche (spec SPEC.md)
+- Formulaire ajout : état initialisé à "Bon état" au lieu de vide
+- Barre de recherche filtrante sur le nom de l'item (liste mise à jour en temps réel)
+- Fichier : `components/admin/InventoryManager.tsx`
+
+### 2026-05-22 — Page Inventaire /admin/inventory (spec SPEC.md §Page Mois en cours)
+- Table `items` (catalogue) + table `inventory` (lien appartement/items) avec enums `room_type` et `item_condition`
+- Trigger `updated_at` sur inventory
+- Page /admin/inventory : sélection appartement → inventaire groupé par pièce, trié alphabétiquement
+- Ajout items : sélection dans le catalogue, pièce (modifiable), quantité, état
+- Modification quantité/pièce/état inline avec bouton "Enregistrer"
+- Suppression d'un item
+- Script seed `scripts/seed_items.mjs` pour importer `scripts/items.csv` dans Supabase
+- Fichiers : `supabase/migrations/20260522_inventory_tables.sql`, `scripts/items.csv`, `scripts/seed_items.mjs`, `lib/adminData.ts`, `app/admin/inventory/actions.ts`, `app/admin/inventory/page.tsx`, `components/admin/InventoryManager.tsx`, `components/admin/AdminNavbar.tsx`
+
 ### 2026-05-21 — Préavis : brouillon Gmail confirmation locataire (spec SPEC.md)
 - Brouillon Gmail créé automatiquement à la saisie du préavis (best-effort non bloquant)
 - Destinataire : email du locataire ; objet : "Préavis de sortie Appartement [n°] - [adresse]"
