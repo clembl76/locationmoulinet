@@ -2,6 +2,34 @@
 
 ## [Non publié]
 
+### 2026-05-25 — Inventaire : ajout et modification des installations (spec SPEC.md)
+- `ApartmentInstallationPanel` : section désormais éditable — bouton "Modifier" (si installation existante) ou "+ Ajouter" (si nulle), formulaire inline Eau chaude / Chauffage, sauvegarde via upsert
+- `summaryActions.ts` : ajout de `updateInstallationAction(apartmentId, hot_water, heating)` avec upsert sur `apartment_installation`
+- Fix config Vitest : suppression de `pool: 'forks'` qui causait des échecs intermittents en mode non-coverage
+- Tests : 116 passés (8 nouveaux tests : Modifier/+ Ajouter, pré-remplissage, Annuler, Enregistrer avec args, mise à jour affichage, formulaire vide si null)
+
+### 2026-05-25 — Inventaire : modification quantité clé + caution dans panel dates (spec SPEC.md)
+- `ApartmentKeysPanel` : quantité de chaque clé désormais éditable inline (input avec sauvegarde au blur via `updateApartmentKeyQuantityAction`, minimum 1)
+- `ApartmentSummaryPanel` : ajout de la section Caution (lease.deposit) dans le panel dates — grille passée à 3 colonnes (Entrée / Sortie / Caution)
+- Tests : 108 passés (4 nouveaux tests : modification quantité + validation min + caution montant + caution nulle)
+
+### 2026-05-25 — Inventaire : séparation clés/installations + table key_type (spec SPEC.md)
+- Nouvelle table `key_type` (migration `20260525_key_type_table.sql`) avec 4 valeurs : Vigik Immeuble, Porte palière appartement, Boite aux lettres, Cave
+- `ApartmentSummaryPanel` simplifié : affiche uniquement les dates Entrée/Sortie du bail
+- Nouveau composant `ApartmentKeysPanel` : section collapsible autonome avec liste des clés, ajout (type_type depuis la table, quantité) et suppression optimiste
+- Nouveau composant `ApartmentInstallationPanel` : section collapsible autonome eau chaude + chauffage (lecture seule)
+- Nouveaux server actions : `app/admin/inventory/keysActions.ts` (getKeyTypes, getApartmentKeys, add, delete), `app/admin/inventory/summaryActions.ts` refactorisé (getLeaseDatesAction, getInstallationAction)
+- `InventoryManager` : intègre les 3 nouveaux panneaux dans l'ordre Dates → Clés → Installations → Inventaire → EDL
+- Fix config Vitest : ajout `pool: 'forks'` pour résoudre le bug de couverture en parallèle
+- Tests : 104 passés (19 nouveaux tests sur ApartmentKeysPanel, ApartmentInstallationPanel, ApartmentSummaryPanel mis à jour)
+
+### 2026-05-25 — Inventaire : panel résumé appartement (spec SPEC.md)
+- Nouveau composant `ApartmentSummaryPanel` affiché en haut de page après sélection d'un appartement
+- 4 sections : Entrée (move_in_date), Sortie (move_out_inspection_date), Installations (hot_water + heating), Clés (apartment_keys avec qté entrée/sortie éditables)
+- Grille responsive : 1 col mobile → 2 col sm → 4 col lg
+- Fichiers : `app/admin/inventory/summaryActions.ts`, `components/admin/ApartmentSummaryPanel.tsx`, `components/admin/InventoryManager.tsx`
+- Tests : `src/components/admin/ApartmentSummaryPanel.test.tsx` (8 tests)
+
 ### 2026-05-23 — EDL surfaces : ajout Plafonnier et Spot (spec SPEC.md)
 - `SURFACE_TYPES` : ajout de Plafonnier (Ampoule + Douille), Spot 1 lumière, Spot 2 lumières, Spot 3 lumières (insérés à leur position alphabétique)
 

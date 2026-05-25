@@ -12,8 +12,13 @@
 Un locataire peut accéder à son compte et à ses quittances ?
 Un locataire peut déclarer son préavis et infos sur les dates et où envoyer.
 
-Ajouter la possibilité d'ajouter ou supprimer un élément d'edl ex 30 ajout couvre lit et suppression patère chat. Gestion d'objets standards
+finir la gestion de l'edl:
+afficher les clés, le relevé des compteurs
+gérer l'impression pdf et le "figer pour l'edl d'entrée" ou de sortie
+rebrancher avec les boutons de l'interface.
+bonus : gérer un cout d'inventaire/réparations
 
+préparer un edl "standard" à initialiser
 
 
 

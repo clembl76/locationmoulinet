@@ -12,6 +12,9 @@ import {
   createCatalogItemAction,
 } from '@/app/admin/inventory/actions'
 import SurfacesEdl from '@/components/admin/SurfacesEdl'
+import ApartmentSummaryPanel from '@/components/admin/ApartmentSummaryPanel'
+import ApartmentKeysPanel from '@/components/admin/ApartmentKeysPanel'
+import ApartmentInstallationPanel from '@/components/admin/ApartmentInstallationPanel'
 
 const ROOMS: string[] = [
   'Cave', 'Chambre', 'Coin chambre', 'Coin cuisine', 'Coin nuit', 'Coin salon',
@@ -362,7 +365,7 @@ export default function InventoryManager({
 
   // Charger le catalogue d'items une fois
   useEffect(() => {
-    getAllItemsAction().then(setAllItems)
+    getAllItemsAction().then(setAllItems).catch(() => {})
   }, [])
 
   function selectApartment(id: string) {
@@ -438,6 +441,17 @@ export default function InventoryManager({
 
         </select>
       </div>
+
+      {/* Dates du bail */}
+      {aptId && selectedApt && (
+        <ApartmentSummaryPanel apartmentId={aptId} leaseId={selectedApt.lease_id} />
+      )}
+
+      {/* Clés de l'appartement */}
+      {aptId && <ApartmentKeysPanel apartmentId={aptId} />}
+
+      {/* Installations */}
+      {aptId && <ApartmentInstallationPanel apartmentId={aptId} />}
 
       {/* Inventaire */}
       {aptId && (

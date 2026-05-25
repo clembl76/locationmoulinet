@@ -36,4 +36,4 @@
 
 ## Page Inventaire  /admin/inventory
 
-Ajoute les valeurs dans Surface / Équipement: Plafonnier (Ampoule + Douille), Spot 1 lumière, Spot 2 lumières, Spot 3 lumières
+ajoute la possibilité d'ajouter et modifier les installations
