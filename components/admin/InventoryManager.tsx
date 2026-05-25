@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import type { ApartmentWithLease } from '@/lib/adminData'
 import type { ItemRow, InventoryRow } from '@/app/admin/inventory/actions'
 import {
@@ -11,6 +11,7 @@ import {
   deleteInventoryItemAction,
   createCatalogItemAction,
 } from '@/app/admin/inventory/actions'
+import SurfacesEdl from '@/components/admin/SurfacesEdl'
 
 const ROOMS: string[] = [
   'Cave', 'Chambre', 'Coin chambre', 'Coin cuisine', 'Coin nuit', 'Coin salon',
@@ -353,6 +354,7 @@ export default function InventoryManager({
   const [allItems, setAllItems] = useState<ItemRow[]>([])
   const [loading, setLoading] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [inventoryOpen, setInventoryOpen] = useState(true)
   const [filterRoom, setFilterRoom] = useState('')
   const [filterItem, setFilterItem] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
@@ -440,25 +442,31 @@ export default function InventoryManager({
       {/* Inventaire */}
       {aptId && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900">
+          <div className={`px-6 py-4 flex items-center justify-between ${inventoryOpen ? 'border-b border-gray-100' : ''}`}>
+            <button
+              onClick={() => setInventoryOpen(v => !v)}
+              className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-blue-primary transition-colors"
+            >
+              <span className="text-xs text-gray-400">{inventoryOpen ? '▼' : '▶'}</span>
               Inventaire
               {inventory.length > 0 && (
-                <span className="ml-2 text-sm font-normal text-gray-400">
+                <span className="text-sm font-normal text-gray-400">
                   {filteredInventory.length}{filteredInventory.length !== inventory.length ? `/${inventory.length}` : ''} item{inventory.length > 1 ? 's' : ''}
                 </span>
               )}
-            </h2>
-            <button
-              onClick={() => setShowAddForm(v => !v)}
-              className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
-            >
-              + Ajouter un item
             </button>
+            {inventoryOpen && (
+              <button
+                onClick={() => setShowAddForm(v => !v)}
+                className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+              >
+                + Ajouter un item
+              </button>
+            )}
           </div>
 
           {/* Barre de filtres */}
-          {inventory.length > 0 && (
+          {inventoryOpen && inventory.length > 0 && (
             <div className="px-6 py-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/50">
               <input
                 type="text"
@@ -494,7 +502,7 @@ export default function InventoryManager({
             </div>
           )}
 
-          {loading ? (
+          {inventoryOpen && (loading ? (
             <p className="text-sm text-gray-400 p-6">Chargement…</p>
           ) : (
             <div className="overflow-x-auto">
@@ -527,8 +535,8 @@ export default function InventoryManager({
                     </tr>
                   ) : (
                     sortedRooms.map(room => (
-                      <>
-                        <tr key={`room-${room}`} className="bg-gray-50/70">
+                      <React.Fragment key={`room-${room}`}>
+                        <tr className="bg-gray-50/70">
                           <td colSpan={6} className="px-4 py-2">
                             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{room}</span>
                           </td>
@@ -543,15 +551,18 @@ export default function InventoryManager({
                               onDelete={handleDelete}
                             />
                           ))}
-                      </>
+                      </React.Fragment>
                     ))
                   )}
                 </tbody>
               </table>
             </div>
-          )}
+          ))}
         </div>
       )}
+
+      {/* Section État des lieux */}
+      {aptId && <SurfacesEdl apartmentId={aptId} />}
     </div>
   )
 }

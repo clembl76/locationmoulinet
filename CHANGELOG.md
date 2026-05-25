@@ -2,6 +2,42 @@
 
 ## [Non publié]
 
+### 2026-05-23 — EDL surfaces : ajout Plafonnier et Spot (spec SPEC.md)
+- `SURFACE_TYPES` : ajout de Plafonnier (Ampoule + Douille), Spot 1 lumière, Spot 2 lumières, Spot 3 lumières (insérés à leur position alphabétique)
+
+### 2026-05-23 — Inventaire/EDL : repliage, nouveaux types Prise, tri Matière (spec SPEC.md)
+- `SURFACE_TYPES` : ajout de Prise câble, Prise Fibre, Prise RJ45, Prise téléphone, Prise télévision
+- `SURFACE_MATERIALS` : trié alphabétiquement (fr)
+- Sections Inventaire et EDL repliables indépendamment (▼/▶ dans le titre)
+- Migration `20260523_surfaces_text_columns.sql` : colonnes `surface` et `material` converties en `text` — résout définitivement l'erreur "invalid input value for enum surface_type"
+- Tests : 80 passés (5 tests repliage ajoutés)
+
+### 2026-05-23 — EDL surfaces : tri + ajout Bois (spec SPEC.md)
+- `SURFACE_TYPES` : liste triée alphabétiquement (fr)
+- `SURFACE_MATERIALS` : ajout de Bois
+- Migration : `supabase/migrations/20260523_surfaces_material_bois.sql`
+
+### 2026-05-23 — EDL surfaces : nouveaux types et matières (spec SPEC.md)
+- `SURFACE_TYPES` : ajout de Prises électriques, Interrupteurs, Point lumière, Ventilation
+- `SURFACE_MATERIALS` : ajout de PVC (Peinture était déjà présente)
+- Migration : `supabase/migrations/20260523_surfaces_enum_additions.sql`
+
+### 2026-05-23 — EDL surfaces : lien avec room_type (spec SPEC.md)
+- Ajout colonne `room` (enum `room_type` existante) sur la table `surfaces`
+- `SurfacesEdl` : colonne "Pièce" éditée inline avec la liste complète des `room_type`
+- Formulaire d'ajout : champ Pièce optionnel (enum `room_type`)
+- `surfacesActions.ts` : `addSurfaceAction`/`updateSurfaceAction` acceptent et persistem `room`
+- `lib/surfacesConstants.ts` : export `ROOM_TYPES` (source de vérité partagée avec `InventoryManager`)
+- Migration : `supabase/migrations/20260523_surfaces_add_room.sql`
+- Tests : `src/components/admin/SurfacesEdl.test.tsx`, `src/lib/surfacesConstants.test.ts` (72 tests, tous verts)
+
+### 2026-05-23 — Inventaire : section État des lieux surfaces & équipements (spec SPEC.md)
+- Enums `surface_type` (15 valeurs) et `surface_material` (10 valeurs) + table `surfaces`
+- Composant `SurfacesEdl` : ajout/édition inline/suppression de surfaces par appartement
+- Colonnes : surface, matière, état (item_condition), commentaire libre
+- Affiché sous l'inventaire dès qu'un appartement est sélectionné
+- Fichiers : `supabase/migrations/20260523_surfaces_edl.sql`, `app/admin/inventory/surfacesActions.ts`, `components/admin/SurfacesEdl.tsx`, `components/admin/InventoryManager.tsx`
+
 ### 2026-05-23 — Inventaire : création à la volée dans la bibliothèque (spec SPEC.md)
 - Bouton "+ Créer un nouvel item dans la bibliothèque" dans le formulaire d'ajout
 - Formulaire inline : nom, catégorie, pièce par défaut, prix unitaire, main d'œuvre, URL référence
