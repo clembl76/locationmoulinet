@@ -11,15 +11,30 @@ export type SurfaceRow = {
   material: string | null
   condition: string | null
   notes: string | null
+  notes_exit: string | null
 }
 
 export async function getSurfacesForApartmentAction(apartmentId: string): Promise<SurfaceRow[]> {
   return runSqlAdmin<SurfaceRow>(`
-    SELECT id, surface::text, room::text, material::text, condition::text, notes
+    SELECT id, surface::text, room::text, material::text, condition::text, notes, notes_exit
     FROM surfaces
     WHERE apartment_id = '${apartmentId}'
     ORDER BY COALESCE(room::text, ''), surface::text
   `)
+}
+
+export async function updateSurfaceNotesExitAction(
+  surfaceId: string,
+  notes_exit: string | null,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin.from('surfaces').update({ notes_exit: notes_exit || null }).eq('id', surfaceId)
+    if (error) throw new Error(error.message)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
 }
 
 export async function addSurfaceAction(

@@ -36,4 +36,4 @@
 
 ## Page Inventaire  /admin/inventory
 
-ajoute la possibilité d'ajouter et modifier les installations
+## Page EDL /admin/inventory/edl-fige/

@@ -21,6 +21,7 @@ export type InventoryRow = {
   quantity: number
   condition: string | null
   notes: string | null
+  notes_exit: string | null
   item_name: string
   item_category: string
   item_reference_url: string | null
@@ -45,6 +46,7 @@ export async function getInventoryForApartmentAction(apartmentId: string): Promi
       inv.quantity,
       inv.condition::text,
       inv.notes,
+      inv.notes_exit,
       i.name   AS item_name,
       i.category AS item_category,
       i.reference_url AS item_reference_url,
@@ -130,6 +132,20 @@ export async function createCatalogItemAction(item: {
       .single()
     if (error) throw new Error(error.message)
     return { ok: true, item: data as ItemRow }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateInventoryNotesExitAction(
+  inventoryId: string,
+  notes_exit: string | null,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin.from('inventory').update({ notes_exit: notes_exit || null }).eq('id', inventoryId)
+    if (error) throw new Error(error.message)
+    return { ok: true }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }

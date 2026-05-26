@@ -5,16 +5,26 @@ import ApartmentInstallationPanel from '@/components/admin/ApartmentInstallation
 
 const mockGetInstallation = vi.fn()
 const mockUpdate = vi.fn()
+const mockUpdateCharges = vi.fn()
 
 vi.mock('@/app/admin/inventory/summaryActions', () => ({
   getInstallationAction: (...args: unknown[]) => mockGetInstallation(...args),
   updateInstallationAction: (...args: unknown[]) => mockUpdate(...args),
+  updateChargesTypeAction: (...args: unknown[]) => mockUpdateCharges(...args),
 }))
+
+const baseInstallation = {
+  hot_water: 'Électrique',
+  heating: 'Gaz',
+  charges_type: 'forfait',
+  meter_readings: null,
+}
 
 describe('ApartmentInstallationPanel — affichage', () => {
   beforeEach(() => {
-    mockGetInstallation.mockResolvedValue({ hot_water: 'Électrique', heating: 'Gaz' })
+    mockGetInstallation.mockResolvedValue(baseInstallation)
     mockUpdate.mockResolvedValue(undefined)
+    mockUpdateCharges.mockResolvedValue(undefined)
   })
 
   it('affiche les installations eau chaude et chauffage', async () => {
@@ -54,7 +64,7 @@ describe('ApartmentInstallationPanel — affichage', () => {
 
 describe('ApartmentInstallationPanel — collapse', () => {
   beforeEach(() => {
-    mockGetInstallation.mockResolvedValue({ hot_water: 'Électrique', heating: 'Gaz' })
+    mockGetInstallation.mockResolvedValue(baseInstallation)
   })
 
   it('se replie et masque les données avec le toggle', async () => {
@@ -77,11 +87,11 @@ describe('ApartmentInstallationPanel — collapse', () => {
 
 describe('ApartmentInstallationPanel — édition', () => {
   beforeEach(() => {
-    mockGetInstallation.mockResolvedValue({ hot_water: 'Électrique', heating: 'Gaz' })
+    mockGetInstallation.mockResolvedValue(baseInstallation)
     mockUpdate.mockResolvedValue(undefined)
   })
 
-  it('ouvre le formulaire d\'édition au clic sur Modifier', async () => {
+  it("ouvre le formulaire d'édition au clic sur Modifier", async () => {
     const user = userEvent.setup()
     render(<ApartmentInstallationPanel apartmentId="apt-1" />)
     await waitFor(() => expect(screen.getByRole('button', { name: 'Modifier' })).toBeInTheDocument())
@@ -134,12 +144,67 @@ describe('ApartmentInstallationPanel — édition', () => {
     await waitFor(() => expect(screen.getByText('Solaire')).toBeInTheDocument())
   })
 
-  it('ouvre le formulaire vide au clic sur + Ajouter', async () => {
+  it("ouvre le formulaire vide au clic sur + Ajouter", async () => {
     mockGetInstallation.mockResolvedValue(null)
     const user = userEvent.setup()
     render(<ApartmentInstallationPanel apartmentId="apt-1" />)
     await waitFor(() => expect(screen.getByRole('button', { name: '+ Ajouter' })).toBeInTheDocument())
     await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
     expect(screen.getByPlaceholderText('Ex. Électrique, Gaz…')).toBeInTheDocument()
+  })
+})
+
+describe('ApartmentInstallationPanel — toggle charges', () => {
+  beforeEach(() => {
+    mockGetInstallation.mockResolvedValue(baseInstallation)
+    mockUpdateCharges.mockResolvedValue(undefined)
+  })
+
+  it('affiche le toggle Charges au forfait / Relevé des compteurs', async () => {
+    render(<ApartmentInstallationPanel apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Charges au forfait' })).toBeInTheDocument())
+    expect(screen.getByRole('button', { name: 'Relevé des compteurs' })).toBeInTheDocument()
+  })
+
+  it('affiche "Charges au forfait" par défaut quand charges_type=forfait', async () => {
+    render(<ApartmentInstallationPanel apartmentId="apt-1" />)
+    // Le texte "Charges au forfait" apparaît dans le bouton toggle ET dans le <p> d'affichage
+    await waitFor(() => expect(screen.getAllByText('Charges au forfait').length).toBeGreaterThanOrEqual(2))
+    expect(document.querySelector('textarea')).not.toBeInTheDocument()
+  })
+
+  it('affiche un textarea quand charges_type=compteurs', async () => {
+    mockGetInstallation.mockResolvedValue({
+      ...baseInstallation,
+      charges_type: 'compteurs',
+      meter_readings: 'ELECTRICITE HC Été',
+    })
+    render(<ApartmentInstallationPanel apartmentId="apt-1" />)
+    await waitFor(() => {
+      const ta = document.querySelector('textarea')
+      expect(ta).toBeInTheDocument()
+      expect(ta?.value).toContain('ELECTRICITE')
+    })
+  })
+
+  it('appelle updateChargesTypeAction lors du changement vers compteurs', async () => {
+    const user = userEvent.setup()
+    render(<ApartmentInstallationPanel apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Relevé des compteurs' })).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: 'Relevé des compteurs' }))
+    await waitFor(() => expect(mockUpdateCharges).toHaveBeenCalledWith('apt-1', 'compteurs', expect.any(String)))
+  })
+
+  it('appelle updateChargesTypeAction lors du retour à forfait', async () => {
+    mockGetInstallation.mockResolvedValue({
+      ...baseInstallation,
+      charges_type: 'compteurs',
+      meter_readings: 'ELECTRICITE\nHC Été : 100 KWh',
+    })
+    const user = userEvent.setup()
+    render(<ApartmentInstallationPanel apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Charges au forfait' })).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: 'Charges au forfait' }))
+    await waitFor(() => expect(mockUpdateCharges).toHaveBeenCalledWith('apt-1', 'forfait', null))
   })
 })

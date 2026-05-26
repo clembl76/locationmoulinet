@@ -2,6 +2,55 @@
 
 ## [Non publié]
 
+### 2026-05-26 — EDL figé : renommage titre principal (spec SPEC.md)
+- Titre de page "EDL figé — Apt {n}" renommé "Etat des lieux - Apt {n}"
+- Tests : 169 passés
+
+### 2026-05-26 — EDL figé : espacement signatures, libellés charges (spec SPEC.md)
+- Section Signatures : `space-y-8` → `space-y-1` sur les blocs locataire et propriétaire (titre, nom, "Lu et approuvé" resserrés)
+- Label "Charges :" renommé "Relevé des consommations"
+- Texte par défaut et placeholder forfait : "Charges au forfait" → "Charges au forfait, aucun relevé des compteurs."
+- Tests : 169 passés (mise à jour du test valeur textarea forfait)
+
+### 2026-05-26 — EDL figé : pivot gauche, titre section, ligne Appartement conditionnelle, Signatures (spec SPEC.md)
+- `CollapsibleSection` : chevron ▼/▶ déplacé à gauche du titre (cohérent avec ApartmentInstallationPanel)
+- Bloc "En-tête" renommé "État des lieux / Inventaire des meubles"
+- Ligne "Appartement [numéro]" dans l'entête officiel : affichée uniquement quand `building_short_name === 'Moulinet'`
+- Bloc footer renommé "Signatures" (suppression du suffixe "— Entrée" / "— Sortie")
+- `summaryActions.ts` : `EdlFigeHeader` étendu avec `building_short_name`, query SQL inclut `b.short_name`
+- Tests : 169 passés (3 nouveaux : section title button, appartement conditionnel Moulinet, appartement absent autre building)
+
+### 2026-05-26 — EDL figé : blocs collapsibles, COMMENTAIRE SORTIE surfaces, footer signatures (spec SPEC.md)
+- Tous les blocs de la page EDL figé sont désormais pliables/dépliables (chevron toggle, état local par section)
+- Nouveau composant `CollapsibleSection` (module-level) utilisé pour Bail/En-tête, Installations, Clés, Inventaire, Surfaces, Signatures
+- Surfaces & équipements : colonne "COMMENTAIRE SORTIE" ajoutée en mode Sortie (textarea auto-save via `updateSurfaceNotesExitAction`)
+- Bloc footer Signatures en fin de page : date d'entrée/sortie, caution, texte légal, "Fait en 2 exemplaires à Rouen le…", signatures locataire/propriétaire ; en mode Sortie uniquement, textarea "Commentaires, réserves et retenues éventuelles sur caution" (auto-save via `updateDepositNotesAction`)
+- Migration `20260526_edl_footer_surfaces.sql` : `surfaces.notes_exit TEXT` + `apartment_installation.deposit_notes TEXT`
+- `surfacesActions.ts` : `SurfaceRow` étendu avec `notes_exit`, ajout `updateSurfaceNotesExitAction`
+- `adminData.ts` : `EdlInstallation` étendu avec `deposit_notes`
+- `summaryActions.ts` : `getInstallationAction` inclut `deposit_notes`, ajout `updateDepositNotesAction`
+- Tests : 166 passés (15 nouveaux tests : collapsible, surfaces COMMENTAIRE SORTIE, footer entrée/sortie, signatures)
+
+### 2026-05-26 — EDL figé : en-tête officiel, date sortie conditionnelle, colonne COMMENTAIRE SORTIE, charges éditables (spec SPEC.md)
+- `EdlFigeView` : en-tête officiel EDL (titre, adresse, dates, blocs Bailleur et Locataire avec coordonnées) affiché quand le `header` est fourni
+- Migration `20260526_edl_fige_enhancements.sql` : ajout colonnes `birth_date, birth_place, address, phone, email` sur `owners` ; colonne `notes_exit TEXT` sur `inventory`
+- En mode Entrée : date de sortie masquée dans l'en-tête et dans la section bail de repli
+- En mode Sortie : colonne "COMMENTAIRE SORTIE" ajoutée à l'inventaire (textarea auto-save au blur via `updateInventoryNotesExitAction`)
+- Section Charges désormais un textarea éditable (auto-save au blur via `updateChargesTypeAction`)
+- `summaryActions.ts` : ajout de `getEdlFigeHeaderAction(leaseId)` (JOIN apartments/buildings/owners/tenants), `updateInstallationAction` et `updateChargesTypeAction` inchangés
+- `actions.ts` : ajout de `updateInventoryNotesExitAction`, `InventoryRow` étendu avec `notes_exit`
+- Page `edl-fige/[apartmentId]/page.tsx` : récupération du header via `getEdlFigeHeaderAction` et passage au composant
+- Tests : 151 passés (27 nouveaux/mis à jour : en-tête officiel, date sortie conditionnelle, COMMENTAIRE SORTIE, charges éditables, lecture seule)
+
+### 2026-05-26 — Inventaire : Figer l'EDL + toggle Charges/Compteurs (spec SPEC.md)
+- Bouton "Figer l'EDL" dans `InventoryManager` (visible quand un appartement est sélectionné), redirige vers `/admin/inventory/edl-fige/[apartmentId]`
+- Nouvelle page `/admin/inventory/edl-fige/[apartmentId]` (server component) : affiche toutes les informations de l'appartement en lecture seule — bail, installations, clés, inventaire, surfaces
+- Nouveau composant `EdlFigeView` : toggle Entrée/Sortie, affichage read-only de toutes les sections, badge coloré en bas de page
+- Toggle "Charges au forfait" / "Relevé des compteurs" dans `ApartmentInstallationPanel`, persisté en BDD (`charges_type`, `meter_readings` via `updateChargesTypeAction`)
+- Zone de texte modifiable pré-remplie avec le template de relevés (auto-save au blur) quand "Relevé des compteurs" est sélectionné
+- Migration SQL `20260526_installation_charges.sql` : ajout colonnes `charges_type TEXT DEFAULT 'forfait'` et `meter_readings TEXT` à `apartment_installation`
+- Tests : 140 passés (19 nouveaux tests : EdlFigeView + toggle charges ApartmentInstallationPanel)
+
 ### 2026-05-25 — Inventaire : ajout et modification des installations (spec SPEC.md)
 - `ApartmentInstallationPanel` : section désormais éditable — bouton "Modifier" (si installation existante) ou "+ Ajouter" (si nulle), formulaire inline Eau chaude / Chauffage, sauvegarde via upsert
 - `summaryActions.ts` : ajout de `updateInstallationAction(apartmentId, hot_water, heating)` avec upsert sur `apartment_installation`

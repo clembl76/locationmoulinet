@@ -593,6 +593,9 @@ export type EdlReport = {
 export type EdlInstallation = {
   hot_water: string | null
   heating: string | null
+  charges_type: string | null
+  meter_readings: string | null
+  deposit_notes: string | null
 }
 
 export type EdlKey = {

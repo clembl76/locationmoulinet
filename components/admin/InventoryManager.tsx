@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import type { ApartmentWithLease } from '@/lib/adminData'
 import type { ItemRow, InventoryRow } from '@/app/admin/inventory/actions'
 import {
@@ -351,6 +352,7 @@ export default function InventoryManager({
 }: {
   apartments: ApartmentWithLease[]
 }) {
+  const router = useRouter()
   const [aptId, setAptId] = useState('')
   const [selectedApt, setSelectedApt] = useState<ApartmentWithLease | null>(null)
   const [inventory, setInventory] = useState<InventoryRow[]>([])
@@ -427,19 +429,28 @@ export default function InventoryManager({
         <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Appartement
         </label>
-        <select
-          value={aptId}
-          onChange={e => selectApartment(e.target.value)}
-          className="w-full sm:w-80 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
-        >
-          <option value="">— Sélectionner un appartement —</option>
-          {apartments.map(a => (
-            <option key={a.apartment_id} value={a.apartment_id}>
-              Apt {a.apartment_number} — {a.tenant_name}
-            </option>
-          ))}
-
-        </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={aptId}
+            onChange={e => selectApartment(e.target.value)}
+            className="w-full sm:w-80 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          >
+            <option value="">— Sélectionner un appartement —</option>
+            {apartments.map(a => (
+              <option key={a.apartment_id} value={a.apartment_id}>
+                Apt {a.apartment_number} — {a.tenant_name}
+              </option>
+            ))}
+          </select>
+          {aptId && (
+            <button
+              onClick={() => router.push(`/admin/inventory/edl-fige/${aptId}`)}
+              className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+            >
+              Figer l&apos;EDL
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Dates du bail */}
