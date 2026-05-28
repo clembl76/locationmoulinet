@@ -83,7 +83,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
     setSavingCharges(true)
     await updateChargesTypeAction(apartmentId, 'compteurs', meterReadings || null)
     setInstallation(prev => ({
-      ...(prev ?? { hot_water: null, heating: null }),
+      ...(prev ?? { hot_water: null, heating: null, deposit_notes: null }),
       charges_type: 'compteurs',
       meter_readings: meterReadings || null,
     }))
