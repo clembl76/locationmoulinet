@@ -3,7 +3,10 @@
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { revalidatePath } from 'next/cache'
 
-const REVALIDATE = () => revalidatePath('/admin/disponibilites')
+const REVALIDATE = () => {
+  revalidatePath('/admin/disponibilites')
+  revalidatePath('/candidater')
+}
 
 // ── Helper : récupère l'id de la ligne visit_settings (il n'en existe qu'une) ─
 
@@ -28,8 +31,22 @@ export async function setVisitActiveAction(active: boolean): Promise<{ ok: boole
     .from('visit_settings')
     .update({ active, updated_at: new Date().toISOString() })
     .eq('id', id)
+  if (error) return { ok: false, error: error.message }
   REVALIDATE()
-  return error ? { ok: false, error: error.message } : { ok: true }
+  return { ok: true }
+}
+
+export async function setCandidatureActiveAction(active: boolean): Promise<{ ok: boolean; error?: string }> {
+  const id = await getSettingsId()
+  if (!id) return { ok: false, error: 'Ligne visit_settings introuvable.' }
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('visit_settings')
+    .update({ applications_active: active, updated_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) return { ok: false, error: error.message }
+  REVALIDATE()
+  return { ok: true }
 }
 
 export async function setSlotDurationAction(minutes: number): Promise<{ ok: boolean; error?: string }> {

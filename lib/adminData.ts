@@ -1087,6 +1087,7 @@ export async function getCandidateDocuments(applicationId: string): Promise<Cand
 export type VisitSettings = {
   id: string
   active: boolean
+  applications_active: boolean
   slot_duration_minutes: number
   contact_name: string | null
   contact_phone: string | null
@@ -1112,13 +1113,13 @@ export type VisitAvailabilityException = {
 export async function getVisitSettings(): Promise<VisitSettings> {
   try {
     const rows = await runSql<VisitSettings>(`
-      SELECT id, active, slot_duration_minutes,
+      SELECT id, active, applications_active, slot_duration_minutes,
              contact_name, contact_phone, contact_email, contact_website
       FROM visit_settings LIMIT 1
     `)
-    return rows[0] ?? { id: '', active: false, slot_duration_minutes: 30, contact_name: null, contact_phone: null, contact_email: null, contact_website: null }
+    return rows[0] ?? { id: '', active: false, applications_active: true, slot_duration_minutes: 30, contact_name: null, contact_phone: null, contact_email: null, contact_website: null }
   } catch {
-    return { id: '', active: false, slot_duration_minutes: 30, contact_name: null, contact_phone: null, contact_email: null, contact_website: null }
+    return { id: '', active: false, applications_active: true, slot_duration_minutes: 30, contact_name: null, contact_phone: null, contact_email: null, contact_website: null }
   }
 }
 

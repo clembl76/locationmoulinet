@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import type { VisitSettings, VisitAvailabilityRule, VisitAvailabilityException } from '@/lib/adminData'
 import {
   setVisitActiveAction,
+  setCandidatureActiveAction,
   setSlotDurationAction,
   addRuleAction,
   deleteRuleAction,
@@ -266,14 +267,23 @@ export default function AvailabilityManager({
   exceptions: VisitAvailabilityException[]
 }) {
   const [, startTransition] = useTransition()
-  const [active, setActive]     = useState(settings.active)
-  const [duration, setDuration] = useState(settings.slot_duration_minutes)
+  const [active, setActive]                           = useState(settings.active)
+  const [applicationsActive, setApplicationsActive]  = useState(settings.applications_active)
+  const [duration, setDuration]                       = useState(settings.slot_duration_minutes)
 
   function handleToggleActive(v: boolean) {
     setActive(v)
     startTransition(async () => {
       const r = await setVisitActiveAction(v)
       if (!r.ok) setActive(!v) // revert on failure
+    })
+  }
+
+  function handleToggleCandidatureActive(v: boolean) {
+    setApplicationsActive(v)
+    startTransition(async () => {
+      const r = await setCandidatureActiveAction(v)
+      if (!r.ok) setApplicationsActive(!v) // revert on failure
     })
   }
 
@@ -305,6 +315,16 @@ export default function AvailabilityManager({
             </p>
           </div>
           <Toggle checked={active} onChange={handleToggleActive} />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-900">Candidatures activées</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {applicationsActive ? 'Les candidats peuvent déposer un dossier.' : 'Le dépôt de dossier est suspendu.'}
+            </p>
+          </div>
+          <Toggle checked={applicationsActive} onChange={handleToggleCandidatureActive} />
         </div>
 
         <div className="flex items-center justify-between">

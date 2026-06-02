@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-06-02 — Toggle "Candidatures activées" sur /admin/disponibilites (spec SPEC.md §Disponibilités)
+- `supabase/migrations/20260602_applications_active.sql` : colonne `applications_active BOOLEAN DEFAULT true` ajoutée à `visit_settings`
+- `lib/adminData.ts` : `VisitSettings` + `getVisitSettings()` incluent `applications_active`
+- `app/admin/disponibilites/actions.ts` : `setCandidatureActiveAction()` + revalidation `/candidater`
+- `app/admin/disponibilites/AvailabilityManager.tsx` : toggle "Candidatures activées" dans la section Paramètres généraux
+- `app/candidater/page.tsx` : si `applications_active = false`, affiche le message de suspension (même style que Visiter)
+- Tests : 187 passés — Build : OK
+
 ### 2026-06-02 — Tableau Linxo : colonnes Date / Montant / Description (spec SPEC.md §Détail appartement)
 - `lib/adminData.ts` : `ApartmentLinxoTransaction` — champ `type` remplacé par `montant`, query SQL mise à jour (`SELECT montant` au lieu de `type`)
 - `app/admin/apartments/[number]/page.tsx` : colonne "Type" (badge bleu) remplacée par "Montant" (valeur numérique colorée — vert si > 0)
