@@ -188,7 +188,7 @@ export default async function AdminApartmentDetailPage({
                   <thead>
                     <tr className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-50">
                       <th className="text-left py-2 pr-4 whitespace-nowrap">Date</th>
-                      <th className="text-left py-2 pr-4 whitespace-nowrap">Type</th>
+                      <th className="text-right py-2 pr-4 whitespace-nowrap">Montant</th>
                       <th className="text-left py-2">Description</th>
                     </tr>
                   </thead>
@@ -196,17 +196,15 @@ export default async function AdminApartmentDetailPage({
                     {linxoTxs.map((tx, i) => {
                       const d = new Date(tx.date)
                       const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                      const montantStr = tx.montant != null
+                        ? tx.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
+                        : '—'
+                      const isCredit = tx.montant != null && tx.montant > 0
                       return (
                         <tr key={tx.id ?? i}>
                           <td className="py-2 pr-4 text-gray-700 whitespace-nowrap">{dateStr}</td>
-                          <td className="py-2 pr-4">
-                            {tx.type ? (
-                              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                                {tx.type}
-                              </span>
-                            ) : (
-                              <span className="text-gray-300">—</span>
-                            )}
+                          <td className={`py-2 pr-4 text-right whitespace-nowrap font-medium ${isCredit ? 'text-green-600' : 'text-gray-700'}`}>
+                            {montantStr}
                           </td>
                           <td className="py-2 text-gray-600 text-xs">{tx.description ?? '—'}</td>
                         </tr>

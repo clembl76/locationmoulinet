@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-06-02 — Tableau Linxo : colonnes Date / Montant / Description (spec SPEC.md §Détail appartement)
+- `lib/adminData.ts` : `ApartmentLinxoTransaction` — champ `type` remplacé par `montant`, query SQL mise à jour (`SELECT montant` au lieu de `type`)
+- `app/admin/apartments/[number]/page.tsx` : colonne "Type" (badge bleu) remplacée par "Montant" (valeur numérique colorée — vert si > 0)
+- Tests : 187 passés
+
 ### 2026-06-02 — Email automatique liste locataires lors d'une entrée/sortie (spec SPEC.md §Admin)
 - Nouvelle fonction `buildTenantListEmailBody()` (pure, testable) dans `lib/quittance.ts`
 - Nouvelle fonction `sendTenantListEmail()` : envoie un email à `hmicout@hotmail.com` avec le locataire concerné en gras + liste complète des locataires actifs

@@ -352,7 +352,7 @@ export async function getApartmentTransactions(
 export type ApartmentLinxoTransaction = {
   id: string
   date: string
-  type: string | null
+  montant: number | null
   description: string | null
 }
 
@@ -360,7 +360,7 @@ export async function getLinxoTransactionsForApartment(
   aptNumber: string
 ): Promise<ApartmentLinxoTransaction[]> {
   return runSql<ApartmentLinxoTransaction>(`
-    SELECT id, date, type, description
+    SELECT id, date, montant, description
     FROM transactions_linxo
     WHERE apartment_num = '${aptNumber}'
     ORDER BY date DESC
