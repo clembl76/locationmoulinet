@@ -5,6 +5,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   test: {
+    pool: 'forks',
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],

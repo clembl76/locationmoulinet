@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis } from '@/lib/quittance'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail } from '@/lib/quittance'
 import { createEdlReport, runSqlAdmin } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -34,11 +34,19 @@ export async function savePreavisAction(
         rent_including_charges: number
         deposit: number | null
         tenant_email: string | null
+        tenant_first_name: string | null
+        tenant_last_name: string | null
+        tenant_title: string | null
+        tenant_phone: string | null
         building_address: string
         building_short_name: string
       }>(
         `SELECT l.rent_including_charges, l.deposit,
                 t.email AS tenant_email,
+                t.first_name AS tenant_first_name,
+                t.last_name AS tenant_last_name,
+                t.title AS tenant_title,
+                t.phone AS tenant_phone,
                 b.address AS building_address,
                 b.short_name AS building_short_name
          FROM leases l
@@ -94,6 +102,19 @@ export async function savePreavisAction(
           moveOutDate,
           prorataAmount: rentCC > 0 ? Math.round((moveOutDay / daysInMonth) * rentCC * 100) / 100 : 0,
           deposit: leaseRows[0].deposit,
+        }).catch(() => { /* non-bloquant */ })
+      }
+      // Email liste locataires — sortie (best-effort)
+      if (leaseRows[0]?.tenant_last_name) {
+        sendTenantListEmail({
+          changedTenantTitle: leaseRows[0].tenant_title,
+          changedTenantFirstName: leaseRows[0].tenant_first_name ?? '',
+          changedTenantLastName: leaseRows[0].tenant_last_name,
+          changedTenantPhone: leaseRows[0].tenant_phone,
+          changedTenantEmail: leaseRows[0].tenant_email,
+          aptNumber,
+          moveType: 'sortie',
+          moveDate: moveOutDate,
         }).catch(() => { /* non-bloquant */ })
       }
     } catch {

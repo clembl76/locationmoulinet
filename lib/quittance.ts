@@ -4,8 +4,11 @@ import fs from 'fs'
 import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
+import { buildTenantListEmailBody } from './emailFormatting'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
+
+const TENANT_LIST_EMAIL_RECIPIENT = 'clementine.blanchon@gmail.com'
 
 const MOIS_FR: Record<number, string> = {
   1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril',
@@ -1310,6 +1313,77 @@ export async function sendVisitNotificationEmail(opts: {
     `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
     `MIME-Version: 1.0`,
     `Content-Type: text/plain; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.messages.send({
+    userId: 'me',
+    requestBody: { raw },
+  })
+}
+
+// ─── Email — liste des locataires (entrée/sortie) ────────────────────────────
+
+export { buildTenantListEmailBody } from './emailFormatting'
+
+export async function sendTenantListEmail(opts: {
+  changedTenantTitle: string | null
+  changedTenantFirstName: string
+  changedTenantLastName: string
+  changedTenantPhone: string | null
+  changedTenantEmail: string | null
+  aptNumber: string
+  moveType: 'entrée' | 'sortie'
+  moveDate: string
+}): Promise<void> {
+  type TenantRow = {
+    apartment_number: string
+    title: string | null
+    first_name: string
+    last_name: string
+    phone: string | null
+    email: string | null
+    move_in_inspection_date: string | null
+    move_out_inspection_date: string | null
+  }
+
+  const allTenants = await runSqlAdmin<TenantRow>(
+    `SELECT a.number AS apartment_number, t.title, t.first_name, t.last_name, t.phone, t.email,
+            l.move_in_inspection_date, l.move_out_inspection_date
+     FROM leases l
+     JOIN apartments a ON a.id = l.apartment_id
+     JOIN lease_tenants lt ON lt.lease_id = l.id
+     JOIN tenants t ON t.id = lt.tenant_id
+     WHERE l.status = 'active'
+       AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+     ORDER BY a.number`
+  )
+
+  const body = buildTenantListEmailBody({
+    changedTenant: {
+      title: opts.changedTenantTitle,
+      firstName: opts.changedTenantFirstName,
+      lastName: opts.changedTenantLastName,
+      phone: opts.changedTenantPhone,
+      email: opts.changedTenantEmail,
+      aptNumber: opts.aptNumber,
+      moveType: opts.moveType,
+      moveDate: opts.moveDate,
+    },
+    allTenants,
+  })
+
+  const subject = 'Liste de locataires mise à jour'
+  const mime = [
+    `To: ${TENANT_LIST_EMAIL_RECIPIENT}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/html; charset=UTF-8`,
     `Content-Transfer-Encoding: base64`,
     ``,
     Buffer.from(body).toString('base64'),

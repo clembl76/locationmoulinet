@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
+import { sendTenantListEmail } from '@/lib/quittance'
 import { redirect } from 'next/navigation'
 
 type TenantInput = {
@@ -129,6 +130,19 @@ export async function createBailAction(
       console.error('Garant error (non-blocking):', gRes.error.message)
     }
   }
+
+  // Envoi de l'email liste locataires (best-effort, non-bloquant)
+  const moveDate = leaseInput.move_in_inspection_date ?? leaseInput.signing_date ?? ''
+  sendTenantListEmail({
+    changedTenantTitle: tenantInput.title,
+    changedTenantFirstName: tenantInput.first_name,
+    changedTenantLastName: tenantInput.last_name,
+    changedTenantPhone: tenantInput.phone,
+    changedTenantEmail: tenantInput.email,
+    aptNumber,
+    moveType: 'entrée',
+    moveDate,
+  }).catch(() => { /* non-bloquant */ })
 
   redirect(`/admin/apartments/${aptNumber}`)
 }

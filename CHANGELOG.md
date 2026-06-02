@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-06-02 — Email automatique liste locataires lors d'une entrée/sortie (spec SPEC.md §Admin)
+- Nouvelle fonction `buildTenantListEmailBody()` (pure, testable) dans `lib/quittance.ts`
+- Nouvelle fonction `sendTenantListEmail()` : envoie un email à `hmicout@hotmail.com` avec le locataire concerné en gras + liste complète des locataires actifs
+- `createBailAction()` : email envoyé automatiquement à la création d'un bail (entrée)
+- `savePreavisAction()` : email envoyé automatiquement à la saisie d'un préavis (sortie) — requête SQL étendue pour récupérer titre/prénom/nom/téléphone du locataire
+- Les deux appels sont best-effort (`.catch(() => {})`) — non bloquants
+- Tests : 10 passés (`buildTenantListEmailBody` — happy path, cas limites, dates, titres, champs manquants)
+
 ### 2026-05-26 — EDL figé : renommage titre principal (spec SPEC.md)
 - Titre de page "EDL figé — Apt {n}" renommé "Etat des lieux - Apt {n}"
 - Tests : 169 passés
