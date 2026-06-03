@@ -5,6 +5,7 @@ import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
 import { buildTenantListEmailBody } from './emailFormatting'
+import { calcProrataBreakdown } from './quittanceUtils'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -121,9 +122,12 @@ export async function generateQuittancePdf(
     ? `situé au ${data.building_address} - Appartement n°${data.apartment_number}`
     : `situé au ${data.building_address} - ${data.floor_label ?? ''}`
 
-  const loyerHc = data.rent_excluding_charges
-  const charges = data.charges
   const loyerCc = amountReceived
+  const { loyerHc, charges } = calcProrataBreakdown(
+    amountReceived,
+    data.rent_excluding_charges,
+    data.rent_including_charges,
+  )
 
   const para1 = `Je soussignée, ${ownerDisplay}, propriétaire du logement ${logementDesignation}, donné en location à ${civilite} ${nom} ${prenom}, déclare avoir reçu de celui(celle)-ci à titre de loyer et charges pour la période du ${dateDebut} au ${dateFin} la somme de ${loyerCc.toFixed(2)} EUR et lui en donne quittance.`
   const para2 = `Cette somme se répartit de la façon suivante : ${loyerHc.toFixed(2)} EUR de loyer et ${charges.toFixed(2)} EUR de charges.`

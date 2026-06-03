@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-06-03 — Correction répartition loyer/charges dans quittance au prorata (spec SPEC.md §Détail appartement)
+- `lib/quittanceUtils.ts` (nouveau) : `calcProrataBreakdown()` — calcule la répartition loyer HC / charges proportionnellement au montant reçu, en centimes entiers pour éviter les erreurs de virgule flottante
+- `lib/quittance.ts` : `generateQuittancePdf()` utilise désormais `calcProrataBreakdown` au lieu des valeurs brutes du bail
+- `src/lib/quittanceUtils.test.ts` : 8 tests (cas plein, prorata entrée/sortie, charges nulles, division par zéro)
+- Tests : 195 passés — Build : OK
+
 ### 2026-06-03 — Suppression bouton "Contacter" (spec SPEC.md §Détail appartement)
 - `app/admin/apartments/[number]/page.tsx` : `<DisabledBtn>Contacter</DisabledBtn>` retiré
 - Tests : 187 passés — Build : OK
