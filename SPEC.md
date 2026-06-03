@@ -21,6 +21,7 @@
 ## Page Appartments /admin/apartments
 
 ## Page Détail d'un appartment /admin/apartments/num
+
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
 ## Page EDL /admin/apartments/num/edl/id-edl

@@ -307,7 +307,6 @@ export default async function AdminApartmentDetailPage({
                 aptNumber={apt.number}
                 currentMoveOut={apt.move_out_date}
               />
-              <DisabledBtn>Contacter</DisabledBtn>
             </div>
           )}
 

@@ -2,6 +2,10 @@
 
 ## [Non publié]
 
+### 2026-06-03 — Suppression bouton "Contacter" (spec SPEC.md §Détail appartement)
+- `app/admin/apartments/[number]/page.tsx` : `<DisabledBtn>Contacter</DisabledBtn>` retiré
+- Tests : 187 passés — Build : OK
+
 ### 2026-06-02 — Toggle "Candidatures activées" sur /admin/disponibilites (spec SPEC.md §Disponibilités)
 - `supabase/migrations/20260602_applications_active.sql` : colonne `applications_active BOOLEAN DEFAULT true` ajoutée à `visit_settings`
 - `lib/adminData.ts` : `VisitSettings` + `getVisitSettings()` incluent `applications_active`
