@@ -12,6 +12,7 @@ import {
   deleteInventoryItemAction,
   createCatalogItemAction,
 } from '@/app/admin/inventory/actions'
+import { fillDefaultAction } from '@/app/admin/inventory/defaultActions'
 import SurfacesEdl from '@/components/admin/SurfacesEdl'
 import ApartmentSummaryPanel from '@/components/admin/ApartmentSummaryPanel'
 import ApartmentKeysPanel from '@/components/admin/ApartmentKeysPanel'
@@ -364,6 +365,9 @@ export default function InventoryManager({
   const [filterItem, setFilterItem] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
   const [, startTransition] = useTransition()
+  const [surfacesKey, setSurfacesKey] = useState(0)
+  const [filling, setFilling] = useState(false)
+  const [fillError, setFillError] = useState('')
 
   // Charger le catalogue d'items une fois
   useEffect(() => {
@@ -374,12 +378,29 @@ export default function InventoryManager({
     setAptId(id)
     setSelectedApt(apartments.find(a => a.apartment_id === id) ?? null)
     setShowAddForm(false)
+    setFillError('')
     if (!id) { setInventory([]); return }
     setLoading(true)
     getInventoryForApartmentAction(id).then(rows => {
       setInventory(rows)
       setLoading(false)
     })
+  }
+
+  async function handleFillDefault() {
+    if (!aptId) return
+    setFilling(true)
+    setFillError('')
+    const result = await fillDefaultAction(aptId)
+    if (!result.ok) {
+      setFillError(result.error ?? 'Erreur inconnue')
+      setFilling(false)
+      return
+    }
+    const rows = await getInventoryForApartmentAction(aptId)
+    setInventory(rows)
+    setSurfacesKey(k => k + 1)
+    setFilling(false)
   }
 
   async function handleSave(id: string, qty: number, room: string, condition: string | null, notes: string | null) {
@@ -449,6 +470,18 @@ export default function InventoryManager({
             >
               Figer l&apos;EDL
             </button>
+          )}
+          {aptId && (
+            <button
+              onClick={handleFillDefault}
+              disabled={filling}
+              className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50"
+            >
+              {filling ? 'Remplissage…' : 'Remplir par défaut'}
+            </button>
+          )}
+          {fillError && (
+            <span className="text-xs text-red-500">{fillError}</span>
           )}
         </div>
       </div>
@@ -587,7 +620,7 @@ export default function InventoryManager({
       )}
 
       {/* Section État des lieux */}
-      {aptId && <SurfacesEdl apartmentId={aptId} />}
+      {aptId && <SurfacesEdl key={`surfaces-${aptId}-${surfacesKey}`} apartmentId={aptId} />}
     </div>
   )
 }

@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-06-03 — Bouton "Remplir par défaut" sur la page Inventaire (SPEC.md §Page Inventaire)
+- `app/admin/inventory/defaultActions.ts` (nouveau) : server action `fillDefaultAction` — insère en masse 87 lignes d'inventaire et 24 surfaces/EDL standards depuis les CSV fournis
+- `components/admin/InventoryManager.tsx` : bouton "Remplir par défaut" affiché à droite de "Figer l'EDL" après sélection d'un appartement ; rechargement automatique inventaire + surfaces après succès ; gestion état de chargement et affichage d'erreur
+- `src/app/admin/inventory/defaultActions.test.ts` (nouveau) : 8 tests (inserts OK, erreurs inventaire/surfaces, validité données)
+- `src/components/admin/InventoryManager.test.tsx` (nouveau) : 9 tests (visibilité bouton, appel action, rechargement, erreur, état disabled)
+- Tests nouveaux fichiers : 17 passés — Build : OK
+
 ### 2026-06-03 — Correction répartition loyer/charges dans quittance au prorata (spec SPEC.md §Détail appartement)
 - `lib/quittanceUtils.ts` (nouveau) : `calcProrataBreakdown()` — calcule la répartition loyer HC / charges proportionnellement au montant reçu, en centimes entiers pour éviter les erreurs de virgule flottante
 - `lib/quittance.ts` : `generateQuittancePdf()` utilise désormais `calcProrataBreakdown` au lieu des valeurs brutes du bail

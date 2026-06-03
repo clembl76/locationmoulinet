@@ -5,7 +5,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   test: {
-    pool: 'forks',
+    pool: 'threads',
     maxWorkers: 1,
     environment: 'jsdom',
     globals: true,

@@ -18,10 +18,7 @@ gérer l'impression pdf et le "figer pour l'edl d'entrée" ou de sortie
 rebrancher avec les boutons de l'interface.
 bonus : gérer un cout d'inventaire/réparations
 
-préparer un edl "standard" à initialiser
-je voudrais ajouter un bouton qui permet de remplir par défaut 
-- un inventaire avec les valeurs présentes dans le csv default-inventory.csv
-- un état des lieux avec les valeurs présentes dans le csv default-edl.csv
+
 
 
 supprime les tables supabase qui ne sont plus utilisées
