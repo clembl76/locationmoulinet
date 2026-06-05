@@ -37,7 +37,5 @@
 
 
 ## Page Inventaire  /admin/inventory
-tu dois modifier le comportement suivant:
-
-dans surfaces, lorsque je clique sur Ajouter, tu dois ajouter l'item à la liste des items qui seront disponibles dans la bibliothèque, et pas uniquement dans l'inventaire courant comme c'est le cas aujourdhui. bases toi sur le comportement utilisé pour la section inventaire
+dans inventaire, proposer tous les appartements dans la liste déroulante, quelque soit leur statut. par exemple je veux voir le 1
 ## Page EDL /admin/inventory/edl-fige/

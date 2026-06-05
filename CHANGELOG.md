@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-06-05 — Tous les appartements dans la liste déroulante de l'inventaire (SPEC.md §Page Inventaire)
+- `lib/adminData.ts` : nouveau type `ApartmentForInventory` (lease_id et tenant_name nullables) + fonction `getAllApartmentsForInventory()` — LEFT JOIN apartments/leases/tenants, retourne tous les appartements valides non-BUREAU qu'ils aient un bail actif ou non
+- `app/admin/inventory/page.tsx` : remplace `getApartmentsWithActiveLease` par `getAllApartmentsForInventory`
+- `components/admin/InventoryManager.tsx` : type mis à jour vers `ApartmentForInventory`, label "Vacant" pour les appartements sans locataire, `ApartmentSummaryPanel` conditionnel à `lease_id !== null`
+- `src/components/admin/InventoryManager.test.tsx` : données de test `vacantApartments`, 3 nouveaux tests (label Vacant, pas de SummaryPanel, boutons présents)
+- Tests : 232 passés — Build : OK
+
 ### 2026-06-05 — Catalogue dynamique de surfaces : persistance dans la bibliothèque (SPEC.md §Page Inventaire)
 - `app/admin/inventory/surfacesActions.ts` : nouvelle action `getAllDistinctSurfaceNamesAction` — requête `SELECT DISTINCT surface::text` sur toute la table `surfaces`
 - `components/admin/SurfacesEdl.tsx` : chargement du catalogue DB au montage (`useEffect` + `getAllDistinctSurfaceNamesAction`), fusion avec `SURFACE_TYPES` via `useMemo` (dédupliqué, trié fr), mise à jour immédiate du catalogue local après ajout d'un nom personnalisé

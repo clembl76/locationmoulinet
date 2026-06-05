@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { ApartmentWithLease } from '@/lib/adminData'
+import type { ApartmentForInventory } from '@/lib/adminData'
 import type { ItemRow, InventoryRow } from '@/app/admin/inventory/actions'
 import {
   getInventoryForApartmentAction,
@@ -351,11 +351,11 @@ function AddItemForm({
 export default function InventoryManager({
   apartments,
 }: {
-  apartments: ApartmentWithLease[]
+  apartments: ApartmentForInventory[]
 }) {
   const router = useRouter()
   const [aptId, setAptId] = useState('')
-  const [selectedApt, setSelectedApt] = useState<ApartmentWithLease | null>(null)
+  const [selectedApt, setSelectedApt] = useState<ApartmentForInventory | null>(null)
   const [inventory, setInventory] = useState<InventoryRow[]>([])
   const [allItems, setAllItems] = useState<ItemRow[]>([])
   const [loading, setLoading] = useState(false)
@@ -459,7 +459,7 @@ export default function InventoryManager({
             <option value="">— Sélectionner un appartement —</option>
             {apartments.map(a => (
               <option key={a.apartment_id} value={a.apartment_id}>
-                Apt {a.apartment_number} — {a.tenant_name}
+                Apt {a.apartment_number}{a.tenant_name ? ` — ${a.tenant_name}` : ' — Vacant'}
               </option>
             ))}
           </select>
@@ -486,8 +486,8 @@ export default function InventoryManager({
         </div>
       </div>
 
-      {/* Dates du bail */}
-      {aptId && selectedApt && (
+      {/* Dates du bail — uniquement si bail actif */}
+      {aptId && selectedApt && selectedApt.lease_id && (
         <ApartmentSummaryPanel apartmentId={aptId} leaseId={selectedApt.lease_id} />
       )}
 

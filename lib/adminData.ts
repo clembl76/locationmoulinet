@@ -429,6 +429,39 @@ export async function getApartmentsWithActiveLease(): Promise<ApartmentWithLease
   `)
 }
 
+export type ApartmentForInventory = {
+  lease_id: string | null
+  apartment_id: string
+  apartment_number: string
+  tenant_name: string | null
+}
+
+export async function getAllApartmentsForInventory(): Promise<ApartmentForInventory[]> {
+  return runSql<ApartmentForInventory>(`
+    SELECT lease_id, apartment_id, apartment_number, tenant_name
+    FROM (
+      SELECT DISTINCT ON (a.id)
+        l.id   AS lease_id,
+        a.id   AS apartment_id,
+        a.number AS apartment_number,
+        a.number::integer AS sort_num,
+        CASE
+          WHEN l.id IS NOT NULL THEN (t.first_name || ' ' || UPPER(t.last_name))
+          ELSE NULL
+        END AS tenant_name
+      FROM apartments a
+      LEFT JOIN leases l ON l.apartment_id = a.id
+        AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+      LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+      LEFT JOIN tenants t ON t.id = lt.tenant_id
+      WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND a.type::text != 'BUREAU'
+      ORDER BY a.id, COALESCE(t.last_name, '')
+    ) sub
+    ORDER BY sort_num
+  `)
+}
+
 export async function getRentsForLeaseYear(
   leaseId: string,
   year: number

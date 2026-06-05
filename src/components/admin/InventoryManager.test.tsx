@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import InventoryManager from '@/components/admin/InventoryManager'
-import type { ApartmentWithLease } from '@/lib/adminData'
+import type { ApartmentForInventory } from '@/lib/adminData'
 
 // ─── Mocks modules ────────────────────────────────────────────────────────────
 
@@ -45,12 +45,21 @@ vi.mock('@/components/admin/ApartmentInstallationPanel', () => ({
 
 // ─── Données de test ───────────────────────────────────────────────────────────
 
-const apartments: ApartmentWithLease[] = [
+const apartments: ApartmentForInventory[] = [
   {
     apartment_id: 'apt-1',
     apartment_number: '7',
     tenant_name: 'Dupont Marie',
     lease_id: 'lease-1',
+  },
+]
+
+const vacantApartments: ApartmentForInventory[] = [
+  {
+    apartment_id: 'apt-2',
+    apartment_number: '1',
+    tenant_name: null,
+    lease_id: null,
   },
 ]
 
@@ -154,5 +163,37 @@ describe('InventoryManager — bouton Remplir par défaut', () => {
     // Resélectionner le même appartement remet fillError à vide
     await user.selectOptions(screen.getByRole('combobox'), '')
     await waitFor(() => expect(screen.queryByText('Erreur')).not.toBeInTheDocument())
+  })
+})
+
+describe('InventoryManager — appartement vacant (sans bail actif)', () => {
+  beforeEach(() => {
+    mockGetAllItems.mockResolvedValue([])
+    mockGetInventory.mockResolvedValue([])
+  })
+
+  it('affiche "Vacant" dans le label d\'un appartement sans locataire', () => {
+    render(<InventoryManager apartments={vacantApartments} />)
+    expect(screen.getByText(/Apt 1 — Vacant/)).toBeInTheDocument()
+  })
+
+  it('n\'affiche pas ApartmentSummaryPanel pour un appartement vacant', async () => {
+    const user = userEvent.setup()
+    render(<InventoryManager apartments={vacantApartments} />)
+    await user.selectOptions(screen.getByRole('combobox'), 'apt-2')
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Figer l'EDL/ })).toBeInTheDocument()
+    )
+    expect(screen.queryByTestId('summary-panel')).not.toBeInTheDocument()
+  })
+
+  it('affiche les boutons d\'action pour un appartement vacant', async () => {
+    const user = userEvent.setup()
+    render(<InventoryManager apartments={vacantApartments} />)
+    await user.selectOptions(screen.getByRole('combobox'), 'apt-2')
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Figer l'EDL/ })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Remplir par défaut/ })).toBeInTheDocument()
+    })
   })
 })
