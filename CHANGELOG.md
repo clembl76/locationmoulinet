@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-06-05 — EDL figé : bloc locataire dans les signatures (SPEC.md §Page EDL /admin/inventory/edl-fige/)
+- `supabase/migrations/20260605_tenant_notes_exit.sql` : nouvelle colonne `tenant_notes_exit TEXT` sur `apartment_installation`
+- `lib/adminData.ts` : champ `tenant_notes_exit: string | null` ajouté au type `EdlInstallation`
+- `app/admin/inventory/summaryActions.ts` : sélection de `tenant_notes_exit` dans `getInstallationAction` + nouvelle action `updateTenantNotesExitAction`
+- `components/admin/EdlFigeView.tsx` : label bailleur renommé en "Bailleur - Commentaires, réserves et retenues éventuelles sur caution :", nouveau bloc "Locataire - Commentaires ou réserves :" avec textarea auto-save (`onBlur`), états `savingDeposit` / `savingTenant` distincts
+- `src/components/admin/EdlFigeView.test.tsx` : mock `updateTenantNotesExitAction`, champ `tenant_notes_exit` dans la fixture, 4 nouveaux tests footer (label bailleur, bloc locataire visible en Sortie, masqué en Entrée, pré-remplissage)
+- Tests : 50 passés / 0 échoués
+
 ### 2026-06-05 — Tous les appartements dans la liste déroulante de l'inventaire (SPEC.md §Page Inventaire)
 - `lib/adminData.ts` : nouveau type `ApartmentForInventory` (lease_id et tenant_name nullables) + fonction `getAllApartmentsForInventory()` — LEFT JOIN apartments/leases/tenants, retourne tous les appartements valides non-BUREAU qu'ils aient un bail actif ou non
 - `app/admin/inventory/page.tsx` : remplace `getApartmentsWithActiveLease` par `getAllApartmentsForInventory`

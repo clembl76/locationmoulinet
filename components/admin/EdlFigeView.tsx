@@ -5,7 +5,7 @@ import type { ApartmentWithLease, EdlInstallation, EdlKey } from '@/lib/adminDat
 import type { LeaseDates, EdlFigeHeader } from '@/app/admin/inventory/summaryActions'
 import type { InventoryRow } from '@/app/admin/inventory/actions'
 import type { SurfaceRow } from '@/app/admin/inventory/surfacesActions'
-import { updateChargesTypeAction, updateDepositNotesAction } from '@/app/admin/inventory/summaryActions'
+import { updateChargesTypeAction, updateDepositNotesAction, updateTenantNotesExitAction } from '@/app/admin/inventory/summaryActions'
 import { updateInventoryNotesExitAction } from '@/app/admin/inventory/actions'
 import { updateSurfaceNotesExitAction } from '@/app/admin/inventory/surfacesActions'
 
@@ -250,7 +250,9 @@ function EdlFooter({
   apartmentId: string
 }) {
   const [depositNotes, setDepositNotes] = useState(installation?.deposit_notes ?? '')
-  const [saving, setSaving] = useState(false)
+  const [savingDeposit, setSavingDeposit] = useState(false)
+  const [tenantNotesExit, setTenantNotesExit] = useState(installation?.tenant_notes_exit ?? '')
+  const [savingTenant, setSavingTenant] = useState(false)
 
   const date = edlType === 'entree'
     ? formatDate(leaseDates.move_in_date)
@@ -263,10 +265,16 @@ function EdlFooter({
     ? [header.owner_title, header.owner_last_name.toUpperCase(), header.owner_first_name].filter(Boolean).join(' ')
     : ''
 
-  async function handleBlur() {
-    setSaving(true)
+  async function handleDepositBlur() {
+    setSavingDeposit(true)
     await updateDepositNotesAction(apartmentId, depositNotes.trim() || null)
-    setSaving(false)
+    setSavingDeposit(false)
+  }
+
+  async function handleTenantBlur() {
+    setSavingTenant(true)
+    await updateTenantNotesExitAction(apartmentId, tenantNotesExit.trim() || null)
+    setSavingTenant(false)
   }
 
   return (
@@ -288,18 +296,32 @@ function EdlFooter({
       </p>
 
       {edlType === 'sortie' && (
-        <div className="space-y-1">
-          <p className="text-gray-600">Commentaires, réserves et retenues éventuelles sur caution :</p>
-          {saving && <span className="text-xs text-gray-400">Enregistrement…</span>}
-          <textarea
-            value={depositNotes}
-            onChange={e => setDepositNotes(e.target.value)}
-            onBlur={handleBlur}
-            rows={4}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
-            placeholder="Commentaires, réserves…"
-          />
-        </div>
+        <>
+          <div className="space-y-1">
+            <p className="text-gray-600">Bailleur - Commentaires, réserves et retenues éventuelles sur caution :</p>
+            {savingDeposit && <span className="text-xs text-gray-400">Enregistrement…</span>}
+            <textarea
+              value={depositNotes}
+              onChange={e => setDepositNotes(e.target.value)}
+              onBlur={handleDepositBlur}
+              rows={4}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
+              placeholder="Commentaires, réserves…"
+            />
+          </div>
+          <div className="space-y-1">
+            <p className="text-gray-600">Locataire - Commentaires ou réserves :</p>
+            {savingTenant && <span className="text-xs text-gray-400">Enregistrement…</span>}
+            <textarea
+              value={tenantNotesExit}
+              onChange={e => setTenantNotesExit(e.target.value)}
+              onBlur={handleTenantBlur}
+              rows={4}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
+              placeholder="Commentaires ou réserves du locataire…"
+            />
+          </div>
+        </>
       )}
 
       <p>Fait en 2 exemplaires, à Rouen le {date}</p>

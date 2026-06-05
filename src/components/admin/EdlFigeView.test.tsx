@@ -10,6 +10,7 @@ import type { SurfaceRow } from '@/app/admin/inventory/surfacesActions'
 vi.mock('@/app/admin/inventory/summaryActions', () => ({
   updateChargesTypeAction: vi.fn().mockResolvedValue(undefined),
   updateDepositNotesAction: vi.fn().mockResolvedValue(undefined),
+  updateTenantNotesExitAction: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('@/app/admin/inventory/actions', () => ({
@@ -39,6 +40,7 @@ const installation: EdlInstallation = {
   charges_type: 'forfait',
   meter_readings: null,
   deposit_notes: null,
+  tenant_notes_exit: null,
 }
 
 const keys: EdlKey[] = [
@@ -415,18 +417,37 @@ describe('EdlFigeView — footer signatures', () => {
     expect(document.body.textContent).toContain('Sortie des lieux le')
   })
 
-  it("affiche un textarea pour les réserves en mode Sortie", async () => {
+  it("affiche le bloc bailleur avec label renommé en mode Sortie", async () => {
     const user = userEvent.setup()
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
     await user.click(screen.getByRole('button', { name: 'Sortie' }))
-    expect(document.body.textContent).toContain('Commentaires, réserves et retenues éventuelles sur caution')
+    expect(document.body.textContent).toContain('Bailleur - Commentaires, réserves et retenues éventuelles sur caution')
   })
 
-  it("n'affiche pas le textarea réserves en mode Entrée", () => {
+  it("affiche le bloc locataire en mode Sortie", async () => {
+    const user = userEvent.setup()
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    await user.click(screen.getByRole('button', { name: 'Sortie' }))
+    expect(document.body.textContent).toContain('Locataire - Commentaires ou réserves')
+    expect(screen.getByPlaceholderText('Commentaires ou réserves du locataire…')).toBeInTheDocument()
+  })
+
+  it("n'affiche pas les blocs réserves en mode Entrée", () => {
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
     expect(screen.queryByPlaceholderText('Commentaires, réserves…')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Commentaires ou réserves du locataire…')).not.toBeInTheDocument()
+  })
+
+  it("pré-remplit le textarea locataire avec la valeur de tenant_notes_exit", async () => {
+    const user = userEvent.setup()
+    const instAvecNotes: EdlInstallation = { ...installation, tenant_notes_exit: 'RAS pour le locataire' }
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={instAvecNotes}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    await user.click(screen.getByRole('button', { name: 'Sortie' }))
+    expect(screen.getByDisplayValue('RAS pour le locataire')).toBeInTheDocument()
   })
 
   it("affiche les noms locataire et propriétaire dans les signatures quand header fourni", () => {

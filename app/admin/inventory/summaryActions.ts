@@ -105,7 +105,7 @@ export async function updateChargesTypeAction(
 
 export async function getInstallationAction(apartmentId: string): Promise<EdlInstallation | null> {
   const rows = await runSqlAdmin<EdlInstallation>(`
-    SELECT hot_water, heating, charges_type, meter_readings, deposit_notes FROM apartment_installation
+    SELECT hot_water, heating, charges_type, meter_readings, deposit_notes, tenant_notes_exit FROM apartment_installation
     WHERE apartment_id = '${apartmentId}' LIMIT 1
   `)
   return rows[0] ?? null
@@ -120,6 +120,19 @@ export async function updateDepositNotesAction(
     .from('apartment_installation')
     .upsert(
       { apartment_id: apartmentId, deposit_notes },
+      { onConflict: 'apartment_id' },
+    )
+}
+
+export async function updateTenantNotesExitAction(
+  apartmentId: string,
+  tenant_notes_exit: string | null,
+): Promise<void> {
+  const admin = createAdminClient()
+  await admin
+    .from('apartment_installation')
+    .upsert(
+      { apartment_id: apartmentId, tenant_notes_exit },
       { onConflict: 'apartment_id' },
     )
 }

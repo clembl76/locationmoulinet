@@ -35,7 +35,10 @@
 
 ## Page Disponibilités visites /admin/disponibilites
 
-
 ## Page Inventaire  /admin/inventory
-dans inventaire, proposer tous les appartements dans la liste déroulante, quelque soit leur statut. par exemple je veux voir le 1
+
 ## Page EDL /admin/inventory/edl-fige/
+
+Je voudrais que tu modifies dans la zone Signature:
+- renommer le cadre "Commentaires, réserves et retenues éventuelles sur caution :" en "Bailleur - Commentaires, réserves et retenues éventuelles sur caution :"
+- créer en dessous un cadre nommé "Locataire - Commentaires ou réserves :"

@@ -629,6 +629,7 @@ export type EdlInstallation = {
   charges_type: string | null
   meter_readings: string | null
   deposit_notes: string | null
+  tenant_notes_exit: string | null
 }
 
 export type EdlKey = {

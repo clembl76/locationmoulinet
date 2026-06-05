@@ -55,7 +55,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
     const hot = draftHot.trim() || null
     const heat = draftHeating.trim() || null
     await updateInstallationAction(apartmentId, hot, heat)
-    setInstallation(prev => ({ ...(prev ?? { charges_type: null, meter_readings: null, deposit_notes: null }), hot_water: hot, heating: heat }))
+    setInstallation(prev => ({ ...(prev ?? { charges_type: null, meter_readings: null, deposit_notes: null, tenant_notes_exit: null }), hot_water: hot, heating: heat }))
     setSaving(false)
     setEditing(false)
   }
@@ -71,7 +71,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
     setSavingCharges(true)
     await updateChargesTypeAction(apartmentId, newType, readings)
     setInstallation(prev => ({
-      ...(prev ?? { hot_water: null, heating: null, deposit_notes: null }),
+      ...(prev ?? { hot_water: null, heating: null, deposit_notes: null, tenant_notes_exit: null }),
       charges_type: newType,
       meter_readings: readings,
     }))
@@ -83,7 +83,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
     setSavingCharges(true)
     await updateChargesTypeAction(apartmentId, 'compteurs', meterReadings || null)
     setInstallation(prev => ({
-      ...(prev ?? { hot_water: null, heating: null, deposit_notes: null }),
+      ...(prev ?? { hot_water: null, heating: null, deposit_notes: null, tenant_notes_exit: null }),
       charges_type: 'compteurs',
       meter_readings: meterReadings || null,
     }))
