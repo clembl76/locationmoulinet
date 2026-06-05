@@ -37,6 +37,14 @@
 
 
 ## Page Inventaire  /admin/inventory
+ajoute aux éléments présents dans l'inventaire par défaut (en plus donc des csv que j'avais fourni au départ):
+inventaire:
 
-ajoute un bouton "Créer un nouvel item dans la bibliothèque" dans Surfaces permettant d'ajouter un item à la liste, sur le même principe que ce qu'on a fait dans Inventaire.
+dans la cuisine
+- Saladier
+- Passoire
+
+dans la salle de bains
+- Porte-serviette
+
 ## Page EDL /admin/inventory/edl-fige/

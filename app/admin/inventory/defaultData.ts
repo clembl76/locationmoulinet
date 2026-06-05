@@ -5,6 +5,15 @@ type DefaultInventoryRow = {
   condition: string
 }
 
+export type DefaultNamedInventoryRow = {
+  item_name: string
+  item_category: string
+  item_default_room: string
+  room: string
+  quantity: number
+  condition: string
+}
+
 type DefaultSurfaceRow = {
   surface: string
   material: string | null
@@ -130,4 +139,10 @@ export const DEFAULT_EDL: DefaultSurfaceRow[] = [
   { surface: 'Ventilation', material: 'Plastique', condition: 'Bon état', room: 'Salle de bains' },
   { surface: 'Ventilation', material: 'Plastique', condition: 'Bon état', room: 'Cuisine' },
   { surface: "WC (y compris chasse d'eau, joints et abattant)", material: null, condition: 'Bon état', room: 'Toilettes' },
+]
+
+export const DEFAULT_INVENTORY_NAMED: DefaultNamedInventoryRow[] = [
+  { item_name: 'Saladier', item_category: 'Meuble ou objet', item_default_room: 'Cuisine', room: 'Cuisine', quantity: 1, condition: 'Bon état' },
+  { item_name: 'Passoire', item_category: 'Meuble ou objet', item_default_room: 'Cuisine', room: 'Cuisine', quantity: 1, condition: 'Bon état' },
+  { item_name: 'Porte-serviette', item_category: 'Meuble ou objet', item_default_room: 'Salle de bains', room: 'Salle de bains', quantity: 1, condition: 'Bon état' },
 ]

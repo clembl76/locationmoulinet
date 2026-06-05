@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-06-05 — Ajout de Saladier, Passoire et Porte-serviette à l'inventaire par défaut (SPEC.md §Page Inventaire)
+- `app/admin/inventory/defaultData.ts` : nouveau type `DefaultNamedInventoryRow` + export `DEFAULT_INVENTORY_NAMED` (3 items : Saladier / Cuisine, Passoire / Cuisine, Porte-serviette / Salle de bains)
+- `app/admin/inventory/defaultActions.ts` : étape find-or-create dans `fillDefaultAction` — pour chaque item nommé, recherche par `name` dans le catalogue `items` ; création automatique si absent ; insertion unitaire dans `inventory`
+- `src/app/admin/inventory/defaultActions.test.ts` : mock renforcé (select chaîné, invBulkError / invSingleError distincts), 7 nouveaux tests (item existant, item créé, erreur création, erreur insert, contenu Cuisine / Salle de bains, validation données)
+- Tests : 225 passés — Build : OK
+
 ### 2026-06-03 — Bouton "Créer un nouvel item dans la bibliothèque" dans Surfaces EDL (SPEC.md §Page Inventaire)
 - `components/admin/SurfacesEdl.tsx` : ajout du toggle "+ Créer un nouvel item dans la bibliothèque" dans le formulaire d'ajout — bascule entre le select des types prédéfinis et un champ texte libre ; validation nom vide ; réinitialisation après ajout réussi
 - `src/components/admin/SurfacesEdl.test.tsx` : 6 nouveaux tests (affichage toggle, bascule dropdown/texte, annuler création, ajout avec nom libre, erreur nom vide, réinitialisation)
