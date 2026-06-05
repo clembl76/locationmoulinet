@@ -37,14 +37,7 @@
 
 
 ## Page Inventaire  /admin/inventory
-ajoute aux éléments présents dans l'inventaire par défaut (en plus donc des csv que j'avais fourni au départ):
-inventaire:
+tu dois modifier le comportement suivant:
 
-dans la cuisine
-- Saladier
-- Passoire
-
-dans la salle de bains
-- Porte-serviette
-
+dans surfaces, lorsque je clique sur Ajouter, tu dois ajouter l'item à la liste des items qui seront disponibles dans la bibliothèque, et pas uniquement dans l'inventaire courant comme c'est le cas aujourdhui. bases toi sur le comportement utilisé pour la section inventaire
 ## Page EDL /admin/inventory/edl-fige/

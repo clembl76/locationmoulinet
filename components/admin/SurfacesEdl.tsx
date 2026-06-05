@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type { SurfaceRow } from '@/app/admin/inventory/surfacesActions'
 import {
+  getAllDistinctSurfaceNamesAction,
   getSurfacesForApartmentAction,
   addSurfaceAction,
   updateSurfaceAction,
@@ -92,6 +93,9 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
   const [open, setOpen] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
 
+  // Catalogue dynamique chargé depuis la DB (noms distincts de la table surfaces)
+  const [dbSurfaceNames, setDbSurfaceNames] = useState<string[]>([])
+
   // Formulaire ajout
   const [newSurface, setNewSurface] = useState<string>(SURFACE_TYPES[0])
   const [newRoom, setNewRoom] = useState('')
@@ -104,6 +108,17 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
   // Création libre hors catalogue
   const [showCreate, setShowCreate] = useState(false)
   const [customName, setCustomName] = useState('')
+
+  // Fusion SURFACE_TYPES + noms DB, dédupliqués et triés (catalogue complet)
+  const allSurfaceTypes = useMemo(() => {
+    const merged = new Set([...SURFACE_TYPES, ...dbSurfaceNames])
+    return Array.from(merged).sort((a, b) => a.localeCompare(b, 'fr'))
+  }, [dbSurfaceNames])
+
+  // Chargement initial : surfaces de l'appartement + noms distincts du catalogue
+  useEffect(() => {
+    getAllDistinctSurfaceNamesAction().then(setDbSurfaceNames).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (!apartmentId) return
@@ -134,6 +149,12 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
     )
     setAdding(false)
     if (!result.ok) { setAddError(result.error ?? 'Erreur'); return }
+
+    // Mise à jour immédiate du catalogue local si nom personnalisé
+    if (showCreate) {
+      setDbSurfaceNames(prev => prev.includes(surfaceName) ? prev : [...prev, surfaceName])
+    }
+
     const rows = await getSurfacesForApartmentAction(apartmentId)
     setSurfaces(rows)
     setShowAdd(false)
@@ -209,7 +230,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                         ) : (
                           <select value={newSurface} onChange={e => setNewSurface(e.target.value)}
                             className={inputCls + ' w-full'}>
-                            {SURFACE_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                            {allSurfaceTypes.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         )}
                         <button

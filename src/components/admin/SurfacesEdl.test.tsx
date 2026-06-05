@@ -4,11 +4,13 @@ import userEvent from '@testing-library/user-event'
 import SurfacesEdl from '@/components/admin/SurfacesEdl'
 
 const mockGetSurfaces = vi.fn()
+const mockGetDistinctNames = vi.fn()
 const mockAddSurface = vi.fn()
 const mockUpdateSurface = vi.fn()
 const mockDeleteSurface = vi.fn()
 
 vi.mock('@/app/admin/inventory/surfacesActions', () => ({
+  getAllDistinctSurfaceNamesAction: (...args: unknown[]) => mockGetDistinctNames(...args),
   getSurfacesForApartmentAction: (...args: unknown[]) => mockGetSurfaces(...args),
   addSurfaceAction: (...args: unknown[]) => mockAddSurface(...args),
   updateSurfaceAction: (...args: unknown[]) => mockUpdateSurface(...args),
@@ -26,6 +28,7 @@ const baseSurface = {
 
 describe('SurfacesEdl — chargement', () => {
   beforeEach(() => {
+    mockGetDistinctNames.mockResolvedValue([])
     mockGetSurfaces.mockResolvedValue([baseSurface])
   })
 
@@ -56,6 +59,7 @@ describe('SurfacesEdl — chargement', () => {
 
 describe('SurfacesEdl — repliage', () => {
   beforeEach(() => {
+    mockGetDistinctNames.mockResolvedValue([])
     mockGetSurfaces.mockResolvedValue([baseSurface])
   })
 
@@ -94,6 +98,7 @@ describe('SurfacesEdl — repliage', () => {
 
 describe('SurfacesEdl — sélecteur de pièce sur une ligne existante', () => {
   beforeEach(() => {
+    mockGetDistinctNames.mockResolvedValue([])
     mockGetSurfaces.mockResolvedValue([baseSurface])
     mockUpdateSurface.mockResolvedValue({ ok: true })
   })
@@ -136,6 +141,7 @@ describe('SurfacesEdl — sélecteur de pièce sur une ligne existante', () => {
 
 describe('SurfacesEdl — formulaire d\'ajout', () => {
   beforeEach(() => {
+    mockGetDistinctNames.mockResolvedValue([])
     mockGetSurfaces.mockResolvedValue([])
     mockAddSurface.mockResolvedValue({ ok: true })
   })
@@ -194,6 +200,7 @@ describe('SurfacesEdl — formulaire d\'ajout', () => {
 describe('SurfacesEdl — créer un nouvel item dans la bibliothèque', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockGetDistinctNames.mockResolvedValue([])
     mockGetSurfaces.mockResolvedValue([])
     mockAddSurface.mockResolvedValue({ ok: true })
   })
@@ -273,8 +280,72 @@ describe('SurfacesEdl — créer un nouvel item dans la bibliothèque', () => {
   })
 })
 
+describe('SurfacesEdl — catalogue dynamique', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockGetSurfaces.mockResolvedValue([])
+    mockAddSurface.mockResolvedValue({ ok: true })
+  })
+
+  it('appelle getAllDistinctSurfaceNamesAction au montage', async () => {
+    mockGetDistinctNames.mockResolvedValue([])
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(mockGetDistinctNames).toHaveBeenCalledTimes(1))
+  })
+
+  it('inclut les noms DB dans le dropdown du formulaire', async () => {
+    mockGetDistinctNames.mockResolvedValue(['Verrière', 'Lucarne'])
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    // Les noms DB doivent apparaître parmi les options du select Surface
+    const selects = screen.getAllByRole('combobox')
+    const surfaceSelect = selects[0] as HTMLSelectElement
+    const options = Array.from(surfaceSelect.options).map(o => o.value)
+    expect(options).toContain('Verrière')
+    expect(options).toContain('Lucarne')
+  })
+
+  it('ne duplique pas les types déjà dans SURFACE_TYPES', async () => {
+    mockGetDistinctNames.mockResolvedValue(['Mur', 'Sol']) // présents dans SURFACE_TYPES
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    const selects = screen.getAllByRole('combobox')
+    const surfaceSelect = selects[0] as HTMLSelectElement
+    const murOptions = Array.from(surfaceSelect.options).filter(o => o.value === 'Mur')
+    expect(murOptions).toHaveLength(1)
+  })
+
+  it('ajoute le nom personnalisé au catalogue local après ajout réussi', async () => {
+    mockGetDistinctNames.mockResolvedValue([])
+    mockGetSurfaces.mockResolvedValueOnce([]).mockResolvedValue([])
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+
+    // Ouvrir et créer "Verrière"
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    await user.click(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ }))
+    await user.type(screen.getByTestId('custom-surface-input'), 'Verrière')
+    const addButtons = screen.getAllByRole('button', { name: '+ Ajouter' })
+    await user.click(addButtons[addButtons.length - 1])
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument())
+
+    // Rouvrir le formulaire : "Verrière" doit être dans le dropdown
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    const selects = screen.getAllByRole('combobox')
+    const surfaceSelect = selects[0] as HTMLSelectElement
+    const options = Array.from(surfaceSelect.options).map(o => o.value)
+    expect(options).toContain('Verrière')
+  })
+})
+
 describe('SurfacesEdl — suppression', () => {
   beforeEach(() => {
+    mockGetDistinctNames.mockResolvedValue([])
     mockGetSurfaces.mockResolvedValue([baseSurface])
     mockDeleteSurface.mockResolvedValue({ ok: true })
   })

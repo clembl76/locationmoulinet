@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-06-05 — Catalogue dynamique de surfaces : persistance dans la bibliothèque (SPEC.md §Page Inventaire)
+- `app/admin/inventory/surfacesActions.ts` : nouvelle action `getAllDistinctSurfaceNamesAction` — requête `SELECT DISTINCT surface::text` sur toute la table `surfaces`
+- `components/admin/SurfacesEdl.tsx` : chargement du catalogue DB au montage (`useEffect` + `getAllDistinctSurfaceNamesAction`), fusion avec `SURFACE_TYPES` via `useMemo` (dédupliqué, trié fr), mise à jour immédiate du catalogue local après ajout d'un nom personnalisé
+- `src/components/admin/SurfacesEdl.test.tsx` : mock `getAllDistinctSurfaceNamesAction` ajouté dans tous les `beforeEach`, nouveau describe "catalogue dynamique" (4 tests : appel au montage, noms DB dans dropdown, pas de doublon, mise à jour après ajout)
+- Tests : 229 passés — Build : OK
+
 ### 2026-06-05 — Ajout de Saladier, Passoire et Porte-serviette à l'inventaire par défaut (SPEC.md §Page Inventaire)
 - `app/admin/inventory/defaultData.ts` : nouveau type `DefaultNamedInventoryRow` + export `DEFAULT_INVENTORY_NAMED` (3 items : Saladier / Cuisine, Passoire / Cuisine, Porte-serviette / Salle de bains)
 - `app/admin/inventory/defaultActions.ts` : étape find-or-create dans `fillDefaultAction` — pour chaque item nommé, recherche par `name` dans le catalogue `items` ; création automatique si absent ; insertion unitaire dans `inventory`

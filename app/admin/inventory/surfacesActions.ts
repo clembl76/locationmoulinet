@@ -14,6 +14,13 @@ export type SurfaceRow = {
   notes_exit: string | null
 }
 
+export async function getAllDistinctSurfaceNamesAction(): Promise<string[]> {
+  const rows = await runSqlAdmin<{ name: string }>(`
+    SELECT DISTINCT surface::text AS name FROM surfaces ORDER BY 1
+  `)
+  return rows.map(r => r.name)
+}
+
 export async function getSurfacesForApartmentAction(apartmentId: string): Promise<SurfaceRow[]> {
   return runSqlAdmin<SurfaceRow>(`
     SELECT id, surface::text, room::text, material::text, condition::text, notes, notes_exit
