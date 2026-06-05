@@ -101,6 +101,10 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState('')
 
+  // Création libre hors catalogue
+  const [showCreate, setShowCreate] = useState(false)
+  const [customName, setCustomName] = useState('')
+
   useEffect(() => {
     if (!apartmentId) return
     setLoading(true)
@@ -122,20 +126,31 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
 
   async function handleAdd() {
     setAddError('')
+    const surfaceName = showCreate ? customName.trim() : newSurface
+    if (!surfaceName) { setAddError('Le nom de la surface est requis.'); return }
     setAdding(true)
     const result = await addSurfaceAction(
-      apartmentId, newSurface, newRoom || null, newMaterial || null, newCondition || null, newNotes || null,
+      apartmentId, surfaceName, newRoom || null, newMaterial || null, newCondition || null, newNotes || null,
     )
     setAdding(false)
     if (!result.ok) { setAddError(result.error ?? 'Erreur'); return }
     const rows = await getSurfacesForApartmentAction(apartmentId)
     setSurfaces(rows)
     setShowAdd(false)
+    setShowCreate(false)
     setNewSurface(SURFACE_TYPES[0])
+    setCustomName('')
     setNewRoom('')
     setNewMaterial('')
     setNewCondition('Bon état')
     setNewNotes('')
+  }
+
+  function handleToggleAdd() {
+    setShowAdd(v => !v)
+    setShowCreate(false)
+    setCustomName('')
+    setAddError('')
   }
 
   return (
@@ -152,7 +167,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
           )}
         </button>
         {open && (
-          <button onClick={() => setShowAdd(v => !v)}
+          <button onClick={handleToggleAdd}
             className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors">
             + Ajouter
           </button>
@@ -182,10 +197,28 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs text-gray-500 mb-1">Surface / Équipement *</label>
-                        <select value={newSurface} onChange={e => setNewSurface(e.target.value)}
-                          className={inputCls + ' w-full'}>
-                          {SURFACE_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                        {showCreate ? (
+                          <input
+                            type="text"
+                            value={customName}
+                            onChange={e => setCustomName(e.target.value)}
+                            placeholder="Nom de la surface…"
+                            className={inputCls + ' w-full'}
+                            data-testid="custom-surface-input"
+                          />
+                        ) : (
+                          <select value={newSurface} onChange={e => setNewSurface(e.target.value)}
+                            className={inputCls + ' w-full'}>
+                            {SURFACE_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => { setShowCreate(v => !v); setCustomName('') }}
+                          className="mt-1.5 text-xs text-blue-primary hover:underline"
+                        >
+                          {showCreate ? '▲ Annuler la création' : '+ Créer un nouvel item dans la bibliothèque'}
+                        </button>
                       </div>
                       <div>
                         <label className="block text-xs text-gray-500 mb-1">Pièce</label>
@@ -223,7 +256,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                         className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50">
                         {adding ? 'Ajout…' : '+ Ajouter'}
                       </button>
-                      <button onClick={() => setShowAdd(false)}
+                      <button onClick={handleToggleAdd}
                         className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">
                         Annuler
                       </button>

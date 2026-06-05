@@ -191,6 +191,88 @@ describe('SurfacesEdl — formulaire d\'ajout', () => {
   })
 })
 
+describe('SurfacesEdl — créer un nouvel item dans la bibliothèque', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockGetSurfaces.mockResolvedValue([])
+    mockAddSurface.mockResolvedValue({ ok: true })
+  })
+
+  it('affiche le bouton "+ Créer un nouvel item dans la bibliothèque" dans le formulaire', async () => {
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    expect(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ })).toBeInTheDocument()
+  })
+
+  it('bascule sur un champ texte libre au clic sur "Créer un nouvel item"', async () => {
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    await user.click(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ }))
+    expect(screen.getByTestId('custom-surface-input')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Annuler la création/ })).toBeInTheDocument()
+  })
+
+  it('cache le champ texte et rétablit le select au clic sur "Annuler la création"', async () => {
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    await user.click(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ }))
+    await user.click(screen.getByRole('button', { name: /Annuler la création/ }))
+    expect(screen.queryByTestId('custom-surface-input')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ })).toBeInTheDocument()
+  })
+
+  it('appelle addSurfaceAction avec le nom libre saisi', async () => {
+    mockGetSurfaces.mockResolvedValueOnce([]).mockResolvedValue([])
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    await user.click(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ }))
+    await user.type(screen.getByTestId('custom-surface-input'), 'Verrière')
+    const addButtons = screen.getAllByRole('button', { name: '+ Ajouter' })
+    await user.click(addButtons[addButtons.length - 1])
+    await waitFor(() =>
+      expect(mockAddSurface).toHaveBeenCalledWith('apt-1', 'Verrière', null, null, 'Bon état', null)
+    )
+  })
+
+  it('affiche une erreur si le nom libre est vide à la soumission', async () => {
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    await user.click(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ }))
+    // Ne pas saisir de nom
+    const addButtons = screen.getAllByRole('button', { name: '+ Ajouter' })
+    await user.click(addButtons[addButtons.length - 1])
+    await waitFor(() =>
+      expect(screen.getByText('Le nom de la surface est requis.')).toBeInTheDocument()
+    )
+    expect(mockAddSurface).not.toHaveBeenCalled()
+  })
+
+  it('réinitialise le formulaire (mode libre) après ajout réussi', async () => {
+    mockGetSurfaces.mockResolvedValueOnce([]).mockResolvedValue([])
+    const user = userEvent.setup()
+    render(<SurfacesEdl apartmentId="apt-1" />)
+    await waitFor(() => expect(screen.getByText(/Aucune surface/)).toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: '+ Ajouter' }))
+    await user.click(screen.getByRole('button', { name: /Créer un nouvel item dans la bibliothèque/ }))
+    await user.type(screen.getByTestId('custom-surface-input'), 'Verrière')
+    const addButtons = screen.getAllByRole('button', { name: '+ Ajouter' })
+    await user.click(addButtons[addButtons.length - 1])
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument())
+    // Le formulaire est fermé : plus de champ texte
+    expect(screen.queryByTestId('custom-surface-input')).not.toBeInTheDocument()
+  })
+})
+
 describe('SurfacesEdl — suppression', () => {
   beforeEach(() => {
     mockGetSurfaces.mockResolvedValue([baseSurface])

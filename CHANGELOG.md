@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-06-03 — Bouton "Créer un nouvel item dans la bibliothèque" dans Surfaces EDL (SPEC.md §Page Inventaire)
+- `components/admin/SurfacesEdl.tsx` : ajout du toggle "+ Créer un nouvel item dans la bibliothèque" dans le formulaire d'ajout — bascule entre le select des types prédéfinis et un champ texte libre ; validation nom vide ; réinitialisation après ajout réussi
+- `src/components/admin/SurfacesEdl.test.tsx` : 6 nouveaux tests (affichage toggle, bascule dropdown/texte, annuler création, ajout avec nom libre, erreur nom vide, réinitialisation)
+- Tests : 218 passés — Build : OK
+
 ### 2026-06-03 — Bouton "Remplir par défaut" sur la page Inventaire (SPEC.md §Page Inventaire)
 - `app/admin/inventory/defaultActions.ts` (nouveau) : server action `fillDefaultAction` — insère en masse 87 lignes d'inventaire et 24 surfaces/EDL standards depuis les CSV fournis
 - `components/admin/InventoryManager.tsx` : bouton "Remplir par défaut" affiché à droite de "Figer l'EDL" après sélection d'un appartement ; rechargement automatique inventaire + surfaces après succès ; gestion état de chargement et affichage d'erreur
