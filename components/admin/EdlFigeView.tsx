@@ -8,6 +8,7 @@ import type { SurfaceRow } from '@/app/admin/inventory/surfacesActions'
 import { updateChargesTypeAction, updateDepositNotesAction, updateTenantNotesExitAction } from '@/app/admin/inventory/summaryActions'
 import { updateInventoryNotesExitAction } from '@/app/admin/inventory/actions'
 import { updateSurfaceNotesExitAction } from '@/app/admin/inventory/surfacesActions'
+import { generateEdlFigePdfAction } from '@/app/admin/inventory/edlFigePdfActions'
 
 type EdlType = 'entree' | 'sortie'
 
@@ -23,7 +24,8 @@ function formatBirthDate(dateStr: string | null): string {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
 }
 
-const sectionCls = 'bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'
+const sectionCls = 'bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden print:rounded-none print:border-0 print:shadow-none print:overflow-visible'
+const printTextareaCls = 'print:border-0 print:shadow-none print:bg-transparent print:resize-none print:px-0 print:placeholder:text-transparent'
 const thCls = 'text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider'
 const tdCls = 'px-4 py-2.5 text-sm text-gray-700'
 
@@ -35,15 +37,17 @@ function CollapsibleSection({
   open,
   onToggle,
   children,
+  printBreakBefore,
 }: {
   title: string
   badge?: React.ReactNode
   open: boolean
   onToggle: () => void
   children: React.ReactNode
+  printBreakBefore?: boolean
 }) {
   return (
-    <div className={sectionCls}>
+    <div className={`${sectionCls}${printBreakBefore ? ' print:break-before-page' : ''}`}>
       <div className={`px-6 py-4 flex items-center justify-between ${open ? 'border-b border-gray-100' : ''}`}>
         <button
           type="button"
@@ -82,7 +86,7 @@ function NotesExitCell({ row }: { row: InventoryRow }) {
         onBlur={handleBlur}
         rows={2}
         placeholder="Commentaire sortie…"
-        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-primary/40 ${saving ? 'opacity-50' : ''}`}
+        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-primary/40 ${printTextareaCls} ${saving ? 'opacity-50' : ''}`}
       />
     </td>
   )
@@ -110,7 +114,7 @@ function SurfaceNotesExitCell({ row }: { row: SurfaceRow }) {
         onBlur={handleBlur}
         rows={2}
         placeholder="Commentaire sortie…"
-        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-primary/40 ${saving ? 'opacity-50' : ''}`}
+        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-primary/40 ${printTextareaCls} ${saving ? 'opacity-50' : ''}`}
       />
     </td>
   )
@@ -145,7 +149,7 @@ function ChargesSection({
         onChange={e => setDraft(e.target.value)}
         onBlur={handleBlur}
         rows={chargesType === 'compteurs' ? 9 : 2}
-        className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
+        className={`mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y ${printTextareaCls}`}
         placeholder={chargesType === 'forfait' ? 'Charges au forfait, aucun relevé des compteurs.' : 'Relevé des compteurs…'}
       />
     </div>
@@ -176,7 +180,7 @@ function EdlHeaderContent({
     : ''
 
   return (
-    <div className="p-6 space-y-5 text-sm text-gray-800">
+    <div className="p-6 space-y-5 text-sm text-gray-800 print:p-2 print:space-y-2">
       <h2 className="text-base font-bold text-gray-900 text-center uppercase tracking-wide">
         État des lieux / Inventaire des meubles
       </h2>
@@ -278,7 +282,7 @@ function EdlFooter({
   }
 
   return (
-    <div className="p-6 space-y-4 text-sm text-gray-800">
+    <div className="p-6 space-y-4 text-sm text-gray-800 print:p-2 print:space-y-2">
       <p>
         <span className="font-medium">
           {edlType === 'entree' ? 'Entrée dans les lieux le' : 'Sortie des lieux le'} :
@@ -305,7 +309,7 @@ function EdlFooter({
               onChange={e => setDepositNotes(e.target.value)}
               onBlur={handleDepositBlur}
               rows={4}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
+              className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y ${printTextareaCls}`}
               placeholder="Commentaires, réserves…"
             />
           </div>
@@ -317,7 +321,7 @@ function EdlFooter({
               onChange={e => setTenantNotesExit(e.target.value)}
               onBlur={handleTenantBlur}
               rows={4}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
+              className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y ${printTextareaCls}`}
               placeholder="Commentaires ou réserves du locataire…"
             />
           </div>
@@ -375,6 +379,26 @@ export default function EdlFigeView({
     setOpen(p => ({ ...p, [key]: !p[key] }))
   }
 
+  async function handleGeneratePdf() {
+    const result = await generateEdlFigePdfAction(apt.apartment_id, edlType)
+    if (!result) return
+    const { pdfBase64, filename } = result
+
+    const binary = atob(pdfBase64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    const blob = new Blob([bytes], { type: 'application/pdf' })
+
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${filename}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
   const byRoom = new Map<string, InventoryRow[]>()
   for (const row of inventory) {
     if (!byRoom.has(row.room)) byRoom.set(row.room, [])
@@ -383,41 +407,50 @@ export default function EdlFigeView({
   const sortedRooms = Array.from(byRoom.keys()).sort()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 print:space-y-2 edl-print-area">
       {/* Toggle Entrée/Sortie */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             Etat des lieux - Apt {apt.apartment_number}
           </h1>
           <p className="text-sm text-gray-500 mt-1">{apt.tenant_name}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-gray-600">Type :</span>
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
-            <button
-              type="button"
-              onClick={() => setEdlType('entree')}
-              className={`px-4 py-2 transition-colors ${
-                edlType === 'entree'
-                  ? 'bg-blue-primary text-white font-semibold'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              Entrée
-            </button>
-            <button
-              type="button"
-              onClick={() => setEdlType('sortie')}
-              className={`px-4 py-2 transition-colors border-l border-gray-200 ${
-                edlType === 'sortie'
-                  ? 'bg-blue-primary text-white font-semibold'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              Sortie
-            </button>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-gray-600">Type :</span>
+            <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+              <button
+                type="button"
+                onClick={() => setEdlType('entree')}
+                className={`px-4 py-2 transition-colors ${
+                  edlType === 'entree'
+                    ? 'bg-blue-primary text-white font-semibold'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                Entrée
+              </button>
+              <button
+                type="button"
+                onClick={() => setEdlType('sortie')}
+                className={`px-4 py-2 transition-colors border-l border-gray-200 ${
+                  edlType === 'sortie'
+                    ? 'bg-blue-primary text-white font-semibold'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                Sortie
+              </button>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={handleGeneratePdf}
+            className="px-4 py-2 rounded-lg bg-blue-primary text-white text-sm font-semibold hover:bg-blue-dark transition-colors"
+          >
+            Générer le pdf
+          </button>
         </div>
       </div>
 
@@ -436,7 +469,7 @@ export default function EdlFigeView({
           open={open.header}
           onToggle={() => toggle('header')}
         >
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6 print:p-2">
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Entrée</p>
               <p className="text-base font-semibold text-gray-900">{formatDate(leaseDates.move_in_date)}</p>
@@ -463,7 +496,7 @@ export default function EdlFigeView({
         open={open.installations}
         onToggle={() => toggle('installations')}
       >
-        <div className="p-6 space-y-3 text-sm text-gray-700">
+        <div className="p-6 space-y-3 text-sm text-gray-700 print:p-2">
           {installation?.hot_water && (
             <div><span className="text-gray-400">Eau chaude : </span>{installation.hot_water}</div>
           )}
@@ -486,7 +519,7 @@ export default function EdlFigeView({
         open={open.cles}
         onToggle={() => toggle('cles')}
       >
-        <div className="p-6">
+        <div className="p-6 print:p-2">
           {keys.length === 0 ? (
             <p className="text-sm text-gray-300 italic">Aucune clé</p>
           ) : (
@@ -510,7 +543,7 @@ export default function EdlFigeView({
         </div>
       </CollapsibleSection>
 
-      {/* Inventaire */}
+      {/* Inventaire — démarre sur une nouvelle page à l'impression */}
       <CollapsibleSection
         title="Inventaire"
         badge={inventory.length > 0
@@ -518,16 +551,16 @@ export default function EdlFigeView({
           : undefined}
         open={open.inventaire}
         onToggle={() => toggle('inventaire')}
+        printBreakBefore
       >
         {inventory.length === 0 ? (
           <p className="text-sm text-gray-300 italic p-6">Aucun item</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm" style={{ minWidth: edlType === 'sortie' ? 750 : 600 }}>
+            <table className="w-full text-sm" style={{ minWidth: edlType === 'sortie' ? 650 : 520 }}>
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
                   <th className={thCls}>Item</th>
-                  <th className={thCls}>Pièce</th>
                   <th className={thCls + ' text-right'}>Qté</th>
                   <th className={thCls}>État</th>
                   <th className={thCls}>Commentaire</th>
@@ -538,7 +571,7 @@ export default function EdlFigeView({
                 {sortedRooms.map(room => (
                   <Fragment key={`room-${room}`}>
                     <tr className="bg-gray-50/70">
-                      <td colSpan={edlType === 'sortie' ? 6 : 5} className="px-4 py-2">
+                      <td colSpan={edlType === 'sortie' ? 5 : 4} className="px-4 py-2">
                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{room}</span>
                       </td>
                     </tr>
@@ -548,9 +581,7 @@ export default function EdlFigeView({
                         <tr key={row.id} className="border-t border-gray-50">
                           <td className={tdCls}>
                             <p className="font-medium text-gray-900">{row.item_name}</p>
-                            <p className="text-xs text-gray-400">{row.item_category}</p>
                           </td>
-                          <td className={tdCls}>{row.room}</td>
                           <td className={tdCls + ' text-right'}>{row.quantity}</td>
                           <td className={tdCls}>{row.condition ?? '—'}</td>
                           <td className={tdCls}>{row.notes ?? '—'}</td>
@@ -608,11 +639,12 @@ export default function EdlFigeView({
         )}
       </CollapsibleSection>
 
-      {/* Footer signatures */}
+      {/* Footer signatures — démarre sur une nouvelle page à l'impression */}
       <CollapsibleSection
         title="Signatures"
         open={open.footer}
         onToggle={() => toggle('footer')}
+        printBreakBefore
       >
         <EdlFooter
           edlType={edlType}
@@ -622,17 +654,6 @@ export default function EdlFigeView({
           apartmentId={apt.apartment_id}
         />
       </CollapsibleSection>
-
-      {/* Badge EDL type */}
-      <div className="text-center py-2">
-        <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold ${
-          edlType === 'entree'
-            ? 'bg-green-100 text-green-700'
-            : 'bg-orange-100 text-orange-700'
-        }`}>
-          {edlType === 'entree' ? "État des lieux d'entrée" : 'État des lieux de sortie'}
-        </span>
-      </div>
     </div>
   )
 }

@@ -38,7 +38,3 @@
 ## Page Inventaire  /admin/inventory
 
 ## Page EDL /admin/inventory/edl-fige/
-
-Je voudrais que tu modifies dans la zone Signature:
-- renommer le cadre "Commentaires, réserves et retenues éventuelles sur caution :" en "Bailleur - Commentaires, réserves et retenues éventuelles sur caution :"
-- créer en dessous un cadre nommé "Locataire - Commentaires ou réserves :"

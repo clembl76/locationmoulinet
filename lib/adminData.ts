@@ -404,18 +404,20 @@ export type ApartmentWithLease = {
   apartment_id: string
   apartment_number: string
   tenant_name: string
+  tenant_last_name: string
 }
 
 export async function getApartmentsWithActiveLease(): Promise<ApartmentWithLease[]> {
   return runSql<ApartmentWithLease>(`
-    SELECT lease_id, apartment_id, apartment_number, tenant_name
+    SELECT lease_id, apartment_id, apartment_number, tenant_name, tenant_last_name
     FROM (
       SELECT DISTINCT ON (a.id)
         l.id   AS lease_id,
         a.id   AS apartment_id,
         a.number AS apartment_number,
         a.number::integer AS sort_num,
-        (t.first_name || ' ' || UPPER(t.last_name)) AS tenant_name
+        (t.first_name || ' ' || UPPER(t.last_name)) AS tenant_name,
+        UPPER(t.last_name) AS tenant_last_name
       FROM leases l
       JOIN apartments a ON a.id = l.apartment_id
       JOIN lease_tenants lt ON lt.lease_id = l.id

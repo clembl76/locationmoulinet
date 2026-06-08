@@ -19,6 +19,13 @@ describe('AdminNavbar — rôle admin', () => {
   })
 })
 
+describe('AdminNavbar — impression', () => {
+  it("masque la barre de navigation à l'impression", () => {
+    render(<AdminNavbar role="admin" />)
+    expect(screen.getByText('Location Moulinet').closest('header')?.className).toContain('print:hidden')
+  })
+})
+
 describe('AdminNavbar — rôle viewer', () => {
   it('affiche Appartements et Mise en location, masque les liens admin', () => {
     render(<AdminNavbar role="viewer" />)

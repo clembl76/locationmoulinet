@@ -31,7 +31,7 @@ export default async function EdlFigePage({
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="print:hidden">
         <Link
           href="/admin/inventory"
           className="text-sm text-blue-primary hover:underline"

@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import EdlFigeView from '@/components/admin/EdlFigeView'
+import { generateEdlFigePdfAction } from '@/app/admin/inventory/edlFigePdfActions'
 import type { ApartmentWithLease, EdlInstallation, EdlKey } from '@/lib/adminData'
 import type { LeaseDates, EdlFigeHeader } from '@/app/admin/inventory/summaryActions'
 import type { InventoryRow } from '@/app/admin/inventory/actions'
@@ -21,10 +22,15 @@ vi.mock('@/app/admin/inventory/surfacesActions', () => ({
   updateSurfaceNotesExitAction: vi.fn().mockResolvedValue({ ok: true }),
 }))
 
+vi.mock('@/app/admin/inventory/edlFigePdfActions', () => ({
+  generateEdlFigePdfAction: vi.fn(),
+}))
+
 const apt: ApartmentWithLease = {
   apartment_id: 'apt-uuid-1',
   apartment_number: '7',
   tenant_name: 'Alice DUPONT',
+  tenant_last_name: 'DUPONT',
   lease_id: 'lease-uuid-1',
 }
 
@@ -116,10 +122,11 @@ describe('EdlFigeView — affichage général', () => {
 })
 
 describe('EdlFigeView — toggle Entrée/Sortie', () => {
-  it("affiche le badge État des lieux d'entrée par défaut", () => {
+  it("le bouton Entrée est actif par défaut", () => {
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
-    expect(screen.getByText("État des lieux d'entrée")).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Entrée' }).className).toContain('bg-blue-primary')
+    expect(screen.getByRole('button', { name: 'Sortie' }).className).not.toContain('bg-blue-primary')
   })
 
   it("bascule sur Sortie au clic", async () => {
@@ -127,7 +134,8 @@ describe('EdlFigeView — toggle Entrée/Sortie', () => {
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
     await user.click(screen.getByRole('button', { name: 'Sortie' }))
-    expect(screen.getByText('État des lieux de sortie')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sortie' }).className).toContain('bg-blue-primary')
+    expect(screen.getByRole('button', { name: 'Entrée' }).className).not.toContain('bg-blue-primary')
   })
 
   it("rebascule sur Entrée après double clic", async () => {
@@ -136,7 +144,8 @@ describe('EdlFigeView — toggle Entrée/Sortie', () => {
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
     await user.click(screen.getByRole('button', { name: 'Sortie' }))
     await user.click(screen.getByRole('button', { name: 'Entrée' }))
-    expect(screen.getByText("État des lieux d'entrée")).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Entrée' }).className).toContain('bg-blue-primary')
+    expect(screen.getByRole('button', { name: 'Sortie' }).className).not.toContain('bg-blue-primary')
   })
 
   it("affiche la date de sortie en mode Sortie (sans header)", async () => {
@@ -350,6 +359,25 @@ describe('EdlFigeView — inventaire', () => {
     await user.click(screen.getByRole('button', { name: 'Sortie' }))
     expect(screen.getAllByText('Commentaire sortie').length).toBeGreaterThanOrEqual(1)
   })
+
+  it("n'affiche plus la colonne Pièce dans le tableau d'inventaire (déjà présente dans les titres de section)", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const table = screen.getByText('Canapé').closest('table')
+    expect(table).not.toBeNull()
+    const tableUtils = within(table!)
+    expect(tableUtils.queryByRole('columnheader', { name: 'Pièce' })).not.toBeInTheDocument()
+    // "Salon"/"Cuisine" ne doivent plus apparaître que dans les titres de groupe de ce tableau (1 fois chacun)
+    expect(tableUtils.getAllByText('Salon')).toHaveLength(1)
+    expect(tableUtils.getAllByText('Cuisine')).toHaveLength(1)
+  })
+
+  it("n'affiche plus l'information du type d'item (catégorie)", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    expect(screen.queryByText('Meuble ou objet')).not.toBeInTheDocument()
+    expect(screen.queryByText('Appareil électrique')).not.toBeInTheDocument()
+  })
 })
 
 describe('EdlFigeView — surfaces', () => {
@@ -464,6 +492,154 @@ describe('EdlFigeView — footer signatures', () => {
     expect(document.body.textContent).toContain('Signature du locataire')
     await user.click(screen.getByRole('button', { name: /Signatures/i }))
     expect(screen.queryByText('Signature du locataire')).not.toBeInTheDocument()
+  })
+})
+
+describe('EdlFigeView — génération PDF', () => {
+  const originalCreateObjectURL = URL.createObjectURL
+  const originalRevokeObjectURL = URL.revokeObjectURL
+  let capturedLink: HTMLAnchorElement | null = null
+  let clickSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    capturedLink = null
+    URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+    clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      capturedLink = this
+    })
+  })
+
+  afterEach(() => {
+    URL.createObjectURL = originalCreateObjectURL
+    URL.revokeObjectURL = originalRevokeObjectURL
+    clickSpy.mockRestore()
+    vi.mocked(generateEdlFigePdfAction).mockReset()
+  })
+
+  it('affiche le bouton Générer le pdf', () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    expect(screen.getByRole('button', { name: 'Générer le pdf' })).toBeInTheDocument()
+  })
+
+  it("génère le PDF côté serveur en mode Entrée et déclenche son téléchargement avec le nom de fichier renvoyé", async () => {
+    const user = userEvent.setup()
+    vi.mocked(generateEdlFigePdfAction).mockResolvedValue({
+      pdfBase64: btoa('PDF-CONTENT'),
+      filename: '2024-09-01_EDLInventaire_7-Alice DUPONT',
+    })
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+
+    await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
+
+    expect(generateEdlFigePdfAction).toHaveBeenCalledWith('apt-uuid-1', 'entree')
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(1)
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+    expect(capturedLink?.download).toBe('2024-09-01_EDLInventaire_7-Alice DUPONT.pdf')
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
+  })
+
+  it('appelle la génération avec le type Sortie après bascule du toggle', async () => {
+    const user = userEvent.setup()
+    vi.mocked(generateEdlFigePdfAction).mockResolvedValue({
+      pdfBase64: btoa('PDF-CONTENT'),
+      filename: '2025-06-30_EDLInventaire_7-Alice DUPONT',
+    })
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+
+    await user.click(screen.getByRole('button', { name: 'Sortie' }))
+    await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
+
+    expect(generateEdlFigePdfAction).toHaveBeenCalledWith('apt-uuid-1', 'sortie')
+    expect(capturedLink?.download).toBe('2025-06-30_EDLInventaire_7-Alice DUPONT.pdf')
+  })
+
+  it("ne déclenche aucun téléchargement si le serveur ne retrouve pas l'appartement", async () => {
+    const user = userEvent.setup()
+    vi.mocked(generateEdlFigePdfAction).mockResolvedValue(null)
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+
+    await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
+
+    expect(generateEdlFigePdfAction).toHaveBeenCalledWith('apt-uuid-1', 'entree')
+    expect(URL.createObjectURL).not.toHaveBeenCalled()
+    expect(clickSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe('EdlFigeView — mise en forme impression', () => {
+  it("applique la zone de compaction de l'impression sur le conteneur principal", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const heading = screen.getByRole('heading', { name: /Etat des lieux - Apt 7/ })
+    expect(heading.closest('.edl-print-area')).not.toBeNull()
+  })
+
+  it("masque le bloc titre (et ses boutons) à l'impression", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const heading = screen.getByRole('heading', { name: /Etat des lieux - Apt 7/ })
+    expect(heading.closest('.print\\:hidden')).not.toBeNull()
+  })
+
+  it("le bloc titre masqué à l'impression contient le toggle et le bouton Générer le pdf", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const generateBtn = screen.getByRole('button', { name: 'Générer le pdf' })
+    expect(generateBtn.closest('.print\\:hidden')).not.toBeNull()
+  })
+
+  it("retire les cadres et les suggestions des zones de saisie COMMENTAIRE SORTIE à l'impression", async () => {
+    const user = userEvent.setup()
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    await user.click(screen.getByRole('button', { name: 'Sortie' }))
+    const textarea = screen.getAllByPlaceholderText('Commentaire sortie…')[0]
+    expect(textarea.className).toContain('print:border-0')
+    expect(textarea.className).toContain('print:placeholder:text-transparent')
+  })
+
+  it("retire les cadres des sections à l'impression (sectionCls)", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const installationsHeading = screen.getByRole('button', { name: /Installations/i })
+    const section = installationsHeading.closest('.print\\:border-0')
+    expect(section).not.toBeNull()
+    expect(section?.className).toContain('print:shadow-none')
+  })
+
+  it("n'affiche plus le badge de type d'EDL (supprimé de la page et de l'impression)", async () => {
+    const user = userEvent.setup()
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    expect(screen.queryByText("État des lieux d'entrée")).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Sortie' }))
+    expect(screen.queryByText('État des lieux de sortie')).not.toBeInTheDocument()
+  })
+
+  it("démarre la section Inventaire sur une nouvelle page à l'impression", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const heading = screen.getByRole('button', { name: /Inventaire/i })
+    expect(heading.closest('.print\\:break-before-page')).not.toBeNull()
+  })
+
+  it("démarre la section Signatures sur une nouvelle page à l'impression", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const heading = screen.getByRole('button', { name: /Signatures/i })
+    expect(heading.closest('.print\\:break-before-page')).not.toBeNull()
+  })
+
+  it("ne place pas de saut de page avant les autres sections (ex. Surfaces & équipements)", () => {
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+    const heading = screen.getByRole('button', { name: /Surfaces/i })
+    expect(heading.closest('.print\\:break-before-page')).toBeNull()
   })
 })
 

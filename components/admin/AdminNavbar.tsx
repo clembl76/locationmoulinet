@@ -17,7 +17,7 @@ export default function AdminNavbar({ role }: { role: SessionRole }) {
   const navLinks = ALL_NAV_LINKS.filter(l => !l.adminOnly || role === 'admin')
 
   return (
-    <header className="bg-blue-dark text-white sticky top-0 z-50">
+    <header className="bg-blue-dark text-white sticky top-0 z-50 print:hidden">
       <div className="px-4 sm:px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <a href="/" className="font-bold text-sm tracking-wide whitespace-nowrap">

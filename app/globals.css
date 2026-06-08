@@ -13,3 +13,26 @@ body {
   background: #fff;
   color: #171717;
 }
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  /* Compacte la mise en page de l'EDL figé pour tenir sur un nombre de pages réduit.
+     `zoom` est volontairement évité ici : combiné à `@page { size: landscape }`, il
+     produit dans certains moteurs un PDF dont la page est orientée portrait avec le
+     contenu pivoté (aperçu correct, mais rendu pivoté à l'ouverture du fichier). La
+     mise à l'échelle via `transform` ne perturbe pas le calcul de l'orientation/format
+     de page lors de l'export PDF. */
+  .edl-print-area {
+    width: calc(100% / 0.62);
+    transform: scale(0.62);
+    transform-origin: top left;
+  }
+}
