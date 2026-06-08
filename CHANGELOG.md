@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-06-08 — Ajout de la date de l'EDL dans les données envoyées au webhook Make.com (SPEC.md §Page EDL /admin/inventory/edl-fige/)
+- `lib/quittance.ts` : `triggerEdlSignatureWebhook` accepte et transmet désormais un champ `edlDate` (date d'entrée ou de sortie selon `edlType`, au format `YYYY-MM-DD`, ou `null` si non renseignée)
+- `app/admin/inventory/edlFigePdfActions.ts` : `generateEdlFigePdfAction` calcule cette date à partir de `leaseDates` (`move_in_date` en mode Entrée, `move_out_date` en mode Sortie — même logique que `buildEdlPdfFilename`) et la transmet au webhook
+- Tests : 262 passés / 0 échoués (pas de test supplémentaire requis — `edlDate` est un champ de payload transmis tel quel à une fonction d'intégration réseau best-effort déjà non couverte unitairement, cf. justification de l'entrée précédente) — Build : OK
+
 ### 2026-06-08 — Déclenchement d'un scénario Make.com (signature) après génération du PDF de l'EDL figé
 - **Contexte** : en complément de l'enregistrement sur Google Drive (cf. entrée précédente), le bouton "Générer le pdf" déclenche désormais, en dernière étape, un scénario Make.com (webhook personnalisé côté Make, configuré par l'utilisateur) chargé de lancer le processus de signature électronique
 - `lib/edlFigePdf.ts` : `generateEdlFigePdf` renvoie désormais aussi `pageCount` (nombre de pages du PDF généré, via `doc.getPageCount()` de `pdf-lib`), en plus de `pdfBytes`/`filename`

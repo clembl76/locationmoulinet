@@ -38,3 +38,4 @@
 ## Page Inventaire  /admin/inventory
 
 ## Page EDL /admin/inventory/edl-fige/
+modifie le webhook pour ajouter une data : la date de l'edl qui est donc selon le cas la date move_in ou la move_out

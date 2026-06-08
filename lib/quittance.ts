@@ -685,6 +685,7 @@ export async function triggerEdlSignatureWebhook(opts: {
   apartmentNumber: string
   tenantLastName: string
   edlType: 'entree' | 'sortie'
+  edlDate: string | null
   filename: string
   pageCount: number
   webViewLink?: string
@@ -699,6 +700,7 @@ export async function triggerEdlSignatureWebhook(opts: {
         apartmentNumber: opts.apartmentNumber,
         tenantLastName: opts.tenantLastName,
         edlType: opts.edlType,
+        edlDate: opts.edlDate,
         filename: opts.filename,
         pageCount: opts.pageCount,
         webViewLink: opts.webViewLink ?? null,

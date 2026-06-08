@@ -47,6 +47,7 @@ export async function generateEdlFigePdfAction(
       apartmentNumber: apt.apartment_number,
       tenantLastName: apt.tenant_last_name,
       edlType,
+      edlDate: edlType === 'entree' ? leaseDates.move_in_date : leaseDates.move_out_date,
       filename,
       pageCount,
       webViewLink: uploadResult.webViewLink,
