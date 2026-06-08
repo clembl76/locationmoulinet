@@ -30,7 +30,6 @@
 ## Page Paiements /admin/payments
 
 ## Page Mise en location /admin/mise-en-location
-ajoute un bouton à côté de la chaque visite dans la liste des visites permettant de supprimer proprement la visite
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
 

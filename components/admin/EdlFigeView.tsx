@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useTransition } from 'react'
 import type { ApartmentWithLease, EdlInstallation, EdlKey } from '@/lib/adminData'
 import type { LeaseDates, EdlFigeHeader } from '@/app/admin/inventory/summaryActions'
 import type { InventoryRow } from '@/app/admin/inventory/actions'
@@ -8,7 +8,7 @@ import type { SurfaceRow } from '@/app/admin/inventory/surfacesActions'
 import { updateChargesTypeAction, updateDepositNotesAction, updateTenantNotesExitAction } from '@/app/admin/inventory/summaryActions'
 import { updateInventoryNotesExitAction } from '@/app/admin/inventory/actions'
 import { updateSurfaceNotesExitAction } from '@/app/admin/inventory/surfacesActions'
-import { generateEdlFigePdfAction } from '@/app/admin/inventory/edlFigePdfActions'
+import { generateEdlFigePdfAction, type GenerateEdlFigePdfResult } from '@/app/admin/inventory/edlFigePdfActions'
 
 type EdlType = 'entree' | 'sortie'
 
@@ -366,6 +366,8 @@ export default function EdlFigeView({
   header: EdlFigeHeader | null
 }) {
   const [edlType, setEdlType] = useState<EdlType>('entree')
+  const [pdfPending, startPdfTransition] = useTransition()
+  const [pdfResult, setPdfResult] = useState<GenerateEdlFigePdfResult | null>(null)
   const [open, setOpen] = useState({
     header: true,
     installations: true,
@@ -379,24 +381,12 @@ export default function EdlFigeView({
     setOpen(p => ({ ...p, [key]: !p[key] }))
   }
 
-  async function handleGeneratePdf() {
-    const result = await generateEdlFigePdfAction(apt.apartment_id, edlType)
-    if (!result) return
-    const { pdfBase64, filename } = result
-
-    const binary = atob(pdfBase64)
-    const bytes = new Uint8Array(binary.length)
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-    const blob = new Blob([bytes], { type: 'application/pdf' })
-
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${filename}.pdf`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    URL.revokeObjectURL(url)
+  function handleGeneratePdf() {
+    setPdfResult(null)
+    startPdfTransition(async () => {
+      const result = await generateEdlFigePdfAction(apt.apartment_id, edlType)
+      setPdfResult(result)
+    })
   }
 
   const byRoom = new Map<string, InventoryRow[]>()
@@ -444,13 +434,29 @@ export default function EdlFigeView({
               </button>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleGeneratePdf}
-            className="px-4 py-2 rounded-lg bg-blue-primary text-white text-sm font-semibold hover:bg-blue-dark transition-colors"
-          >
-            Générer le pdf
-          </button>
+          <div className="flex flex-col gap-1 items-start sm:items-end">
+            <button
+              type="button"
+              onClick={handleGeneratePdf}
+              disabled={pdfPending}
+              className="px-4 py-2 rounded-lg bg-blue-primary text-white text-sm font-semibold hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {pdfPending ? 'Enregistrement…' : 'Générer le pdf'}
+            </button>
+            {pdfResult?.ok && (
+              <p className="text-xs text-green-600">
+                ✓ Enregistré sur Google Drive
+                {pdfResult.webViewLink ? (
+                  <> — <a href={pdfResult.webViewLink} target="_blank" rel="noopener noreferrer" className="underline hover:text-green-800">{pdfResult.filename}</a></>
+                ) : (
+                  <span className="font-mono"> — {pdfResult.filename}</span>
+                )}
+              </p>
+            )}
+            {pdfResult && !pdfResult.ok && (
+              <p className="text-xs text-red-500">{pdfResult.error}</p>
+            )}
+          </div>
         </div>
       </div>
 

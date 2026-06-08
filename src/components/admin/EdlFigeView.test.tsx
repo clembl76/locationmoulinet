@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import EdlFigeView from '@/components/admin/EdlFigeView'
@@ -496,24 +496,7 @@ describe('EdlFigeView — footer signatures', () => {
 })
 
 describe('EdlFigeView — génération PDF', () => {
-  const originalCreateObjectURL = URL.createObjectURL
-  const originalRevokeObjectURL = URL.revokeObjectURL
-  let capturedLink: HTMLAnchorElement | null = null
-  let clickSpy: ReturnType<typeof vi.spyOn>
-
-  beforeEach(() => {
-    capturedLink = null
-    URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url')
-    URL.revokeObjectURL = vi.fn()
-    clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
-      capturedLink = this
-    })
-  })
-
   afterEach(() => {
-    URL.createObjectURL = originalCreateObjectURL
-    URL.revokeObjectURL = originalRevokeObjectURL
-    clickSpy.mockRestore()
     vi.mocked(generateEdlFigePdfAction).mockReset()
   })
 
@@ -523,11 +506,12 @@ describe('EdlFigeView — génération PDF', () => {
     expect(screen.getByRole('button', { name: 'Générer le pdf' })).toBeInTheDocument()
   })
 
-  it("génère le PDF côté serveur en mode Entrée et déclenche son téléchargement avec le nom de fichier renvoyé", async () => {
+  it('génère le PDF côté serveur en mode Entrée et affiche la confirmation avec lien Drive', async () => {
     const user = userEvent.setup()
     vi.mocked(generateEdlFigePdfAction).mockResolvedValue({
-      pdfBase64: btoa('PDF-CONTENT'),
-      filename: '2024-09-01_EDLInventaire_7-Alice DUPONT',
+      ok: true,
+      filename: '2024-09-01_EDLInventaire_7-DUPONT',
+      webViewLink: 'https://drive.google.com/file/d/abc123/view',
     })
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
@@ -535,17 +519,16 @@ describe('EdlFigeView — génération PDF', () => {
     await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
 
     expect(generateEdlFigePdfAction).toHaveBeenCalledWith('apt-uuid-1', 'entree')
-    expect(URL.createObjectURL).toHaveBeenCalledTimes(1)
-    expect(clickSpy).toHaveBeenCalledTimes(1)
-    expect(capturedLink?.download).toBe('2024-09-01_EDLInventaire_7-Alice DUPONT.pdf')
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
+    expect(await screen.findByText(/Enregistré sur Google Drive/)).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: '2024-09-01_EDLInventaire_7-DUPONT' })
+    expect(link).toHaveAttribute('href', 'https://drive.google.com/file/d/abc123/view')
   })
 
   it('appelle la génération avec le type Sortie après bascule du toggle', async () => {
     const user = userEvent.setup()
     vi.mocked(generateEdlFigePdfAction).mockResolvedValue({
-      pdfBase64: btoa('PDF-CONTENT'),
-      filename: '2025-06-30_EDLInventaire_7-Alice DUPONT',
+      ok: true,
+      filename: '2025-06-30_EDLInventaire_7-DUPONT',
     })
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
@@ -554,20 +537,38 @@ describe('EdlFigeView — génération PDF', () => {
     await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
 
     expect(generateEdlFigePdfAction).toHaveBeenCalledWith('apt-uuid-1', 'sortie')
-    expect(capturedLink?.download).toBe('2025-06-30_EDLInventaire_7-Alice DUPONT.pdf')
+    expect(await screen.findByText(/2025-06-30_EDLInventaire_7-DUPONT/)).toBeInTheDocument()
   })
 
-  it("ne déclenche aucun téléchargement si le serveur ne retrouve pas l'appartement", async () => {
+  it('affiche la confirmation sans lien cliquable si Google Drive ne renvoie pas de webViewLink', async () => {
     const user = userEvent.setup()
-    vi.mocked(generateEdlFigePdfAction).mockResolvedValue(null)
+    vi.mocked(generateEdlFigePdfAction).mockResolvedValue({
+      ok: true,
+      filename: '2024-09-01_EDLInventaire_7-DUPONT',
+    })
+    render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
+      keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
+
+    await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
+
+    expect(await screen.findByText(/Enregistré sur Google Drive/)).toBeInTheDocument()
+    expect(screen.getByText(/2024-09-01_EDLInventaire_7-DUPONT/)).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /EDLInventaire/ })).not.toBeInTheDocument()
+  })
+
+  it("affiche un message d'erreur si l'enregistrement sur Google Drive échoue", async () => {
+    const user = userEvent.setup()
+    vi.mocked(generateEdlFigePdfAction).mockResolvedValue({
+      ok: false,
+      error: 'Dossier locataire introuvable sur Google Drive',
+    })
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
 
     await user.click(screen.getByRole('button', { name: 'Générer le pdf' }))
 
     expect(generateEdlFigePdfAction).toHaveBeenCalledWith('apt-uuid-1', 'entree')
-    expect(URL.createObjectURL).not.toHaveBeenCalled()
-    expect(clickSpy).not.toHaveBeenCalled()
+    expect(await screen.findByText('Dossier locataire introuvable sur Google Drive')).toBeInTheDocument()
   })
 })
 

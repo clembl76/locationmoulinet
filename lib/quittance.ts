@@ -654,6 +654,31 @@ export async function getDriveEdlEntryUrl(
   }
 }
 
+// ─── Google Drive — enregistrer le PDF d'EDL figé dans le dossier locataire ──
+
+export async function uploadEdlFigePdfToDrive(opts: {
+  aptNumber: string
+  tenantLastName: string
+  filename: string
+  pdfBytes: Uint8Array
+}): Promise<{ ok: boolean; webViewLink?: string; error?: string }> {
+  try {
+    const auth = makeGoogleAuth()
+    const drive = google.drive({ version: 'v3', auth })
+    const folder = await findTenantFolder(drive, opts.aptNumber, opts.tenantLastName)
+    if (!folder?.id) return { ok: false, error: 'Dossier locataire introuvable sur Google Drive' }
+
+    const created = await drive.files.create({
+      requestBody: { name: `${opts.filename}.pdf`, parents: [folder.id] },
+      media: { mimeType: 'application/pdf', body: Readable.from(Buffer.from(opts.pdfBytes)) },
+      fields: 'id, webViewLink',
+    })
+    return { ok: true, webViewLink: created.data.webViewLink ?? undefined }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 // ─── Google Calendar — événement état des lieux d'entrée (créé au moment du préavis) ──
 
 export async function createCalendarPreavisEvent(opts: {
