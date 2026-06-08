@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import type { LettingVisit } from '@/lib/adminData'
+import { deleteVisitAction } from './visitsActions'
 
 const PAGE_SIZE = 5
 
@@ -26,11 +27,39 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-gray-100 text-gray-500',
 }
 
-export default function VisitsTable({ visits }: { visits: LettingVisit[] }) {
+export default function VisitsTable({ visits: initialVisits }: { visits: LettingVisit[] }) {
+  const [visits, setVisits] = useState(initialVisits)
   const [page, setPage] = useState(0)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [, startTransition] = useTransition()
 
   const totalPages = Math.ceil(visits.length / PAGE_SIZE)
   const pageVisits = visits.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
+  function handleDelete(visit: LettingVisit) {
+    const ok = window.confirm(
+      `Supprimer la visite de ${visit.first_name} ${visit.last_name.toUpperCase()} ?\n\nCette action est irréversible.`
+    )
+    if (!ok) return
+
+    setError(null)
+    setDeletingId(visit.id)
+    startTransition(async () => {
+      const result = await deleteVisitAction(visit.id)
+      setDeletingId(null)
+      if (!result.ok) {
+        setError(result.error ?? 'Erreur lors de la suppression')
+        return
+      }
+      setVisits(prev => {
+        const next = prev.filter(v => v.id !== visit.id)
+        const lastPage = Math.max(0, Math.ceil(next.length / PAGE_SIZE) - 1)
+        setPage(p => Math.min(p, lastPage))
+        return next
+      })
+    })
+  }
 
   if (visits.length === 0) {
     return (
@@ -51,6 +80,7 @@ export default function VisitsTable({ visits }: { visits: LettingVisit[] }) {
               <th className="text-left px-4 py-3">Date souhaitée</th>
               <th className="text-left px-4 py-3">Appartements</th>
               <th className="text-left px-4 py-3">Statut</th>
+              <th className="text-right px-4 py-3">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -75,11 +105,25 @@ export default function VisitsTable({ visits }: { visits: LettingVisit[] }) {
                     {STATUS_LABELS[v.status] ?? v.status}
                   </span>
                 </td>
+                <td className="px-4 py-3 text-right whitespace-nowrap">
+                  <button
+                    onClick={() => handleDelete(v)}
+                    disabled={deletingId === v.id}
+                    className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-40"
+                    title="Supprimer la visite"
+                  >
+                    {deletingId === v.id ? '…' : '✕'}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {error && (
+        <p className="px-4 py-2 text-xs text-red-500 border-t border-gray-100">{error}</p>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
