@@ -237,7 +237,7 @@ function drawTable(ctx: Ctx, columns: TableColumn[], groups: TableGroup[]) {
 export async function generateEdlFigePdf(
   data: EdlFigePdfData,
   edlType: EdlType
-): Promise<{ pdfBytes: Uint8Array; filename: string }> {
+): Promise<{ pdfBytes: Uint8Array; filename: string; pageCount: number }> {
   const { apt, leaseDates, installation, keys, inventory, surfaces, header } = data
   const filename = buildEdlPdfFilename(edlType, leaseDates, apt)
 
@@ -424,5 +424,5 @@ export async function generateEdlFigePdf(
   ctx.y -= 20
 
   const pdfBytes = await doc.save()
-  return { pdfBytes, filename }
+  return { pdfBytes, filename, pageCount: doc.getPageCount() }
 }

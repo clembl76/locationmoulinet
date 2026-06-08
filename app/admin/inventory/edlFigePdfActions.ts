@@ -2,7 +2,7 @@
 
 import { getApartmentsWithActiveLease } from '@/lib/adminData'
 import { generateEdlFigePdf, type EdlType } from '@/lib/edlFigePdf'
-import { uploadEdlFigePdfToDrive } from '@/lib/quittance'
+import { uploadEdlFigePdfToDrive, triggerEdlSignatureWebhook } from '@/lib/quittance'
 import { getInstallationAction, getLeaseDatesAction, getEdlFigeHeaderAction } from './summaryActions'
 import { getApartmentKeysAction } from './keysActions'
 import { getInventoryForApartmentAction } from './actions'
@@ -29,7 +29,7 @@ export async function generateEdlFigePdfAction(
     getEdlFigeHeaderAction(apt.lease_id),
   ])
 
-  const { pdfBytes, filename } = await generateEdlFigePdf(
+  const { pdfBytes, filename, pageCount } = await generateEdlFigePdf(
     { apt, leaseDates, installation, keys, inventory, surfaces, header },
     edlType
   )
@@ -41,6 +41,19 @@ export async function generateEdlFigePdfAction(
     pdfBytes,
   })
   if (!uploadResult.ok) return { ok: false, error: uploadResult.error ?? 'Échec de l\'enregistrement sur Google Drive' }
+
+  try {
+    await triggerEdlSignatureWebhook({
+      apartmentNumber: apt.apartment_number,
+      tenantLastName: apt.tenant_last_name,
+      edlType,
+      filename,
+      pageCount,
+      webViewLink: uploadResult.webViewLink,
+    })
+  } catch {
+    // Non-bloquant : le scénario Make.com de signature ne doit pas empêcher la livraison du PDF
+  }
 
   return { ok: true, filename, webViewLink: uploadResult.webViewLink }
 }

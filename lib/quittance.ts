@@ -679,6 +679,38 @@ export async function uploadEdlFigePdfToDrive(opts: {
   }
 }
 
+// ─── Make.com — déclenchement du scénario de signature de l'EDL figé ─────────
+
+export async function triggerEdlSignatureWebhook(opts: {
+  apartmentNumber: string
+  tenantLastName: string
+  edlType: 'entree' | 'sortie'
+  filename: string
+  pageCount: number
+  webViewLink?: string
+}): Promise<{ ok: boolean; error?: string }> {
+  const url = process.env.MAKE_EDL_SIGNATURE_WEBHOOK_URL
+  if (!url) return { ok: false, error: 'Webhook Make.com non configuré (MAKE_EDL_SIGNATURE_WEBHOOK_URL manquant)' }
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apartmentNumber: opts.apartmentNumber,
+        tenantLastName: opts.tenantLastName,
+        edlType: opts.edlType,
+        filename: opts.filename,
+        pageCount: opts.pageCount,
+        webViewLink: opts.webViewLink ?? null,
+      }),
+    })
+    if (!res.ok) return { ok: false, error: `Make.com a répondu ${res.status}` }
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 // ─── Google Calendar — événement état des lieux d'entrée (créé au moment du préavis) ──
 
 export async function createCalendarPreavisEvent(opts: {
