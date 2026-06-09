@@ -66,17 +66,18 @@ describe('surfacesConstants — ROOM_TYPES', () => {
     expect(ROOM_TYPES).toContain('Cuisine')
     expect(ROOM_TYPES).toContain('Salle de bains')
     expect(ROOM_TYPES).toContain('Toilettes')
-    expect(ROOM_TYPES).toContain('Entrée')
     expect(ROOM_TYPES).toContain('Cave')
+    expect(ROOM_TYPES).toContain('Couloir')
+    expect(ROOM_TYPES).toContain('Partout')
+    expect(ROOM_TYPES).toContain('Parties communes')
+    expect(ROOM_TYPES).toContain('Salon')
   })
 
   it('ne contient pas de doublons', () => {
     expect(new Set(ROOM_TYPES).size).toBe(ROOM_TYPES.length)
   })
 
-  it('est cohérent avec les room_type utilisés dans InventoryManager', () => {
-    // Ces valeurs doivent correspondre à l'enum room_type Supabase
-    expect(ROOM_TYPES).toContain('Indifférent')
-    expect(ROOM_TYPES).toContain('Partout')
+  it('est identique à la liste des pièces de InventoryManager', () => {
+    expect(ROOM_TYPES).toHaveLength(9)
   })
 })

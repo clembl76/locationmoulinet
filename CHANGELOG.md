@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-06-09 — Réduction de la liste des pièces dans les surfaces (SPEC.md §Page Inventaire /admin/inventory)
+- `lib/surfacesConstants.ts` : `ROOM_TYPES` réduit à 9 valeurs (`Partout`, `Parties communes`, `Cave`, `Chambre`, `Couloir`, `Cuisine`, `Salle de bains`, `Salon`, `Toilettes`) — aligné sur la liste `ROOMS` de `InventoryManager.tsx`
+- `src/lib/surfacesConstants.test.ts` : assertions sur `'Entrée'` et `'Indifférent'` (supprimées) retirées ; ajout des assertions sur les valeurs maintenues ; description du dernier `it` mise à jour
+- Tests : 262 passés / 0 échoués — Build : OK
+
 ### 2026-06-09 — Ajout de Cave, Toilettes, Couloir dans la liste des pièces de l'inventaire (SPEC.md §Page Inventaire /admin/inventory)
 - `components/admin/InventoryManager.tsx` : `ROOMS` passe de 6 à 9 valeurs : ajout de `Cave`, `Couloir` et `Toilettes`, triés alphabétiquement dans la liste
 - Tests : 262 passés / 0 échoués — Build : OK

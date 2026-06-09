@@ -1,9 +1,5 @@
 export const ROOM_TYPES = [
-  'Cave', 'Chambre', 'Coin chambre', 'Coin cuisine', 'Coin nuit', 'Coin salon',
-  'Coin salon / salle à manger', 'Couloir', 'Cuisine', 'Divers', 'Entrée',
-  'Parties communes', 'Partout', 'Salle à manger', 'Salle de bains',
-  'Salle de douche', 'Salon', 'Séjour/Cuisine', 'Terrasse', 'Toilettes',
-  'Autres', 'Autres frais', 'Bureau', 'Indifférent',
+  'Partout', 'Parties communes', 'Cave', 'Chambre', 'Couloir', 'Cuisine', 'Salle de bains', 'Salon', 'Toilettes',
 ] as const
 
 export const SURFACE_TYPES = [

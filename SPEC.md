@@ -36,7 +36,13 @@
 ## Page Disponibilités visites /admin/disponibilites
 
 ## Page Inventaire  /admin/inventory
-Dans la liste des pièces disponibles pour les items de l'inventaire, j'ai oublié ces valeurs à ajouter :
+Dans la liste des pièces disponibles pour les surfaces, réduis la liste à ces valeurs comme tu viens de le faire dans tes 2 derniers développements pour l'inventaire:
+Chambre
+Cuisine
+Parties communes
+Partout
+Salle de bains
+Salon
 Cave
 Toilettes
 Couloir
