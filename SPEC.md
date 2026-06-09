@@ -36,6 +36,9 @@
 ## Page Disponibilités visites /admin/disponibilites
 
 ## Page Inventaire  /admin/inventory
+Dans la liste des pièces disponibles pour les items de l'inventaire, j'ai oublié ces valeurs à ajouter :
+Cave
+Toilettes
+Couloir
 
 ## Page EDL /admin/inventory/edl-fige/
-modifie le webhook pour ajouter une data : la date de l'edl qui est donc selon le cas la date move_in ou la move_out

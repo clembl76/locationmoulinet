@@ -19,11 +19,7 @@ import ApartmentKeysPanel from '@/components/admin/ApartmentKeysPanel'
 import ApartmentInstallationPanel from '@/components/admin/ApartmentInstallationPanel'
 
 const ROOMS: string[] = [
-  'Cave', 'Chambre', 'Coin chambre', 'Coin cuisine', 'Coin nuit', 'Coin salon',
-  'Coin salon / salle à manger', 'Couloir', 'Cuisine', 'Divers', 'Entrée',
-  'Parties communes', 'Partout', 'Salle à manger', 'Salle de bains',
-  'Salle de douche', 'Salon', 'Séjour/Cuisine', 'Terrasse', 'Toilettes',
-  'Autres', 'Autres frais', 'Bureau', 'Indifférent',
+  'Partout', 'Parties communes', 'Cave', 'Chambre', 'Couloir', 'Cuisine', 'Salle de bains', 'Salon', 'Toilettes',
 ]
 
 const CONDITIONS: string[] = ['Neuf', 'Bon état', "État d'usage", 'Mauvais état']
@@ -148,7 +144,7 @@ function AddItemForm({
 }) {
   const [search, setSearch] = useState('')
   const [itemId, setItemId] = useState(items[0]?.id ?? '')
-  const [room, setRoom] = useState('Indifférent')
+  const [room, setRoom] = useState('Chambre')
   const [qty, setQty] = useState(1)
   const [condition, setCondition] = useState('Bon état')
   const [notes, setNotes] = useState('')
@@ -158,7 +154,7 @@ function AddItemForm({
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
   const [newCategory, setNewCategory] = useState('Meuble ou objet')
-  const [newRoom, setNewRoom] = useState('Indifférent')
+  const [newRoom, setNewRoom] = useState('Chambre')
   const [newPrice, setNewPrice] = useState('')
   const [newLabor, setNewLabor] = useState('')
   const [newRef, setNewRef] = useState('')
@@ -200,7 +196,7 @@ function AddItemForm({
     setRoom(result.item.default_room)
     setSearch(result.item.name)
     setShowCreate(false)
-    setNewName(''); setNewCategory('Meuble ou objet'); setNewRoom('Indifférent')
+    setNewName(''); setNewCategory('Meuble ou objet'); setNewRoom('Chambre')
     setNewPrice(''); setNewLabor(''); setNewRef('')
   }
 

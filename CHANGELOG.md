@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-06-09 — Ajout de Cave, Toilettes, Couloir dans la liste des pièces de l'inventaire (SPEC.md §Page Inventaire /admin/inventory)
+- `components/admin/InventoryManager.tsx` : `ROOMS` passe de 6 à 9 valeurs : ajout de `Cave`, `Couloir` et `Toilettes`, triés alphabétiquement dans la liste
+- Tests : 262 passés / 0 échoués — Build : OK
+
+### 2026-06-09 — Réduction de la liste des pièces dans l'inventaire (SPEC.md §Page Inventaire /admin/inventory)
+- `components/admin/InventoryManager.tsx` : `ROOMS` réduit à 6 valeurs (`Partout`, `Parties communes`, `Chambre`, `Salon`, `Cuisine`, `Salle de bains`) au lieu de la liste exhaustive de 24 entrées. Les états par défaut `room` et `newRoom` (anciennement `'Indifférent'`, valeur supprimée) sont mis à jour à `'Chambre'`. Note : `ROOM_TYPES` dans `lib/surfacesConstants.ts` (utilisé pour les surfaces, pas l'inventaire) est inchangé
+- Tests : 262 passés / 0 échoués — Build : OK
+
 ### 2026-06-08 — Ajout de la date de l'EDL dans les données envoyées au webhook Make.com (SPEC.md §Page EDL /admin/inventory/edl-fige/)
 - `lib/quittance.ts` : `triggerEdlSignatureWebhook` accepte et transmet désormais un champ `edlDate` (date d'entrée ou de sortie selon `edlType`, au format `YYYY-MM-DD`, ou `null` si non renseignée)
 - `app/admin/inventory/edlFigePdfActions.ts` : `generateEdlFigePdfAction` calcule cette date à partir de `leaseDates` (`move_in_date` en mode Entrée, `move_out_date` en mode Sortie — même logique que `buildEdlPdfFilename`) et la transmet au webhook
