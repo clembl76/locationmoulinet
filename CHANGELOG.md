@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-06-11 — Envoi réel (et non plus brouillon) de la notification de nouvelle candidature (SPEC.md §Page Candidater /candidater)
+- `lib/quittance.ts` : `sendCandidateNotificationEmail` envoie désormais le mail directement via `gmail.users.messages.send` au lieu de créer un brouillon (`gmail.users.drafts.create`) — même mécanisme que `sendVisitNotificationEmail` pour la notification de réservation de visite. Destinataire inchangé : `location.moulinet@gmail.com`. Sujet/corps du mail inchangés
+- Aucun changement côté `app/candidater/actions.ts` : l'appel à `sendCandidateNotificationEmail` était déjà en place, en best-effort non bloquant
+- Tests : 262 passés / 0 échoués (aucun test supplémentaire requis — fonction d'envoi Gmail non couverte unitairement, comme `sendVisitNotificationEmail`/`sendTenantListEmail`) — Build : OK
+
 ### 2026-06-09 — Réduction de la liste des pièces dans les surfaces (SPEC.md §Page Inventaire /admin/inventory)
 - `lib/surfacesConstants.ts` : `ROOM_TYPES` réduit à 9 valeurs (`Partout`, `Parties communes`, `Cave`, `Chambre`, `Couloir`, `Cuisine`, `Salle de bains`, `Salon`, `Toilettes`) — aligné sur la liste `ROOMS` de `InventoryManager.tsx`
 - `src/lib/surfacesConstants.test.ts` : assertions sur `'Entrée'` et `'Indifférent'` (supprimées) retirées ; ajout des assertions sur les valeurs maintenues ; description du dernier `it` mise à jour
