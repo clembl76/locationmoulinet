@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-06-11 — Correction : génération du bail non déclenchée à l'acceptation d'un candidat
+- `app/admin/mise-en-location/candidats/[id]/actions.ts` : dans `updateApplicationStatusAction`, l'appel à `generateBailAndUploadToDrive` n'était pas attendu (`.catch()` sans `await`, en fire-and-forget) — la fonction serveur pouvait se terminer et couper l'exécution avant que la copie du modèle, le remplacement des champs, l'export PDF et le dépôt sur Drive n'aient eu le temps de s'exécuter. Le PDF est désormais généré avec `try { await generateBailAndUploadToDrive(...) } catch { /* non-bloquant */ }`, conforme au pattern déjà utilisé pour `createCalendarPreavisEvent`
+- Régénération manuelle (one-off) du bail manquant pour le candidat Jade MASSON (appartement 11), déposé dans `/candidats/11-MASSON/`
+- Tests : 262 passés / 0 échoués (logique métier de `generateBailAndUploadToDrive` non couverte unitairement, comme les autres intégrations Drive/Gmail) — Build : OK
+
 ### 2026-06-11 — Envoi réel (et non plus brouillon) de la notification de nouvelle candidature (SPEC.md §Page Candidater /candidater)
 - `lib/quittance.ts` : `sendCandidateNotificationEmail` envoie désormais le mail directement via `gmail.users.messages.send` au lieu de créer un brouillon (`gmail.users.drafts.create`) — même mécanisme que `sendVisitNotificationEmail` pour la notification de réservation de visite. Destinataire inchangé : `location.moulinet@gmail.com`. Sujet/corps du mail inchangés
 - Aucun changement côté `app/candidater/actions.ts` : l'appel à `sendCandidateNotificationEmail` était déjà en place, en best-effort non bloquant

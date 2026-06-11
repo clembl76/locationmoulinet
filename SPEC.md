@@ -8,15 +8,6 @@
 ## Page Visiter /visiter
 
 ## Page Candidater /candidater
-- je veux que tu modifies le mail qui part quand un candidat dépose son dossier. actuellement seul un brouillon est créé, je veux que le mail soit envoyé à location.moulinet@gmail.com - sur le même principe que la notification lorsqu'une visite est réservée.
-ex du mail actuel en brouillon:
-"
-Nouvelle candidature pour l'appartement 11
-
-MASSON Jade
-Date de début de bail souhaitée : 28 juin 2026
-Durée : 1 an
-"
 
 # Admin
 

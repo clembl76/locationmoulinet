@@ -81,32 +81,36 @@ export async function updateApplicationStatusAction(
         endDateObj.setDate(endDateObj.getDate() - 1)
         const endDate = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`
         const rentCC = row.rent_including_charges ?? 0
-        generateBailAndUploadToDrive({
-          aptNumber: row.apartment_number,
-          signingDate,
-          endDate,
-          rentCC,
-          rentHC: row.rent_excluding_charges,
-          charges: row.charges,
-          deposit: rentCC,
-          tenantTitle: row.title,
-          tenantFirstName: row.first_name,
-          tenantLastName: row.last_name,
-          tenantEmail: row.email,
-          tenantPhone: row.phone,
-          tenantBirthDate: row.birth_date,
-          tenantBirthPlace: row.birth_place,
-          tenantAddress: row.address,
-          tenantFamilyStatus: row.family_status,
-          guarantorTitle: row.g_title,
-          guarantorFirstName: row.g_first_name,
-          guarantorLastName: row.g_last_name,
-          guarantorEmail: row.g_email,
-          guarantorPhone: row.g_phone,
-          guarantorBirthDate: row.g_birth_date,
-          guarantorBirthPlace: row.g_birth_place,
-          guarantorAddress: row.g_address,
-        }).catch(() => { /* non-bloquant */ })
+        try {
+          await generateBailAndUploadToDrive({
+            aptNumber: row.apartment_number,
+            signingDate,
+            endDate,
+            rentCC,
+            rentHC: row.rent_excluding_charges,
+            charges: row.charges,
+            deposit: rentCC,
+            tenantTitle: row.title,
+            tenantFirstName: row.first_name,
+            tenantLastName: row.last_name,
+            tenantEmail: row.email,
+            tenantPhone: row.phone,
+            tenantBirthDate: row.birth_date,
+            tenantBirthPlace: row.birth_place,
+            tenantAddress: row.address,
+            tenantFamilyStatus: row.family_status,
+            guarantorTitle: row.g_title,
+            guarantorFirstName: row.g_first_name,
+            guarantorLastName: row.g_last_name,
+            guarantorEmail: row.g_email,
+            guarantorPhone: row.g_phone,
+            guarantorBirthDate: row.g_birth_date,
+            guarantorBirthPlace: row.g_birth_place,
+            guarantorAddress: row.g_address,
+          })
+        } catch {
+          // non-bloquant : un échec de génération du bail ne doit pas empêcher l'acceptation du candidat
+        }
       }
     }
 
