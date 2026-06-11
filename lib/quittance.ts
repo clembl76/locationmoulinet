@@ -713,6 +713,54 @@ export async function triggerEdlSignatureWebhook(opts: {
   }
 }
 
+// ─── Make.com — déclenchement du scénario à l'acceptation d'un candidat ─────
+
+export async function triggerCandidateAcceptedWebhook(opts: {
+  apartmentNumber: string
+  candidateFirstName: string
+  candidateLastName: string
+  candidateEmail: string | null
+  candidatePhone: string | null
+  hasGuarantor: boolean
+  guarantorFirstName: string | null
+  guarantorLastName: string | null
+  guarantorEmail: string | null
+  signingDate: string
+  endDate: string
+  rentCC: number
+  filename: string
+  webViewLink?: string
+}): Promise<{ ok: boolean; error?: string }> {
+  const url = process.env.MAKE_CANDIDATE_ACCEPTED_WEBHOOK_URL
+  if (!url) return { ok: false, error: 'Webhook Make.com non configuré (MAKE_CANDIDATE_ACCEPTED_WEBHOOK_URL manquant)' }
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apartmentNumber: opts.apartmentNumber,
+        candidateFirstName: opts.candidateFirstName,
+        candidateLastName: opts.candidateLastName,
+        candidateEmail: opts.candidateEmail,
+        candidatePhone: opts.candidatePhone,
+        hasGuarantor: opts.hasGuarantor,
+        guarantorFirstName: opts.guarantorFirstName,
+        guarantorLastName: opts.guarantorLastName,
+        guarantorEmail: opts.guarantorEmail,
+        signingDate: opts.signingDate,
+        endDate: opts.endDate,
+        rentCC: opts.rentCC,
+        filename: opts.filename,
+        webViewLink: opts.webViewLink ?? null,
+      }),
+    })
+    if (!res.ok) return { ok: false, error: `Make.com a répondu ${res.status}` }
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 // ─── Google Calendar — événement état des lieux d'entrée (créé au moment du préavis) ──
 
 export async function createCalendarPreavisEvent(opts: {
@@ -1057,9 +1105,9 @@ export async function generateBailAndUploadToDrive(opts: {
   guarantorBirthDate: string | null
   guarantorBirthPlace: string | null
   guarantorAddress: string | null
-}): Promise<void> {
+}): Promise<{ filename: string; webViewLink?: string }> {
   const candidatesRootId = process.env.GDRIVE_CANDIDATES_FOLDER_ID
-  if (!candidatesRootId) return
+  if (!candidatesRootId) throw new Error('Google Drive non configuré (GDRIVE_CANDIDATES_FOLDER_ID manquant)')
 
   const hasGuarantor = !!opts.guarantorLastName
   const templateId = hasGuarantor ? BAIL_TEMPLATE_AVEC_GARANT : BAIL_TEMPLATE_SANS_GARANT
@@ -1185,11 +1233,12 @@ export async function generateBailAndUploadToDrive(opts: {
 
     // 7. Upload du PDF dans le dossier candidat
     const filename = `${opts.signingDate}_Bail_${opts.aptNumber}-${opts.tenantLastName.toUpperCase()}.pdf`
-    await drive.files.create({
+    const created = await drive.files.create({
       requestBody: { name: filename, parents: [folderId] },
       media: { mimeType: 'application/pdf', body: Readable.from(pdfBuffer) },
-      fields: 'id',
+      fields: 'id, webViewLink',
     })
+    return { filename, webViewLink: created.data.webViewLink ?? undefined }
   } finally {
     // 8. Suppression de la copie temporaire (best-effort)
     await drive.files.delete({ fileId: tempId }).catch(() => {})
@@ -1315,6 +1364,98 @@ ${opts.deposit ? `<p>Si tout est ok, votre caution de ${opts.deposit} € vous s
     ``,
     Buffer.from(body).toString('base64'),
   ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.drafts.create({
+    userId: 'me',
+    requestBody: { message: { raw } },
+  })
+}
+
+// ─── Brouillon Gmail — confirmation d'acceptation d'un candidat ──────────────
+
+const RIB_FILES: Record<string, string> = {
+  'Moulinet':     'RIB_Moulinet.pdf',
+  'Vieux Palais': 'RIB_VieuxPalais.pdf',
+  'Renard':       'RIB_Renard.pdf',
+  'Bons Enfants': 'RIB_BonsEnfants.pdf',
+}
+
+export async function createGmailDraftCandidateAccepted(opts: {
+  candidateEmail: string
+  aptNumber: string
+  buildingShortName: string
+  buildingAddress: string
+  moveInDate: string  // YYYY-MM-DD
+  rentCC: number
+  firstMonthRent: number
+  deposit: number
+  hasGuarantor: boolean
+}): Promise<void> {
+  if (!opts.candidateEmail) return
+
+  const dateFr = new Date(opts.moveInDate + 'T12:00:00').toLocaleDateString('fr-FR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  })
+
+  const subject = `Confirmation de location - Appartement ${opts.aptNumber} - ${opts.buildingAddress}`
+
+  const garantPhrase = opts.hasGuarantor
+    ? ` Votre garant recevra aussi un mail et devra signer de son côté.`
+    : ``
+
+  const body = `<p>Bonjour,</p>
+<p>Je vous remercie pour les informations et documents, je vous confirme donc mon accord pour la location de l'appartement ${opts.aptNumber} au ${opts.buildingAddress} à partir du ${dateFr}.</p>
+<p>Je prépare votre bail, vous recevrez un mail du logiciel Docusign dans lequel il faudra cliquer pour signer en ligne le bail.${garantPhrase}</p>
+<p>Nous prendrons prochainement rendez-vous pour un état des lieux et inventaire, cela prendra 15 minutes environ. Vous signerez également l'état des lieux en ligne. Il faudra souscrire une assurance habitation de votre côté démarrant au ${dateFr} et me donner l'attestation.</p>
+<p>Enfin, il faudra verser avant le ${dateFr} le loyer du 1er mois de ${opts.firstMonthRent} € et la caution de ${opts.deposit} €. Vous trouverez ci-joint mon RIB. Les loyers suivants de ${opts.rentCC} € seront dûs chaque 1er du mois.</p>
+<p>Je reste à votre disposition pour toute question,</p>
+<p>Cordialement</p>
+<p>Mme ALAOUI M'HAMMEDI</p>`
+
+  const ribFile = RIB_FILES[opts.buildingShortName]
+  const ribPath = ribFile ? path.join(process.cwd(), 'lib', 'ribs', ribFile) : null
+  const ribBytes = ribPath && fs.existsSync(ribPath) ? fs.readFileSync(ribPath) : null
+
+  const subjectHeader = `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`
+  const bodyPart = [
+    `Content-Type: text/html; charset="utf-8"`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  let mime: string
+  if (ribBytes) {
+    const boundary = `----=_boundary_${Date.now()}`
+    mime = [
+      `To: ${opts.candidateEmail}`,
+      subjectHeader,
+      `MIME-Version: 1.0`,
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      ``,
+      `--${boundary}`,
+      bodyPart,
+      ``,
+      `--${boundary}`,
+      `Content-Type: application/pdf`,
+      `Content-Transfer-Encoding: base64`,
+      `Content-Disposition: attachment; filename="${ribFile}"`,
+      ``,
+      ribBytes.toString('base64'),
+      ``,
+      `--${boundary}--`,
+    ].join('\r\n')
+  } else {
+    mime = [
+      `To: ${opts.candidateEmail}`,
+      subjectHeader,
+      `MIME-Version: 1.0`,
+      bodyPart,
+    ].join('\r\n')
+  }
 
   const raw = Buffer.from(mime).toString('base64url')
   const auth = makeGoogleAuth()

@@ -2,8 +2,23 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
-import { moveCandidateFolderToTenants, generateBailAndUploadToDrive } from '@/lib/quittance'
+import { moveCandidateFolderToTenants, generateBailAndUploadToDrive, triggerCandidateAcceptedWebhook, createGmailDraftCandidateAccepted } from '@/lib/quittance'
 import { revalidatePath } from 'next/cache'
+
+// ── Calcul du loyer du 1er mois au prorata depuis la date de signature ───────
+
+function computeFirstMonthRent(signingDate: string, rentCC: number): number {
+  const sd = new Date(signingDate + 'T12:00:00')
+  const year = sd.getFullYear()
+  const month = sd.getMonth() + 1
+  const signingDay = sd.getDate()
+  const dim = new Date(Date.UTC(year, month, 0)).getUTCDate() // jours dans le mois
+  const isProrata = signingDay > 1
+  const prorataDays = dim - signingDay + 1
+  return isProrata
+    ? Math.round((prorataDays / dim) * rentCC * 100) / 100
+    : rentCC
+}
 
 // ── Mettre à jour le statut candidat (+ visiteur si lié) ─────────────────────
 
@@ -43,6 +58,8 @@ export async function updateApplicationStatusAction(
         family_status: string | null
         desired_signing_date: string | null
         apartment_number: string
+        building_short_name: string
+        building_address: string
         rent_including_charges: number | null
         rent_excluding_charges: number | null
         charges: number | null
@@ -62,6 +79,8 @@ export async function updateApplicationStatusAction(
           c.birth_date::date::text, c.birth_place, c.address, c.family_status,
           ca.desired_signing_date::date::text,
           a.number AS apartment_number,
+          b.short_name AS building_short_name,
+          b.address AS building_address,
           a.rent_including_charges, a.rent_excluding_charges, a.charges,
           cg.title AS g_title, cg.first_name AS g_first_name, cg.last_name AS g_last_name,
           cg.email AS g_email, cg.phone AS g_phone,
@@ -69,6 +88,7 @@ export async function updateApplicationStatusAction(
         FROM candidates c
         JOIN candidate_applications ca ON ca.candidate_id = c.id
         JOIN apartments a ON a.id = ca.apartment_id
+        JOIN buildings b ON b.id = a.building_id
         LEFT JOIN candidate_guarantors cg ON cg.candidate_id = c.id
         WHERE ca.id = '${applicationId}'
         LIMIT 1
@@ -82,7 +102,7 @@ export async function updateApplicationStatusAction(
         const endDate = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`
         const rentCC = row.rent_including_charges ?? 0
         try {
-          await generateBailAndUploadToDrive({
+          const { filename, webViewLink } = await generateBailAndUploadToDrive({
             aptNumber: row.apartment_number,
             signingDate,
             endDate,
@@ -108,6 +128,45 @@ export async function updateApplicationStatusAction(
             guarantorBirthPlace: row.g_birth_place,
             guarantorAddress: row.g_address,
           })
+
+          // Notification Make.com : candidat accepté + bail généré (best-effort)
+          try {
+            await triggerCandidateAcceptedWebhook({
+              apartmentNumber: row.apartment_number,
+              candidateFirstName: row.first_name,
+              candidateLastName: row.last_name,
+              candidateEmail: row.email,
+              candidatePhone: row.phone,
+              hasGuarantor: !!row.g_last_name,
+              guarantorFirstName: row.g_first_name,
+              guarantorLastName: row.g_last_name,
+              guarantorEmail: row.g_email,
+              signingDate,
+              endDate,
+              rentCC,
+              filename,
+              webViewLink,
+            })
+          } catch {
+            // non-bloquant : un échec du webhook Make.com ne doit pas empêcher l'acceptation du candidat
+          }
+
+          // Brouillon Gmail de confirmation au candidat (best-effort)
+          try {
+            await createGmailDraftCandidateAccepted({
+              candidateEmail: row.email ?? '',
+              aptNumber: row.apartment_number,
+              buildingShortName: row.building_short_name,
+              buildingAddress: row.building_address,
+              moveInDate: signingDate,
+              rentCC,
+              firstMonthRent: computeFirstMonthRent(signingDate, rentCC),
+              deposit: rentCC,
+              hasGuarantor: !!row.g_last_name,
+            })
+          } catch {
+            // non-bloquant : un échec de création du brouillon ne doit pas empêcher l'acceptation du candidat
+          }
         } catch {
           // non-bloquant : un échec de génération du bail ne doit pas empêcher l'acceptation du candidat
         }
