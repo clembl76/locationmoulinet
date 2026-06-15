@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useLang } from '@/context/LanguageContext'
 import type { DrivePhoto, DriveVideo } from '@/lib/drivePhotos'
 import { getApartmentStatus, formatAvailableFrom } from '@/lib/apartmentStatus'
+import { getQuartierContent, getChargesBullets } from '@/lib/apartmentContent'
 
 export type ApartmentDetailData = {
   id: string
@@ -131,24 +132,6 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 // ─── Static blocks (left column) ────────────────────────────────────────────
 
-const QUARTIER_FR = `Quartier calme, très bien placé, proche centre-ville, gare et écoles/universités :
-
-• Gare, Centre-ville : 2 min à pied
-• Lycée Corneille, Lycée JB de La Salle : 10 min à pied
-• Lycée Jeanne d'Arc : 15 min à pied
-• Fac de médecine, Fac de droit (Préfecture) : 20 min à pied
-• Mont-Saint-Aignan (Université, Neoma) : 20 min en bus
-• Saint-Étienne-du-Rouvray (INSA, Université, Esigelec) : 35 min en métro`
-
-const QUARTIER_EN = `Quiet neighbourhood, perfectly located close to the city centre, station and schools/universities:
-
-• Train station, City centre: 2 min walk
-• Lycée Corneille, Lycée JB de La Salle: 10 min walk
-• Lycée Jeanne d'Arc: 15 min walk
-• Faculty of Medicine, Faculty of Law (Préfecture): 20 min walk
-• Mont-Saint-Aignan (University, Neoma): 20 min by bus
-• Saint-Étienne-du-Rouvray (INSA, University, Esigelec): 35 min by metro`
-
 const CONDITIONS_FR = `Pour que votre dossier soit éligible, vous devrez remplir à minima les conditions suivantes :
 
 • Être étudiant.
@@ -230,18 +213,10 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
     )
   }
 
-  // Charges & conditions bullet list for price card
-  const chargesBullets = lang === 'fr' ? [
-    "Direct propriétaire, pas de frais d'agence.",
-    'Eau froide, eau chaude, électricité, chauffage, wifi inclus.',
-    '1 mois de dépôt de garantie.',
-    'Éligible aux aides au logement.',
-  ] : [
-    'Direct from owner, no agency fees.',
-    'Cold water, hot water, electricity, heating, wifi included.',
-    '1 month security deposit.',
-    'Eligible for housing benefits (APL).',
-  ]
+  // Charges & conditions bullet list for price card — varie selon l'immeuble
+  const buildingShortName = apartment.buildings?.short_name
+  const chargesBullets = getChargesBullets(buildingShortName, lang)
+  const quartierContent = getQuartierContent(buildingShortName, lang)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -293,7 +268,7 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
               </div>
             )}
 
-            <StaticBlock title={t.quartierTitle} content={lang === 'fr' ? QUARTIER_FR : QUARTIER_EN} />
+            <StaticBlock title={t.quartierTitle} content={quartierContent} />
           </div>
 
           {/* Right: price card + conditions de location */}

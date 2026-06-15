@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-06-15 — Contenu "Quartier & commodités" et puces charges spécifiques par immeuble (SPEC.md §Page Détail appartement /#apartments/num)
+- `lib/apartmentContent.ts` (nouveau) : fonctions pures `getQuartierContent(buildingShortName, lang)` et `getChargesBullets(buildingShortName, lang)`
+  - "Quartier & commodités" : contenu Moulinet inchangé par défaut ; nouveau contenu commun pour `Vieux Palais`/`Bons Enfants` (hyper centre, Vieux Marché, Métro Palais de Justice/Teor/Gare SNCF) ; nouveau contenu pour `Renard` (Teor T4, Teors T1-T3 + Fac Pasteur, Métro, Gare SNCF/Métro)
+  - Puces "charges comprises" du bloc loyer : liste Moulinet inchangée (eau chaude/électricité/chauffage/wifi inclus) ; nouvelle liste commune pour `Vieux Palais`/`Bons Enfants`/`Renard` (charges = eau froide/TOM/syndic, électricité non incluse)
+- `components/ApartmentDetail.tsx` : utilise `getQuartierContent`/`getChargesBullets` avec `apartment.buildings?.short_name` au lieu des constantes statiques `QUARTIER_FR`/`QUARTIER_EN` et de la liste de puces fixe
+- Tests : `src/lib/apartmentContent.test.ts` (nouveau, 14 tests) — couvre les 4 immeubles (Moulinet, Vieux Palais, Bons Enfants, Renard) en FR/EN, le fallback Moulinet pour un immeuble inconnu/null, et l'équivalence Bons Enfants ≡ Vieux Palais / Renard pour les puces charges
+- 276 passés / 0 échoués — Build : OK
+
 ### 2026-06-15 — Correction du garant non rattaché lors de la création du bail depuis un candidat (`signLeaseAction`)
 - `app/admin/mise-en-location/candidats/[id]/actions.ts` : l'étape « Créer le garant si présent » insérait par erreur une nouvelle ligne `tenants` pour le garant puis une ligne `guarantors` avec `tenant_id` pointant vers ce nouveau locataire fantôme (sans nom/email/téléphone) — `getGuarantorForLease` (jointure `guarantors.tenant_id = lease_tenants.tenant_id`) ne pouvait donc jamais le retrouver. Corrigé pour insérer directement dans `guarantors` avec `tenant_id` = locataire principal du bail et les colonnes `title/first_name/last_name/email/phone/birth_date/birth_place/address`, comme le fait déjà `app/admin/apartments/[number]/nouveau-bail/actions.ts`
 - Correction des données existantes pour le bail de Jade MASSON (appartement 11, signé le 19/06) : ajout de la ligne `guarantors` manquante pour Zéphirine ROMUALD (à partir des infos de `candidate_guarantors`) et suppression du locataire fantôme orphelin créé par l'ancien code
