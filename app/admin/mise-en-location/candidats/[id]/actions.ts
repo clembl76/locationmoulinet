@@ -285,21 +285,17 @@ export async function signLeaseAction(opts: {
 
     // 5. Créer le garant si présent
     if (opts.guarantorLastName) {
-      const { data: guarantorRow, error: gErr } = await admin
-        .from('tenants')
-        .insert({
-          first_name: opts.guarantorFirstName,
-          last_name: opts.guarantorLastName,
-          email: opts.guarantorEmail,
-          phone: opts.guarantorPhone,
-        })
-        .select('id')
-        .single()
-      if (!gErr && guarantorRow) {
-        await admin.from('guarantors').insert({
-          tenant_id: guarantorRow.id,
-        })
-      }
+      await admin.from('guarantors').insert({
+        tenant_id: tenantId,
+        title: opts.guarantorTitle || null,
+        first_name: opts.guarantorFirstName || '',
+        last_name: opts.guarantorLastName,
+        email: opts.guarantorEmail || null,
+        phone: opts.guarantorPhone || null,
+        birth_date: opts.guarantorBirthDate || null,
+        birth_place: opts.guarantorBirthPlace || null,
+        address: opts.guarantorAddress || null,
+      })
     }
 
     // 6. Générer la ligne de loyer du 1er mois (prorata depuis signing_date)

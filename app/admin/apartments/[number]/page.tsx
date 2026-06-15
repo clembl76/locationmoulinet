@@ -32,16 +32,19 @@ function DisabledBtn({ children }: { children: React.ReactNode }) {
 
 export default async function AdminApartmentDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ number: string }>
+  searchParams: Promise<{ lease?: string }>
 }) {
   const { number } = await params
-  const apt = await getAdminApartmentDetail(number)
+  const { lease } = await searchParams
+  const apt = await getAdminApartmentDetail(number, lease)
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
   const [linxoTxs, rentRecord, , edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
-    getLinxoTransactionsForApartment(number).catch(() => []),
+    getLinxoTransactionsForApartment(number, apt?.move_in_date, apt?.move_out_date).catch(() => []),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
     apt?.lease_id ? getEdlReport(apt.lease_id) : Promise.resolve(null),

@@ -243,12 +243,13 @@ export async function getAdminApartments(): Promise<AdminApartment[]> {
       FROM apartments a
       JOIN buildings b ON b.id = a.building_id
       LEFT JOIN leases l ON l.apartment_id = a.id
+        AND l.signing_date <= CURRENT_DATE
         AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
       LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
       LEFT JOIN tenants t ON t.id = lt.tenant_id
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
         AND a.type != 'BUREAU'
-      ORDER BY a.id
+      ORDER BY a.id, l.signing_date DESC
     ) sub
     ORDER BY number::integer
   `)
@@ -273,10 +274,16 @@ export type AdminApartmentDetail = AdminApartment & {
   lease_docusign_edl_url: string | null
 }
 
-export async function getAdminApartmentDetail(number: string): Promise<AdminApartmentDetail | null> {
+export async function getAdminApartmentDetail(number: string, leaseId?: string): Promise<AdminApartmentDetail | null> {
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
+
+  // Bail spécifique demandé (ex. fiche d'un bail futur) sinon bail réellement en cours aujourd'hui
+  const leaseFilter = leaseId && /^[0-9a-f-]{36}$/i.test(leaseId)
+    ? `l.id = '${leaseId}'`
+    : `l.signing_date <= CURRENT_DATE
+       AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)`
 
   const rows = await runSql<AdminApartmentDetail>(`
     SELECT DISTINCT ON (a.id)
@@ -317,15 +324,47 @@ export async function getAdminApartmentDetail(number: string): Promise<AdminApar
     FROM apartments a
     JOIN buildings b ON b.id = a.building_id
     LEFT JOIN leases l ON l.apartment_id = a.id
-      AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+      AND ${leaseFilter}
     LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
     LEFT JOIN tenants t ON t.id = lt.tenant_id
     WHERE a.number = '${number}'
-    ORDER BY a.id
+    ORDER BY a.id, l.signing_date DESC
     LIMIT 1
   `)
 
   return rows[0] ?? null
+}
+
+// ─── Baux futurs (déjà signés, pas encore commencés) ──────────────────────────
+
+export type FutureLease = {
+  lease_id: string
+  apartment_number: string
+  building_short_name: string
+  signing_date: string
+  tenant_first_name: string | null
+  tenant_last_name: string | null
+  rent_including_charges: number | null
+}
+
+export async function getFutureLeases(): Promise<FutureLease[]> {
+  return runSql<FutureLease>(`
+    SELECT
+      l.id AS lease_id,
+      a.number AS apartment_number,
+      b.short_name AS building_short_name,
+      l.signing_date,
+      t.first_name AS tenant_first_name,
+      t.last_name AS tenant_last_name,
+      l.rent_including_charges
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN buildings b ON b.id = a.building_id
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE l.signing_date > CURRENT_DATE
+    ORDER BY l.signing_date ASC
+  `)
 }
 
 export async function getApartmentTransactions(
@@ -357,12 +396,16 @@ export type ApartmentLinxoTransaction = {
 }
 
 export async function getLinxoTransactionsForApartment(
-  aptNumber: string
+  aptNumber: string,
+  fromDate?: string | null,
+  toDate?: string | null
 ): Promise<ApartmentLinxoTransaction[]> {
   return runSql<ApartmentLinxoTransaction>(`
     SELECT id, date, montant, description
     FROM transactions_linxo
     WHERE apartment_num = '${aptNumber}'
+      ${fromDate ? `AND date >= '${fromDate}'` : ''}
+      ${toDate ? `AND date <= '${toDate}'` : ''}
     ORDER BY date DESC
     LIMIT 50
   `)
