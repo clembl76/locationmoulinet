@@ -119,11 +119,14 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
       updated++
       // best-effort: lease_id column may not exist yet (migration pending)
       if (result.lease_id) {
-        await admin
-          .from('transactions_linxo')
-          .update({ lease_id: result.lease_id })
-          .eq('id', tx.id)
-          .catch(() => {})
+        try {
+          await admin
+            .from('transactions_linxo')
+            .update({ lease_id: result.lease_id })
+            .eq('id', tx.id)
+        } catch {
+          // ignore — column not yet migrated
+        }
       }
     }
   }
