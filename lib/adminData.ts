@@ -272,6 +272,9 @@ export type AdminApartmentDetail = AdminApartment & {
   lease_deposit_paid: boolean
   lease_docusign_lease_url: string | null
   lease_docusign_edl_url: string | null
+  lease_status: string | null
+  lease_edl_signed: boolean
+  lease_deposit_returned: boolean
 }
 
 export async function getAdminApartmentDetail(number: string, leaseId?: string): Promise<AdminApartmentDetail | null> {
@@ -332,7 +335,90 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
     LIMIT 1
   `)
 
-  return rows[0] ?? null
+  const base = rows[0] ?? null
+  if (!base) return null
+
+  // Champs de clôture — colonnes ajoutées par migration 20260619 ; fallback si absent
+  const closingFields = base.lease_id
+    ? await runSql<{ lease_status: string; lease_edl_signed: boolean; lease_deposit_returned: boolean }>(`
+        SELECT
+          COALESCE(status, 'active') AS lease_status,
+          COALESCE(edl_signed, FALSE) AS lease_edl_signed,
+          COALESCE(deposit_returned, FALSE) AS lease_deposit_returned
+        FROM leases WHERE id = '${base.lease_id}' LIMIT 1
+      `).catch(() => [] as { lease_status: string; lease_edl_signed: boolean; lease_deposit_returned: boolean }[])
+    : []
+
+  return {
+    ...base,
+    lease_status: closingFields[0]?.lease_status ?? 'active',
+    lease_edl_signed: closingFields[0]?.lease_edl_signed ?? false,
+    lease_deposit_returned: closingFields[0]?.lease_deposit_returned ?? false,
+  }
+}
+
+// ─── Baux en cours de clôture ─────────────────────────────────────────────────
+
+export type ClosingLease = {
+  lease_id: string
+  apartment_number: string
+  building_short_name: string
+  move_out_date: string
+  tenant_first_name: string | null
+  tenant_last_name: string | null
+  rent_including_charges: number | null
+  edl_signed: boolean
+  deposit_returned: boolean
+}
+
+export async function getClosingLeases(): Promise<ClosingLease[]> {
+  return runSql<ClosingLease>(`
+    SELECT
+      l.id AS lease_id,
+      a.number AS apartment_number,
+      b.short_name AS building_short_name,
+      l.move_out_inspection_date::text AS move_out_date,
+      t.first_name AS tenant_first_name,
+      t.last_name AS tenant_last_name,
+      l.rent_including_charges,
+      COALESCE(l.edl_signed, FALSE) AS edl_signed,
+      COALESCE(l.deposit_returned, FALSE) AS deposit_returned
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN buildings b ON b.id = a.building_id
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE l.move_out_inspection_date < CURRENT_DATE
+      AND (l.status IS NULL OR l.status != 'archived')
+    ORDER BY l.move_out_inspection_date DESC
+  `).catch(() => [])
+}
+
+// ─── Baux archivés ────────────────────────────────────────────────────────────
+
+export type ArchivedLease = {
+  lease_id: string
+  apartment_number: string
+  tenant_first_name: string | null
+  tenant_last_name: string | null
+  move_out_date: string | null
+}
+
+export async function getArchivedLeases(): Promise<ArchivedLease[]> {
+  return runSql<ArchivedLease>(`
+    SELECT
+      l.id AS lease_id,
+      a.number AS apartment_number,
+      t.first_name AS tenant_first_name,
+      t.last_name AS tenant_last_name,
+      l.move_out_inspection_date::text AS move_out_date
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE l.status = 'archived'
+    ORDER BY l.move_out_inspection_date DESC
+  `).catch(() => [])
 }
 
 // ─── Baux futurs (déjà signés, pas encore commencés) ──────────────────────────

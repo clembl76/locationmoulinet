@@ -2,6 +2,22 @@
 
 ## [Non publié]
 
+### 2026-06-19 — Archivage conditionnel + déplacement dossier Drive (SPEC.md §Page Appartements /admin/apartments)
+- `components/admin/ClosingLeaseActions.tsx` : bouton "Archiver" désactivé (`disabled`) tant que les deux cases "EDL signé" et "Caution restituée" ne sont pas toutes cochées
+- `lib/quittance.ts` : nouvelle fonction exportée `moveTenantFolderToArchive(aptNumber, tenantLastName)` — cherche le dossier `{aptNum}_{NOM}` dans `GDRIVE_TENANTS_FOLDER_ID`, trouve ou crée le sous-dossier "Archive", puis déplace le dossier locataire dedans via `drive.files.update` (addParents/removeParents). Retourne `{ ok, error? }`
+- `app/admin/apartments/[number]/actions.ts` : `archiveLeaseAction` récupère le nom du locataire via `runSqlAdmin` et appelle `moveTenantFolderToArchive` de façon non-bloquante (best-effort `.catch()`) après avoir mis à jour le statut en DB
+- Tests : 299 passés / 0 échoués — 4 nouveaux tests sur `ClosingLeaseActions` couvrant l'état désactivé (aucune case, une seule case, les deux cases) — Build : OK
+
+### 2026-06-19 — Sections "Baux en cours de clôture" et "Archives" (SPEC.md §Page Appartements /admin/apartments)
+- `supabase/migrations/20260619_lease_closing_status.sql` (nouveau) : ajout de 3 colonnes sur la table `leases` — `status TEXT NOT NULL DEFAULT 'active'`, `edl_signed BOOLEAN NOT NULL DEFAULT FALSE`, `deposit_returned BOOLEAN NOT NULL DEFAULT FALSE`. **Migration à appliquer manuellement sur Supabase.**
+- `lib/adminData.ts` : nouveaux types `ClosingLease` et `ArchivedLease` ; nouvelles fonctions `getClosingLeases()` (baux dont `move_out_inspection_date < CURRENT_DATE` et `status != 'archived'`) et `getArchivedLeases()` (baux dont `status = 'archived'`) ; extension de `AdminApartmentDetail` avec `lease_status`, `lease_edl_signed`, `lease_deposit_returned` et mise à jour du SELECT correspondant dans `getAdminApartmentDetail`
+- `app/admin/apartments/[number]/actions.ts` : 3 nouvelles server actions — `updateEdlSignedAction` (mise à jour `edl_signed`), `updateDepositReturnedAction` (mise à jour `deposit_returned`), `archiveLeaseAction` (passage `status = 'archived'` + revalidation)
+- `components/admin/ClosingLeaseActions.tsx` (nouveau, client) : panneau de clôture — case "EDL signé", case "Caution restituée" (auto-save), bouton "Archiver" (confirmation + redirection `/admin/apartments`)
+- `components/admin/ArchivesSection.tsx` (nouveau, client) : liste déroulante des baux archivés + bouton OK naviguant vers la fiche de l'appartement (`/admin/apartments/[number]?lease=[id]`)
+- `app/admin/apartments/page.tsx` : ajout des sections "Baux en cours de clôture" (tableau identique au modèle "Futurs baux", visible si ≥1 bail en clôture) et "Archives" (toujours visible)
+- `app/admin/apartments/[number]/page.tsx` : détection du statut du bail (`isArchived`, `isClosing`) — badge "En cours de clôture"/"Archivé" dans le header ; panneau "Clôture" (ClosingLeaseActions) affiché si bail en clôture ; toutes les actions masquées en mode archive ; bannière d'information "consultation uniquement" pour les baux archivés
+- Tests : 295 passés / 0 échoués — `src/components/admin/ClosingLeaseActions.test.tsx` (13 tests) et `src/components/admin/ArchivesSection.test.tsx` (8 tests) — Build : OK
+
 ### 2026-06-15 — Contenu "Quartier & commodités" et puces charges spécifiques par immeuble (SPEC.md §Page Détail appartement /#apartments/num)
 - `lib/apartmentContent.ts` (nouveau) : fonctions pures `getQuartierContent(buildingShortName, lang)` et `getChargesBullets(buildingShortName, lang)`
   - "Quartier & commodités" : contenu Moulinet inchangé par défaut ; nouveau contenu commun pour `Vieux Palais`/`Bons Enfants` (hyper centre, Vieux Marché, Métro Palais de Justice/Teor/Gare SNCF) ; nouveau contenu pour `Renard` (Teor T4, Teors T1-T3 + Fac Pasteur, Métro, Gare SNCF/Métro)

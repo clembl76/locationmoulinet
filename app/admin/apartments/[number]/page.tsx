@@ -8,6 +8,7 @@ import InsuranceCheckbox from '@/components/admin/InsuranceCheckbox'
 import DocusignUrls from '@/components/admin/DocusignUrls'
 import PreavisButton from '@/components/admin/PreavisButton'
 import EdlButton from '@/components/admin/EdlButton'
+import ClosingLeaseActions from '@/components/admin/ClosingLeaseActions'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -65,6 +66,10 @@ export default async function AdminApartmentDetailPage({
     ? `${apt.tenant_first_name ?? ''} ${apt.tenant_last_name}`.trim()
     : null
 
+  const isArchived = apt.lease_status === 'archived'
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const isClosing = !isArchived && !!apt.move_out_date && apt.move_out_date < today
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -72,19 +77,35 @@ export default async function AdminApartmentDetailPage({
         ← Appartements
       </a>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <h1 className="text-2xl font-bold text-gray-900">
           <a href={`/apartments/${apt.number}`} className="hover:text-blue-primary transition-colors">
             Appartement {apt.number}
           </a>
         </h1>
         <span className="text-sm text-gray-400">{apt.building_short_name} · {apt.surface_area} m²</span>
-        {apt.move_out_date && (
+        {isArchived && (
+          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-gray-50 text-gray-500 border-gray-200">
+            Archivé
+          </div>
+        )}
+        {isClosing && (
+          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-orange-50 text-orange-700 border-orange-200">
+            En cours de clôture
+          </div>
+        )}
+        {!isArchived && !isClosing && apt.move_out_date && (
           <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-amber-50 text-amber-700 border-amber-200">
             Départ prévu
           </div>
         )}
       </div>
+
+      {isArchived && (
+        <div className="bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-sm text-gray-500">
+          Ce bail est archivé. Les informations sont disponibles en consultation uniquement.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column */}
@@ -112,20 +133,26 @@ export default async function AdminApartmentDetailPage({
                 />
                 {apt.move_out_date && (
                   <InfoRow
-                    label="Départ prévu"
-                    value={<span className="text-amber-600">{new Date(apt.move_out_date).toLocaleDateString('fr-FR')}</span>}
+                    label={isArchived || isClosing ? 'Départ' : 'Départ prévu'}
+                    value={
+                      <span className={isArchived ? 'text-gray-600' : 'text-amber-600'}>
+                        {new Date(apt.move_out_date + 'T12:00:00').toLocaleDateString('fr-FR')}
+                      </span>
+                    }
                   />
                 )}
               </>
             ) : (
               <div className="space-y-3">
                 <p className="text-sm text-gray-400">Appartement vacant.</p>
-                <a
-                  href={`/admin/apartments/${apt.number}/nouveau-bail`}
-                  className="inline-block bg-blue-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
-                >
-                  + Créer un bail
-                </a>
+                {!isArchived && (
+                  <a
+                    href={`/admin/apartments/${apt.number}/nouveau-bail`}
+                    className="inline-block bg-blue-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                  >
+                    + Créer un bail
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -164,17 +191,31 @@ export default async function AdminApartmentDetailPage({
                   </a>
                 )}
               </div>
-              <DocusignUrls
-                leaseId={apt.lease_id!}
-                aptNumber={apt.number}
-                initialLeaseUrl={apt.lease_docusign_lease_url}
-                initialEdlUrl={apt.lease_docusign_edl_url}
-              />
-              <InsuranceCheckbox
-                leaseId={apt.lease_id!}
-                aptNumber={apt.number}
-                initialValue={apt.lease_insurance_attestation}
-              />
+              {!isArchived && (
+                <>
+                  <DocusignUrls
+                    leaseId={apt.lease_id!}
+                    aptNumber={apt.number}
+                    initialLeaseUrl={apt.lease_docusign_lease_url}
+                    initialEdlUrl={apt.lease_docusign_edl_url}
+                  />
+                  <InsuranceCheckbox
+                    leaseId={apt.lease_id!}
+                    aptNumber={apt.number}
+                    initialValue={apt.lease_insurance_attestation}
+                  />
+                </>
+              )}
+              {isArchived && apt.lease_docusign_lease_url && (
+                <a
+                  href={apt.lease_docusign_lease_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                >
+                  Bail sur Docusign →
+                </a>
+              )}
             </div>
           )}
 
@@ -223,75 +264,74 @@ export default async function AdminApartmentDetailPage({
         {/* Right column */}
         <div className="space-y-4">
 
-          {/* Loyer du mois */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Loyer — {mois}
-            </p>
-            {!hasTenant ? (
-              <p className="text-sm text-gray-400">Vacant</p>
-            ) : rentRecord ? (
-              <>
-                {/* Montant attendu */}
-                <div className="mb-3">
-                  <p className="text-2xl font-bold text-blue-dark">{rentRecord.amount_expected} €</p>
-                  {rentRecord.is_prorata && rentRecord.prorata_days != null && (
-                    <p className="text-xs text-amber-600 mt-0.5">
-                      Prorata : {rentRecord.prorata_days} j sur {rentRecord.days_in_month} j
-                      {' '}(loyer CC : {apt.rent_including_charges} €)
-                    </p>
+          {/* Loyer du mois — masqué pour les baux archivés */}
+          {!isArchived && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                Loyer — {mois}
+              </p>
+              {!hasTenant ? (
+                <p className="text-sm text-gray-400">Vacant</p>
+              ) : rentRecord ? (
+                <>
+                  <div className="mb-3">
+                    <p className="text-2xl font-bold text-blue-dark">{rentRecord.amount_expected} €</p>
+                    {rentRecord.is_prorata && rentRecord.prorata_days != null && (
+                      <p className="text-xs text-amber-600 mt-0.5">
+                        Prorata : {rentRecord.prorata_days} j sur {rentRecord.days_in_month} j
+                        {' '}(loyer CC : {apt.rent_including_charges} €)
+                      </p>
+                    )}
+                  </div>
+                  {rentRecord.amount_received != null ? (
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-green-600 font-bold">✓</span>
+                      <span className="text-green-700 font-semibold text-sm">
+                        Encaissé — {rentRecord.amount_received} €
+                        {rentRecord.received_at && (
+                          <span className="text-gray-400 font-normal ml-1">
+                            le {new Date(rentRecord.received_at).toLocaleDateString('fr-FR')}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-red-500 font-bold">✗</span>
+                      <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
+                    </div>
                   )}
-                </div>
-                {/* Statut encaissement */}
-                {rentRecord.amount_received != null ? (
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-green-600 font-bold">✓</span>
-                    <span className="text-green-700 font-semibold text-sm">
-                      Encaissé — {rentRecord.amount_received} €
-                      {rentRecord.received_at && (
-                        <span className="text-gray-400 font-normal ml-1">
-                          le {new Date(rentRecord.received_at).toLocaleDateString('fr-FR')}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-red-500 font-bold">✗</span>
-                    <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
-                  </div>
-                )}
-                {isUnpaid && rentRecord && apt.lease_id && (
-                  <QuittanceButton
-                    rentId={rentRecord.id}
-                    leaseId={apt.lease_id}
-                    aptNumber={apt.number}
-                    year={year}
-                    month={month}
-                    mois={moisCourt}
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                {/* Pas encore de loyer généré */}
-                {apt.paid_this_month ? (
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-green-600 font-bold">✓</span>
-                    <span className="text-green-700 font-semibold text-sm">Encaissé (via transactions)</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-red-500 font-bold">✗</span>
-                    <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
-                  </div>
-                )}
-                <p className="text-xs text-gray-400">
-                  Loyers non générés pour ce mois. Utilisez le bouton du tableau de bord.
-                </p>
-              </>
-            )}
-          </div>
+                  {isUnpaid && rentRecord && apt.lease_id && (
+                    <QuittanceButton
+                      rentId={rentRecord.id}
+                      leaseId={apt.lease_id}
+                      aptNumber={apt.number}
+                      year={year}
+                      month={month}
+                      mois={moisCourt}
+                    />
+                  )}
+                </>
+              ) : (
+                <>
+                  {apt.paid_this_month ? (
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-green-600 font-bold">✓</span>
+                      <span className="text-green-700 font-semibold text-sm">Encaissé (via transactions)</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-red-500 font-bold">✗</span>
+                      <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-400">
+                    Loyers non générés pour ce mois. Utilisez le bouton du tableau de bord.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Loyer détail */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
@@ -301,8 +341,8 @@ export default async function AdminApartmentDetailPage({
             <InfoRow label="Total CC" value={<span className="font-bold text-blue-dark">{apt.rent_including_charges} €</span>} />
           </div>
 
-          {/* Actions */}
-          {isOccupied && (
+          {/* Actions bail actif */}
+          {isOccupied && !isArchived && !isClosing && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Actions</p>
               <PreavisButton
@@ -313,8 +353,21 @@ export default async function AdminApartmentDetailPage({
             </div>
           )}
 
+          {/* Actions clôture */}
+          {isClosing && apt.lease_id && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Clôture</p>
+              <ClosingLeaseActions
+                leaseId={apt.lease_id}
+                aptNumber={apt.number}
+                initialEdlSigned={apt.lease_edl_signed}
+                initialDepositReturned={apt.lease_deposit_returned}
+              />
+            </div>
+          )}
+
           {/* EDL */}
-          {isOccupied && (
+          {isOccupied && !isArchived && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
               {edlReport ? (
@@ -354,8 +407,21 @@ export default async function AdminApartmentDetailPage({
             </div>
           )}
 
+          {/* EDL archivé — lecture seule */}
+          {isArchived && edlReport && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
+              <a
+                href={`/admin/apartments/${apt.number}/edl/${edlReport.id}`}
+                className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+              >
+                Voir le document d&apos;EDL
+              </a>
+            </div>
+          )}
+
           {/* Documents */}
-          {isOccupied && (
+          {isOccupied && !isArchived && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Documents</p>
               <DepositPaidCheckbox

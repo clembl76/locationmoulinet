@@ -679,6 +679,56 @@ export async function uploadEdlFigePdfToDrive(opts: {
   }
 }
 
+// ─── Google Drive — déplacer dossier locataire vers Archive ──────────────────
+
+export async function moveTenantFolderToArchive(
+  aptNumber: string,
+  tenantLastName: string
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const tenantsRootId = process.env.GDRIVE_TENANTS_FOLDER_ID
+    if (!tenantsRootId) return { ok: false, error: 'GDRIVE_TENANTS_FOLDER_ID manquant' }
+
+    const auth = makeGoogleAuth()
+    const drive = google.drive({ version: 'v3', auth })
+
+    // 1. Trouver le dossier du locataire
+    const tenantFolder = await findTenantFolder(drive, aptNumber, tenantLastName)
+    if (!tenantFolder?.id) return { ok: false, error: 'Dossier locataire introuvable sur Google Drive' }
+
+    // 2. Trouver ou créer le sous-dossier "Archive" dans le dossier locataires
+    const archiveRes = await drive.files.list({
+      q: `'${tenantsRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = 'Archive' and trashed = false`,
+      fields: 'files(id)',
+      pageSize: 1,
+    })
+    let archiveFolderId = archiveRes.data.files?.[0]?.id
+    if (!archiveFolderId) {
+      const created = await drive.files.create({
+        requestBody: {
+          name: 'Archive',
+          mimeType: 'application/vnd.google-apps.folder',
+          parents: [tenantsRootId],
+        },
+        fields: 'id',
+      })
+      archiveFolderId = created.data.id!
+    }
+
+    // 3. Déplacer le dossier locataire dans Archive
+    await drive.files.update({
+      fileId: tenantFolder.id,
+      addParents: archiveFolderId,
+      removeParents: tenantsRootId,
+      fields: 'id, parents',
+    })
+
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 // ─── Make.com — déclenchement du scénario de signature de l'EDL figé ─────────
 
 export async function triggerEdlSignatureWebhook(opts: {

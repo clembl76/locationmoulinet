@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail } from '@/lib/quittance'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail, moveTenantFolderToArchive } from '@/lib/quittance'
 import { createEdlReport, runSqlAdmin } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -288,6 +288,76 @@ export async function generateAttestationAction(
 
     revalidatePath(`/admin/apartments/${aptNumber}`)
     return { ok: true, filename, draftId }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateEdlSignedAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ edl_signed: value })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    revalidatePath('/admin/apartments')
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateDepositReturnedAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ deposit_returned: value })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    revalidatePath('/admin/apartments')
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function archiveLeaseAction(
+  leaseId: string,
+  aptNumber: string
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ status: 'archived' })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+
+    // Déplacer le dossier Drive vers Archive (best-effort, non-bloquant)
+    const tenantRows = await runSqlAdmin<{ last_name: string }>(`
+      SELECT t.last_name FROM lease_tenants lt
+      JOIN tenants t ON t.id = lt.tenant_id
+      WHERE lt.lease_id = '${leaseId}' LIMIT 1
+    `).catch(() => [])
+    if (tenantRows[0]?.last_name) {
+      moveTenantFolderToArchive(aptNumber, tenantRows[0].last_name).catch(() => { /* non-bloquant */ })
+    }
+
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    revalidatePath('/admin/apartments')
+    return { ok: true }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }

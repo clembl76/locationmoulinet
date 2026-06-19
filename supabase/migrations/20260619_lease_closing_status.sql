@@ -1,0 +1,5 @@
+-- Ajout des colonnes de clôture sur les baux
+ALTER TABLE leases
+  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'active',
+  ADD COLUMN IF NOT EXISTS edl_signed BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS deposit_returned BOOLEAN NOT NULL DEFAULT FALSE;
