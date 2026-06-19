@@ -34,7 +34,8 @@ permettra de faire un diff si besoin.
 
 				
 				
-				
+				les quittances au prorata mettent le mois complet pour les dates
+                toujours un souci sur les transactions par bail
 				
 				
 				

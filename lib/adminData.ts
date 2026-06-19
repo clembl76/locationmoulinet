@@ -483,9 +483,29 @@ export type ApartmentLinxoTransaction = {
 
 export async function getLinxoTransactionsForApartment(
   aptNumber: string,
+  leaseId?: string | null,
   fromDate?: string | null,
   toDate?: string | null
 ): Promise<ApartmentLinxoTransaction[]> {
+  if (leaseId) {
+    return runSql<ApartmentLinxoTransaction>(`
+      SELECT id, date, montant, description
+      FROM transactions_linxo
+      WHERE lease_id = '${leaseId}'
+      ORDER BY date DESC
+      LIMIT 50
+    `).catch(() =>
+      runSql<ApartmentLinxoTransaction>(`
+        SELECT id, date, montant, description
+        FROM transactions_linxo
+        WHERE apartment_num = '${aptNumber}'
+          ${fromDate ? `AND date >= '${fromDate}'` : ''}
+          ${toDate ? `AND date <= '${toDate}'` : ''}
+        ORDER BY date DESC
+        LIMIT 50
+      `)
+    )
+  }
   return runSql<ApartmentLinxoTransaction>(`
     SELECT id, date, montant, description
     FROM transactions_linxo

@@ -45,7 +45,7 @@ export default async function AdminApartmentDetailPage({
   const year = now.getFullYear()
   const month = now.getMonth() + 1
   const [linxoTxs, rentRecord, , edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
-    getLinxoTransactionsForApartment(number, apt?.move_in_date, apt?.move_out_date).catch(() => []),
+    getLinxoTransactionsForApartment(number, apt?.lease_id, apt?.move_in_date, apt?.move_out_date).catch(() => []),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
     apt?.lease_id ? getEdlReport(apt.lease_id) : Promise.resolve(null),

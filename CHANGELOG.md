@@ -2,6 +2,15 @@
 
 ## [Non publié]
 
+### 2026-06-19 — Filtrage Linxo par lease_id (SPEC.md §Page Détail d'un appartement /admin/apartments/num)
+- `supabase/migrations/20260619_linxo_lease_id.sql` (nouveau) : ajout de la colonne `lease_id UUID REFERENCES leases(id)` sur `transactions_linxo`. **Migration à appliquer manuellement sur Supabase.**
+- `scripts/backfill_linxo_lease_id.sql` (nouveau) : UPDATE de rétrobackfill — lie les transactions existantes à leur bail en matchant `apartment_num` + plage de dates (`signing_date <= date <= move_out_inspection_date`). À exécuter après la migration.
+- `lib/linxoCategorization.ts` : ajout de `lease_id` dans les types `TenantInfo`, `GuarantorInfo` et `CategorizedResult` ; `categorize()` maintenant exportée pour les tests unitaires ; `runCategorization()` inclut `l.id AS lease_id` dans ses requêtes et l'écrit dans `transactions_linxo` lors de la mise à jour
+- `lib/adminData.ts` : `getLinxoTransactionsForApartment(aptNumber, leaseId?, fromDate?, toDate?)` — filtre par `lease_id` quand disponible (requête précise), avec fallback automatique sur le filtrage par date si la colonne n'existe pas encore (migration non appliquée)
+- `app/admin/apartments/[number]/page.tsx` : passage de `apt?.lease_id` comme 2e argument à `getLinxoTransactionsForApartment` — les transactions affichées correspondent désormais au bail en cours, non à l'appartement entier
+- `src/lib/linxoCategorization.test.ts` (nouveau) : 14 tests unitaires sur `categorize()` — règle locataire (happy path, description, montant, notes, accents, nom court), règle garant, règle mapping (pattern long, non-match), cas aucune correspondance et libellé null
+- Tests : 313 passés / 0 échoués — Build : OK
+
 ### 2026-06-19 — Archivage conditionnel + déplacement dossier Drive (SPEC.md §Page Appartements /admin/apartments)
 - `components/admin/ClosingLeaseActions.tsx` : bouton "Archiver" désactivé (`disabled`) tant que les deux cases "EDL signé" et "Caution restituée" ne sont pas toutes cochées
 - `lib/quittance.ts` : nouvelle fonction exportée `moveTenantFolderToArchive(aptNumber, tenantLastName)` — cherche le dossier `{aptNum}_{NOM}` dans `GDRIVE_TENANTS_FOLDER_ID`, trouve ou crée le sous-dossier "Archive", puis déplace le dossier locataire dedans via `drive.files.update` (addParents/removeParents). Retourne `{ ok, error? }`

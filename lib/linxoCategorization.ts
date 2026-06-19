@@ -8,20 +8,23 @@ type TenantInfo = {
   first_name: string | null
   apartment_num: string
   rent_including_charges: number | null
+  lease_id: string
 }
 
 type GuarantorInfo = {
   last_name: string
   tenant_last_name: string
   apartment_num: string
+  lease_id: string
 }
 
-type CategorizedResult = {
+export type CategorizedResult = {
   supplier: string | null
   type: string | null
   description: string | null
   apartment_num: string | null
   tenant_name: string | null
+  lease_id: string | null
 }
 
 const MONTH_LABELS: Record<number, string> = {
@@ -38,7 +41,7 @@ function monthLabel(dateStr: string | null): string {
 }
 
 function normalize(s: string): string {
-  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 }
 
 export async function runCategorization(): Promise<{ updated: number; errors: string[] }> {
@@ -54,13 +57,14 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
   if (txErr) return { updated: 0, errors: [txErr.message] }
   const transactions = txRows ?? []
 
-  // 2. Fetch tenants with their apartment
+  // 2. Fetch tenants with their apartment and lease
   const tenants = await runSqlAdmin<TenantInfo>(`
     SELECT DISTINCT ON (t.id)
       t.last_name,
       t.first_name,
       a.number AS apartment_num,
-      l.rent_including_charges
+      l.rent_including_charges,
+      l.id AS lease_id
     FROM tenants t
     JOIN lease_tenants lt ON lt.tenant_id = t.id
     JOIN leases l ON l.id = lt.lease_id
@@ -69,12 +73,13 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
     ORDER BY t.id
   `)
 
-  // 3. Fetch guarantors with their tenant's apartment
+  // 3. Fetch guarantors with their tenant's apartment and lease
   const guarantors = await runSqlAdmin<GuarantorInfo>(`
     SELECT DISTINCT ON (g.id)
       g.last_name,
       t.last_name AS tenant_last_name,
-      a.number AS apartment_num
+      a.number AS apartment_num,
+      l.id AS lease_id
     FROM guarantors g
     JOIN tenants t ON t.id = g.tenant_id
     JOIN lease_tenants lt ON lt.tenant_id = t.id
@@ -112,13 +117,21 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
       errors.push(`${tx.id}: ${upErr.message}`)
     } else {
       updated++
+      // best-effort: lease_id column may not exist yet (migration pending)
+      if (result.lease_id) {
+        await admin
+          .from('transactions_linxo')
+          .update({ lease_id: result.lease_id })
+          .eq('id', tx.id)
+          .catch(() => {})
+      }
     }
   }
 
   return { updated, errors }
 }
 
-function categorize(
+export function categorize(
   tx: { libelle: string | null; notes: string | null; montant: number | null; date: string | null },
   tenants: TenantInfo[],
   guarantors: GuarantorInfo[],
@@ -141,11 +154,12 @@ function categorize(
         description: desc,
         apartment_num: t.apartment_num,
         tenant_name: [t.first_name, t.last_name].filter(Boolean).join(' '),
+        lease_id: t.lease_id,
       }
     }
   }
 
-  // Rule 2: guarantor name match → same apartment as their tenant
+  // Rule 2: guarantor name match → same apartment/lease as their tenant
   for (const g of guarantors) {
     if (!g.last_name || g.last_name.length < 3) continue
     if (haystack.includes(normalize(g.last_name))) {
@@ -155,6 +169,7 @@ function categorize(
         description: null,
         apartment_num: g.apartment_num,
         tenant_name: g.tenant_last_name,
+        lease_id: g.lease_id,
       }
     }
   }
@@ -168,11 +183,12 @@ function categorize(
         description: null,
         apartment_num: null,
         tenant_name: null,
+        lease_id: null,
       }
     }
   }
 
-  return { supplier: null, type: null, description: null, apartment_num: null, tenant_name: null }
+  return { supplier: null, type: null, description: null, apartment_num: null, tenant_name: null, lease_id: null }
 }
 
 // Called when validating a transaction: learn a new mapping if none exists
