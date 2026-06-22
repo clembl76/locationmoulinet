@@ -9,6 +9,7 @@ import DocusignUrls from '@/components/admin/DocusignUrls'
 import PreavisButton from '@/components/admin/PreavisButton'
 import EdlButton from '@/components/admin/EdlButton'
 import ClosingLeaseActions from '@/components/admin/ClosingLeaseActions'
+import EdlEntreeEmailButton from '@/components/admin/EdlEntreeEmailButton'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -204,6 +205,11 @@ export default async function AdminApartmentDetailPage({
                     aptNumber={apt.number}
                     initialValue={apt.lease_insurance_attestation}
                   />
+                  {apt.building_short_name === 'Moulinet' && (
+                    <div className="mt-4">
+                      <EdlEntreeEmailButton tenantEmail={apt.tenant_email} />
+                    </div>
+                  )}
                 </>
               )}
               {isArchived && apt.lease_docusign_lease_url && (

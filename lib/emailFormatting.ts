@@ -96,3 +96,30 @@ export function buildTenantListEmailBody(opts: {
 
   return [tenantBlock(triggerLines, true), '<hr>', ...movingBlocks, ...stableBlocks].join('\n')
 }
+
+// ─── Email — informations d'arrivée après EDL d'entrée (building Moulinet) ───
+
+export const EDL_ENTREE_EMAIL_SUBJECT = 'informations pour votre arrivée dans le logement'
+
+export function buildEdlEntreeEmailBody(): string {
+  return `<p>Bonjour,</p>
+<p>suite à votre état des lieux d'entrée dans l'appartement, voici les informations pratiques pour vous installer.</p>
+<p>Vos contacts pendant toute votre location :</p>
+<ul>
+  <li><strong>Administratif, Loyers, Quittances etc</strong> : Mme ALAOUI par mail location.moulinet@gmail.com ou Whatsapp +33628076729.</li>
+  <li><strong>Pour tout besoin d'intervention sur place, clés, réparations etc</strong> : M. Hervé MICOUT 07 82 95 02 78</li>
+</ul>
+<p>Hors urgences, M. Micout sera joignable du lundi au samedi de 9h à 19h.</p>
+<p><strong>Wifi</strong><br>
+Réseaux SFR_EC4F et SFR_EC4F_5GEXT<br>
+Mot de passe : q3nzn3z9cac1rklz4d8y</p>
+<p>! Si vous souhaitez prendre un abonnement Fibre personnel et que l'appartement n'est pas encore raccordé, vous devez nous prévenir car il faut avoir accès aux placards techniques qui sont cadenassés + il faut vérifier comment le technicien passe ses câbles.</p>
+<p>Les <strong>poubelles</strong> sont à déposer directement dans les bacs dans la rue pour le tout-venant, et sinon à apporter en point de collecte : <a href="https://metropole-rouen-normandie.montri.fr/services/map">https://metropole-rouen-normandie.montri.fr/services/map</a></p>
+<p><strong>Laveries/lavomatic</strong> à proximité :<br>
+75 Rue Beauvoisine<br>
+56 Rue Cauchoise<br>
+16 Rue du Champ des Oiseaux</p>
+<p>Bon emménagement,<br>
+Cdt<br>
+Mme Alaoui</p>`
+}

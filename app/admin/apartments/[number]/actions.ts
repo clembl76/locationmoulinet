@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail, moveTenantFolderToArchive } from '@/lib/quittance'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail, moveTenantFolderToArchive, createGmailDraftEdlEntree } from '@/lib/quittance'
 import { createEdlReport, runSqlAdmin } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -288,6 +288,22 @@ export async function generateAttestationAction(
 
     revalidatePath(`/admin/apartments/${aptNumber}`)
     return { ok: true, filename, draftId }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export type EdlEntreeEmailActionResult =
+  | { ok: true }
+  | { ok: false; error: string }
+
+export async function generateEdlEntreeEmailAction(
+  tenantEmail: string | null
+): Promise<EdlEntreeEmailActionResult> {
+  try {
+    if (!tenantEmail) throw new Error('Email locataire introuvable')
+    await createGmailDraftEdlEntree(tenantEmail)
+    return { ok: true }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }

@@ -21,6 +21,13 @@ gérer l'impression pdf et le "figer pour l'edl d'entrée" ou de sortie
 rebrancher avec les boutons de l'interface.
 bonus : gérer un cout d'inventaire/réparations
 
+il y a encore des choses qui ne fonctionnement pas dans la section Transactions LINXO
+Par ex sur 11 HAMMOUM je vois les transactions de HAMMOUM et MASSON. et sur 11 MASSON je ne vois aucune transaction.
+tu dois bien filtrer les transactions pour ce bail, tu as normalement l'information dans les paiements avec la colonne Locataire. une sugesstion est de changer la référence dans les transactions non plus à un locataire mais à un bail. et cela t'aidera à retrouver les transactions du bail en cours.
+
+Votre code d'accès à l'immeuble :  (cadenas) 35 84 72 91 (cadenas)
+
+Vous trouverez ci_joint votre attestation pour la CAF si vous en avez l'utilité. C'est à vous de faire les démarches directement auprès de la CAF.
 
 
 

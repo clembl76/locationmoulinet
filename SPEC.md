@@ -20,9 +20,12 @@
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-il y a encore des choses qui ne fonctionnement pas dans la section Transactions LINXO
-Par ex sur 11 HAMMOUM je vois les transactions de HAMMOUM et MASSON. et sur 11 MASSON je ne vois aucune transaction.
-tu dois bien filtrer les transactions pour ce bail, tu as normalement l'information dans les paiements avec la colonne Locataire. une sugesstion est de changer la référence dans les transactions non plus à un locataire mais à un bail. et cela t'aidera à retrouver les transactions du bail en cours.
+modifie la facon dont l'email au locataire le jour de signature de l'EDL d'entrée est envoyé : non plus via un cron lorsque la move_in date est atteinte, mais ajoute un bouton "Générer mail arrivée" pour le générer via l'interface en fin du bloc "Bail"
+
+
+
+
+
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 

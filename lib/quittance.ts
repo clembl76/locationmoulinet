@@ -4,7 +4,7 @@ import fs from 'fs'
 import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
-import { buildTenantListEmailBody } from './emailFormatting'
+import { buildTenantListEmailBody, buildEdlEntreeEmailBody, EDL_ENTREE_EMAIL_SUBJECT } from './emailFormatting'
 import { calcProrataBreakdown } from './quittanceUtils'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -1407,6 +1407,31 @@ ${opts.deposit ? `<p>Si tout est ok, votre caution de ${opts.deposit} € vous s
 
   const mime = [
     `To: ${opts.tenantEmail}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/html; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.drafts.create({
+    userId: 'me',
+    requestBody: { message: { raw } },
+  })
+}
+
+// ─── Brouillon Gmail — informations d'arrivée après EDL d'entrée ─────────────
+
+export async function createGmailDraftEdlEntree(tenantEmail: string): Promise<void> {
+  const subject = EDL_ENTREE_EMAIL_SUBJECT
+  const body = buildEdlEntreeEmailBody()
+
+  const mime = [
+    `To: ${tenantEmail}`,
     `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
     `MIME-Version: 1.0`,
     `Content-Type: text/html; charset=UTF-8`,

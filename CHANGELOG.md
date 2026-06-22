@@ -2,6 +2,26 @@
 
 ## [Non publié]
 
+### 2026-06-22 — Remplacement du cron par un bouton "Générer mail arrivée" (SPEC.md §Page Détail d'un appartement /admin/apartments/num)
+- Remplace le déclenchement automatique par cron (entrée CHANGELOG précédente) par une génération manuelle depuis la fiche appartement
+- Supprimés : `app/api/cron/edl-entree-email/route.ts`, `vercel.json`, `supabase/migrations/20260622_lease_edl_entree_email.sql`, et les fonctions `getLeasesNeedingEdlEntreeEmail`/`markEdlEntreeEmailCreated` dans `lib/adminData.ts` — plus de suivi `edl_entree_email_created` en base, le brouillon peut être régénéré à la demande comme pour la quittance et l'attestation de location
+- `app/admin/apartments/[number]/actions.ts` : nouvelle action `generateEdlEntreeEmailAction(tenantEmail)` — crée le brouillon Gmail via `createGmailDraftEdlEntree` (déjà existant dans `lib/quittance.ts`)
+- `components/admin/EdlEntreeEmailButton.tsx` (nouveau, client) : bouton "Générer mail arrivée", désactivé si email locataire manquant, affiche la confirmation "✓ Brouillon Gmail créé"
+- `app/admin/apartments/[number]/page.tsx` : bouton ajouté en fin du bloc "Bail", visible uniquement pour le building **Moulinet** et pour un bail non archivé
+- Tests : `src/components/admin/EdlEntreeEmailButton.test.tsx` (nouveau, 6 tests) — affichage, désactivation sans email, succès, erreur avec nouvelle tentative possible
+- Tests : 327 passés / 0 échoués — Build : OK
+
+### 2026-06-22 — Email automatique "informations d'arrivée" après EDL d'entrée (SPEC.md §Page Détail d'un appartement /admin/apartments/num)
+- `supabase/migrations/20260622_lease_edl_entree_email.sql` (nouveau) : ajout de la colonne `edl_entree_email_created BOOLEAN NOT NULL DEFAULT FALSE` sur `leases`. **Migration à appliquer manuellement sur Supabase.**
+- `lib/emailFormatting.ts` : nouvelles fonctions pures exportées `EDL_ENTREE_EMAIL_SUBJECT` et `buildEdlEntreeEmailBody()` — contenu statique défini dans SPEC.md (contacts, wifi, poubelles, laveries)
+- `lib/quittance.ts` : nouvelle fonction `createGmailDraftEdlEntree(tenantEmail)` — crée un brouillon Gmail (non envoyé) via `gmail.users.drafts.create`
+- `lib/adminData.ts` : nouvelles fonctions `getLeasesNeedingEdlEntreeEmail()` (baux du building Moulinet dont `move_in_inspection_date = CURRENT_DATE` et email pas encore créé) et `markEdlEntreeEmailCreated(leaseId)`
+- `app/api/cron/edl-entree-email/route.ts` (nouveau) : route GET — pour chaque bail éligible, crée le brouillon puis marque le bail traité ; protégée par `CRON_SECRET` si défini
+- `vercel.json` (nouveau) : planning du cron quotidien (`0 6 * * *`) appelant la route ci-dessus — **nécessite que la variable d'env `CRON_SECRET` soit définie sur le projet Vercel**
+- `src/lib/edlEntreeEmail.test.ts` (nouveau) : 8 tests sur `buildEdlEntreeEmailBody()` et `EDL_ENTREE_EMAIL_SUBJECT`
+- Tests : 321 passés / 0 échoués — Build : OK
+- **Action manuelle requise après déploiement** : appliquer la migration Supabase, définir `CRON_SECRET` dans les variables d'environnement Vercel, vérifier l'activation du cron (Vercel Hobby : 1 exécution par jour max)
+
 ### 2026-06-19 — Filtrage Linxo par lease_id (SPEC.md §Page Détail d'un appartement /admin/apartments/num)
 - `supabase/migrations/20260619_linxo_lease_id.sql` (nouveau) : ajout de la colonne `lease_id UUID REFERENCES leases(id)` sur `transactions_linxo`. **Migration à appliquer manuellement sur Supabase.**
 - `scripts/backfill_linxo_lease_id.sql` (nouveau) : UPDATE de rétrobackfill — lie les transactions existantes à leur bail en matchant `apartment_num` + plage de dates (`signing_date <= date <= move_out_inspection_date`). À exécuter après la migration.
