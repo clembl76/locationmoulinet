@@ -2,6 +2,25 @@
 
 ## [Non publié]
 
+### 2026-06-22 — Recalibrage précis du PDF CERFA + ajustements texte (retour utilisateur sur un cas réel)
+- `lib/quittance.ts` : coordonnées de `generateAttestationLoyerCafPdf` entièrement recalculées à partir des positions exactes extraites du flux du gabarit (et non plus d'une estimation visuelle) — toutes les croix de case à cocher tombent désormais précisément dans leur case (chambre, colocation, à jour, sous-location, hôtel, décence), et chaque texte est positionné au-dessus de sa ligne continue avec une légère marge
+- `lib/quittance.ts` : objet de l'email simplifié en "Attestation de loyer CAF - Appartement {n}" (suppression de "/MSA"), corps simplifié ("... à destination de la CAF.")
+- `components/admin/AttestationLoyerCafButton.tsx` : libellé du bouton renommé en "Attestation CAF"
+- Tests : `src/components/admin/AttestationLoyerCafButton.test.tsx` mis à jour avec le nouveau libellé — 333 passés / 0 échoué — Build : OK
+
+### 2026-06-22 — Génération de l'attestation de loyer CAF/MSA (CERFA 10842*07)
+- `lib/templates/attestation-loyer-cerfa.pdf` (nouveau) : gabarit officiel CERFA, formulaire plat sans champs AcroForm
+- `supabase/migrations/20260622_owners_siret.sql` (nouveau) : ajout de la colonne `siret TEXT` sur `owners`. **Migration à appliquer manuellement sur Supabase.**
+- `lib/quittance.ts` : nouvelle section "Attestation de loyer CAF/MSA" — `getAttestationLoyerCafData(leaseId, tenantIsUpToDate)` (lecture bailleur/locataire/logement, `owner_siret` en best-effort si migration non appliquée), `generateAttestationLoyerCafPdf(data)` (surimpression sur le gabarit via `pdf-lib`, coordonnées calibrées manuellement à partir d'une grille de test ; signature du bailleur réutilisée selon le building comme pour la quittance de caution), `createGmailDraftAttestationLoyerCaf(data, pdfBytes, filename)` (brouillon Gmail avec PDF en pièce jointe, jamais envoyé directement)
+- `app/admin/apartments/[number]/actions.ts` : nouvelle action `generateAttestationLoyerCafAction(leaseId, aptNumber, tenantIsUpToDate)`
+- `components/admin/AttestationLoyerCafButton.tsx` (nouveau, client) : bouton "Attestation de loyer CAF/MSA", remplace le placeholder désactivé "Attestation CAF"
+- `app/admin/apartments/[number]/page.tsx` : bouton intégré au bloc "Documents", `tenantIsUpToDate` dérivé du même calcul que pour l'attestation de location (`!isUnpaid`)
+- Champs pré-remplis automatiquement : identité bailleur (nom, adresse, téléphone, email, SIRET — table `owners`), identité locataire, date et mois d'entrée, adresse du logement, surface, loyer (sections "mois d'entrée" et "mois de juillet", valeurs identiques), statut "à jour des loyers"
+- Cases à réponse fixe (toujours identiques pour ces studios meublés à locataire unique) : chambre = non, colocation = non, sous-location = non, hôtel/pension = non, décence = oui
+- Tests : `src/components/admin/AttestationLoyerCafButton.test.tsx` (nouveau, 6 tests)
+- Tests : 333 passés / 0 échoués — Build : OK
+- **Action manuelle requise** : appliquer la migration `20260622_owners_siret.sql`, puis renseigner `personal_address`, `phone`, `email` et `siret` sur la table `owners` si pas déjà fait
+
 ### 2026-06-22 — Remplacement du cron par un bouton "Générer mail arrivée" (SPEC.md §Page Détail d'un appartement /admin/apartments/num)
 - Remplace le déclenchement automatique par cron (entrée CHANGELOG précédente) par une génération manuelle depuis la fiche appartement
 - Supprimés : `app/api/cron/edl-entree-email/route.ts`, `vercel.json`, `supabase/migrations/20260622_lease_edl_entree_email.sql`, et les fonctions `getLeasesNeedingEdlEntreeEmail`/`markEdlEntreeEmailCreated` dans `lib/adminData.ts` — plus de suivi `edl_entree_email_created` en base, le brouillon peut être régénéré à la demande comme pour la quittance et l'attestation de location

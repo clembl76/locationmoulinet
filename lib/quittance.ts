@@ -574,6 +574,217 @@ export async function createGmailDraftAttestation(
   return draft.data.id ?? ''
 }
 
+// ─── Attestation de loyer CAF/MSA (CERFA 10842*07) ───────────────────────────
+// Surimpression sur le gabarit officiel (lib/templates/attestation-loyer-cerfa.pdf),
+// formulaire plat sans champs AcroForm — coordonnées calibrées manuellement.
+
+export type AttestationLoyerCafData = {
+  owner_title: string | null
+  owner_first_name: string
+  owner_last_name: string
+  owner_address: string | null
+  owner_phone: string | null
+  owner_email: string | null
+  owner_siret: string | null
+  tenant_title: string | null
+  tenant_last_name: string
+  tenant_first_name: string
+  tenant_email: string | null
+  building_address: string
+  building_short_name: string
+  apartment_number: string
+  surface_area: number | null
+  move_in_date: string | null
+  rent_excluding_charges: number
+  charges: number
+  rent_including_charges: number
+  tenant_is_up_to_date: boolean
+}
+
+export async function getAttestationLoyerCafData(
+  leaseId: string,
+  tenantIsUpToDate: boolean
+): Promise<AttestationLoyerCafData | null> {
+  const rows = await runSqlAdmin<Omit<AttestationLoyerCafData, 'owner_siret' | 'tenant_is_up_to_date'>>(`
+    SELECT DISTINCT ON (l.id)
+      o.title              AS owner_title,
+      o.first_name         AS owner_first_name,
+      o.last_name          AS owner_last_name,
+      o.personal_address   AS owner_address,
+      o.phone              AS owner_phone,
+      o.email              AS owner_email,
+      t.title              AS tenant_title,
+      t.last_name          AS tenant_last_name,
+      t.first_name         AS tenant_first_name,
+      t.email              AS tenant_email,
+      b.address            AS building_address,
+      b.short_name         AS building_short_name,
+      a.number             AS apartment_number,
+      a.surface_area,
+      l.move_in_inspection_date::text AS move_in_date,
+      a.rent_excluding_charges,
+      a.charges,
+      a.rent_including_charges
+    FROM leases l
+    JOIN apartments a     ON a.id = l.apartment_id
+    JOIN buildings b      ON b.id = a.building_id
+    JOIN owners o         ON o.id = b.owner_id
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t        ON t.id = lt.tenant_id
+    WHERE l.id = '${leaseId}'
+    ORDER BY l.id, t.last_name
+    LIMIT 1
+  `)
+  if (!rows[0]) return null
+
+  // siret ajouté par une migration ultérieure — best-effort
+  const siretRows = await runSqlAdmin<{ owner_siret: string | null }>(`
+    SELECT o.siret AS owner_siret
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN buildings b  ON b.id = a.building_id
+    JOIN owners o     ON o.id = b.owner_id
+    WHERE l.id = '${leaseId}'
+    LIMIT 1
+  `).catch(() => [] as { owner_siret: string | null }[])
+
+  return {
+    ...rows[0],
+    owner_siret: siretRows[0]?.owner_siret ?? null,
+    tenant_is_up_to_date: tenantIsUpToDate,
+  }
+}
+
+export async function generateAttestationLoyerCafPdf(
+  data: AttestationLoyerCafData
+): Promise<{ pdfBytes: Uint8Array; filename: string }> {
+  const today = new Date()
+  const nom = data.tenant_last_name.toUpperCase()
+  const prenom = data.tenant_first_name
+  const titleRaw = (data.tenant_title ?? '').toUpperCase().replace('.', '')
+  const civilite = ['M', 'MR', 'MONSIEUR'].includes(titleRaw) ? 'M.' : 'Mme'
+
+  const ownerDisplay = `${data.owner_title ?? ''} ${data.owner_first_name} ${data.owner_last_name.toUpperCase()}`.trim()
+
+  let moveInDateStr = ''
+  let moisEntree = ''
+  if (data.move_in_date) {
+    const d = new Date(data.move_in_date + 'T00:00:00Z')
+    moveInDateStr = `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`
+    moisEntree = `${MOIS_FR[d.getUTCMonth() + 1]} ${d.getUTCFullYear()}`
+  }
+
+  const filename = `${today.getFullYear()}-${pad(today.getMonth() + 1)}_AttestationLoyerCAF_${data.apartment_number}-${nom}.pdf`
+
+  const templatePath = path.join(process.cwd(), 'lib', 'templates', 'attestation-loyer-cerfa.pdf')
+  const templateBytes = fs.readFileSync(templatePath)
+  const pdfDoc = await PDFDocument.load(templateBytes)
+  const page = pdfDoc.getPage(0)
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+
+  const draw = (text: string, x: number, y: number, size = 8) =>
+    page.drawText(text, { x, y, size, font, color: rgb(0, 0, 0.55) })
+  const drawX = (x: number, y: number) =>
+    page.drawText('X', { x, y, size: 9, font: fontBold, color: rgb(0, 0, 0.55) })
+
+  draw(ownerDisplay, 400, 719)
+  if (data.owner_address) draw(data.owner_address, 80, 706.5)
+  if (data.owner_phone) draw(data.owner_phone, 112, 693.5)
+  if (data.owner_email) draw(data.owner_email, 320, 680.5)
+  if (data.owner_siret) draw(data.owner_siret, 85, 667.5)
+
+  draw(`${civilite} ${prenom} ${nom}`, 240, 654.5, 7)
+  draw(moveInDateStr, 188, 641.5)
+  draw(`Appartement n°${data.apartment_number}, ${data.building_address}`, 35, 628.5)
+
+  drawX(286, 613.5) // chambre : non
+  if (data.surface_area != null) draw(String(data.surface_area), 240, 602.5)
+  drawX(273, 587.5) // colocation : non
+
+  draw(moisEntree, 315, 563.5)
+  draw(data.rent_excluding_charges.toFixed(2), 160, 550.5)
+  draw(data.charges.toFixed(2), 302, 550.5)
+  draw(data.rent_including_charges.toFixed(2), 500, 550.5)
+
+  draw(String(today.getFullYear()), 245, 524.5)
+  draw(data.rent_excluding_charges.toFixed(2), 160, 511.5)
+  draw(data.charges.toFixed(2), 302, 511.5)
+  draw(data.rent_including_charges.toFixed(2), 500, 511.5)
+
+  drawX(data.tenant_is_up_to_date ? 357 : 393, 496.5) // à jour : oui/non
+
+  drawX(203, 470.5) // sous-location : non
+  drawX(276, 444.5) // hôtel/pension de famille : non
+  drawX(363, 301.5) // décence : oui
+
+  draw('Rouen', 55, 189, 9)
+  draw(`${pad(today.getDate())}/${pad(today.getMonth() + 1)}/${today.getFullYear()}`, 215, 189, 9)
+
+  const sigFile = data.building_short_name === 'Vieux Palais'
+    ? 'signature-francois.png'
+    : 'signature-alaouimhammedi.png'
+  const sigPath = path.join(process.cwd(), 'lib', 'signatures', sigFile)
+  if (fs.existsSync(sigPath)) {
+    const sigBytes = fs.readFileSync(sigPath)
+    const sigImage = await pdfDoc.embedPng(sigBytes)
+    const sigWidthPt = 100
+    const sigHeightPt = sigWidthPt * (sigImage.height / sigImage.width)
+    page.drawImage(sigImage, { x: 450, y: 156, width: sigWidthPt, height: sigHeightPt })
+  }
+
+  const pdfBytes = await pdfDoc.save()
+  return { pdfBytes, filename }
+}
+
+export async function createGmailDraftAttestationLoyerCaf(
+  data: AttestationLoyerCafData,
+  pdfBytes: Uint8Array,
+  filename: string
+): Promise<string> {
+  const to = data.tenant_email ?? ''
+  const subject = `Attestation de loyer CAF - Appartement ${data.apartment_number}`
+  const body =
+    `Bonjour,\n\n` +
+    `Vous trouverez ci-joint votre attestation de loyer à destination de la CAF.\n\n` +
+    `Cordialement,\n` +
+    `Madame Clémentine ALAOUI M'HAMMEDI`
+
+  const boundary = `----=_boundary_${Date.now()}`
+  const pdfBase64 = Buffer.from(pdfBytes).toString('base64')
+
+  const mime = [
+    `To: ${to}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/plain; charset="utf-8"`,
+    `Content-Transfer-Encoding: quoted-printable`,
+    ``,
+    body,
+    ``,
+    `--${boundary}`,
+    `Content-Type: application/pdf`,
+    `Content-Transfer-Encoding: base64`,
+    `Content-Disposition: attachment; filename="${filename}"`,
+    ``,
+    pdfBase64,
+    ``,
+    `--${boundary}--`,
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  const draft = await gmail.users.drafts.create({
+    userId: 'me',
+    requestBody: { message: { raw } },
+  })
+  return draft.data.id ?? ''
+}
+
 // ─── Google auth (Drive + Calendar + Gmail) ──────────────────────────────────
 // GMAIL_REFRESH_TOKEN couvre les 3 scopes : drive, calendar, gmail.compose
 

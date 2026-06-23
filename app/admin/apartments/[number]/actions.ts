@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail, moveTenantFolderToArchive, createGmailDraftEdlEntree } from '@/lib/quittance'
+import { getQuittanceData, generateQuittancePdf, createGmailDraft, getQuittanceCautionData, generateQuittanceCautionPdf, createGmailDraftCaution, getAttestationData, generateAttestationPdf, createGmailDraftAttestation, createCalendarPreavisEvent, createGmailDraftPreavis, sendTenantListEmail, moveTenantFolderToArchive, createGmailDraftEdlEntree, getAttestationLoyerCafData, generateAttestationLoyerCafPdf, createGmailDraftAttestationLoyerCaf } from '@/lib/quittance'
 import { createEdlReport, runSqlAdmin } from '@/lib/adminData'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -285,6 +285,25 @@ export async function generateAttestationAction(
 
     const { pdfBytes, filename } = await generateAttestationPdf(data)
     const draftId = await createGmailDraftAttestation(data, pdfBytes, filename)
+
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true, filename, draftId }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function generateAttestationLoyerCafAction(
+  leaseId: string,
+  aptNumber: string,
+  tenantIsUpToDate: boolean
+): Promise<QuittanceActionResult> {
+  try {
+    const data = await getAttestationLoyerCafData(leaseId, tenantIsUpToDate)
+    if (!data) throw new Error('Données du bail introuvables')
+
+    const { pdfBytes, filename } = await generateAttestationLoyerCafPdf(data)
+    const draftId = await createGmailDraftAttestationLoyerCaf(data, pdfBytes, filename)
 
     revalidatePath(`/admin/apartments/${aptNumber}`)
     return { ok: true, filename, draftId }

@@ -10,6 +10,7 @@ import PreavisButton from '@/components/admin/PreavisButton'
 import EdlButton from '@/components/admin/EdlButton'
 import ClosingLeaseActions from '@/components/admin/ClosingLeaseActions'
 import EdlEntreeEmailButton from '@/components/admin/EdlEntreeEmailButton'
+import AttestationLoyerCafButton from '@/components/admin/AttestationLoyerCafButton'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -17,18 +18,6 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
       <span className="text-sm text-gray-500">{label}</span>
       <span className="text-sm font-medium text-gray-900">{value ?? '—'}</span>
     </div>
-  )
-}
-
-function DisabledBtn({ children }: { children: React.ReactNode }) {
-  return (
-    <button
-      disabled
-      className="w-full text-left text-sm px-3 py-2 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed"
-      title="Bientôt disponible"
-    >
-      {children}
-    </button>
   )
 }
 
@@ -441,7 +430,11 @@ export default async function AdminApartmentDetailPage({
                 aptNumber={apt.number}
                 hasUnpaidRent={isUnpaid}
               />
-              <DisabledBtn>Attestation CAF</DisabledBtn>
+              <AttestationLoyerCafButton
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                tenantIsUpToDate={!isUnpaid}
+              />
             </div>
           )}
         </div>
