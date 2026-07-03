@@ -6,7 +6,7 @@ import type { CandidateApartment } from '@/lib/adminData'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PHONE_RE = /^(\+33|0033|0)[1-9](\s?\d{2}){4}$/
+const PHONE_RE = /^(\+33|0033|0)[\s.-]?[1-9]([\s.-]?\d{2}){4}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DEFAULT_BIRTH_DATE = '2000-01-01'
 const MAX_FILES = 5
@@ -659,6 +659,17 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
       {result && !result.ok && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
           {result.error}
+        </div>
+      )}
+
+      {/* ── Résumé des conditions manquantes ─────────────────────────────── */}
+      {!canSubmit && !pending && (
+        <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-0.5">
+          <p className="font-semibold mb-1">Pour activer le bouton d'envoi :</p>
+          {!desiredDate && <p>• Renseignez la date de début souhaitée</p>}
+          {!selectedAptId && <p>• Sélectionnez un appartement</p>}
+          {hasGuarantor === null && <p>• Précisez si vous avez un garant (Oui / Non)</p>}
+          {hasErrors && <p>• Corrigez les erreurs dans les champs email ou téléphone</p>}
         </div>
       )}
 

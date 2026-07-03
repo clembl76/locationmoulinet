@@ -107,12 +107,61 @@ describe('CandidateForm — validation email/téléphone', () => {
     expect(screen.queryByText(/adresse email invalide/i)).not.toBeInTheDocument()
   })
 
-  it("accepte un téléphone français valide", async () => {
+  it("accepte un téléphone français valide sans séparateur", async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    const telInput = document.querySelector('input[type="tel"]') as HTMLInputElement
+    await user.type(telInput, '0637043855')
+    await user.tab()
+    expect(screen.queryByText(/format invalide/i)).not.toBeInTheDocument()
+  })
+
+  it("accepte un téléphone avec espaces", async () => {
     const user = userEvent.setup()
     render(<CandidateForm apartments={mockApartments} />)
     const telInput = document.querySelector('input[type="tel"]') as HTMLInputElement
     await user.type(telInput, '06 12 34 56 78')
     await user.tab()
     expect(screen.queryByText(/format invalide/i)).not.toBeInTheDocument()
+  })
+
+  it("accepte un téléphone avec tirets (format iOS)", async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    const telInput = document.querySelector('input[type="tel"]') as HTMLInputElement
+    await user.type(telInput, '06-37-04-38-55')
+    await user.tab()
+    expect(screen.queryByText(/format invalide/i)).not.toBeInTheDocument()
+  })
+
+  it("accepte un téléphone avec points", async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    const telInput = document.querySelector('input[type="tel"]') as HTMLInputElement
+    await user.type(telInput, '06.37.04.38.55')
+    await user.tab()
+    expect(screen.queryByText(/format invalide/i)).not.toBeInTheDocument()
+  })
+})
+
+describe('CandidateForm — message aide bouton désactivé', () => {
+  it("affiche le message d'aide quand le bouton est désactivé", () => {
+    render(<CandidateForm apartments={mockApartments} />)
+    expect(screen.getByText(/pour activer le bouton d'envoi/i)).toBeInTheDocument()
+  })
+
+  it("mentionne la date manquante quand le formulaire est vide", () => {
+    render(<CandidateForm apartments={mockApartments} />)
+    expect(screen.getByText(/renseignez la date de début/i)).toBeInTheDocument()
+  })
+
+  it("mentionne l'appartement manquant quand le formulaire est vide", () => {
+    render(<CandidateForm apartments={mockApartments} />)
+    expect(screen.getByText(/sélectionnez un appartement/i)).toBeInTheDocument()
+  })
+
+  it("mentionne la question garant manquante quand le formulaire est vide", () => {
+    render(<CandidateForm apartments={mockApartments} />)
+    expect(screen.getByText(/précisez si vous avez un garant/i)).toBeInTheDocument()
   })
 })

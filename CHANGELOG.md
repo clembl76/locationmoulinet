@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-07-03 — Formulaire candidature : regex téléphone + message d'aide bouton désactivé
+- `components/CandidateForm.tsx` : regex téléphone étendue pour accepter les formats avec tirets (`06-37-04-38-55`) et points (`06.37.04.38.55`) qu'iOS peut générer via l'autofill ou la saisie de contacts
+- `components/CandidateForm.tsx` : ajout d'un encadré orange visible au-dessus du bouton "Envoyer ma candidature" listant exactement les conditions non remplies (date, appartement, garant, erreur de format) — plus de bouton grisé sans explication
+- `src/components/CandidateForm.test.tsx` : 7 tests ajoutés (formats téléphone tirets/points/sans séparateur, message d'aide et ses conditions)
+
 ### 2026-06-22 — Recalibrage précis du PDF CERFA + ajustements texte (retour utilisateur sur un cas réel)
 - `lib/quittance.ts` : coordonnées de `generateAttestationLoyerCafPdf` entièrement recalculées à partir des positions exactes extraites du flux du gabarit (et non plus d'une estimation visuelle) — toutes les croix de case à cocher tombent désormais précisément dans leur case (chambre, colocation, à jour, sous-location, hôtel, décence), et chaque texte est positionné au-dessus de sa ligne continue avec une légère marge
 - `lib/quittance.ts` : objet de l'email simplifié en "Attestation de loyer CAF - Appartement {n}" (suppression de "/MSA"), corps simplifié ("... à destination de la CAF.")
