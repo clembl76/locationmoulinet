@@ -5,7 +5,7 @@ import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
 import { buildTenantListEmailBody, buildEdlEntreeEmailBody, EDL_ENTREE_EMAIL_SUBJECT } from './emailFormatting'
-import { calcProrataBreakdown } from './quittanceUtils'
+import { calcProrataBreakdown, fmtShortDate } from './quittanceUtils'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -1261,14 +1261,17 @@ export async function moveCandidateFolderToTenants(opts: {
 //
 // Placeholders dans les templates (format {{champ}}) lus depuis Google Docs :
 //   {{type_contrat}} {{residence}} {{num_appt}} {{etage}} {{start_date}} {{end_date}} {{duree_bail}}
+//   {{adresse_logement}}
+//   {{civilite_bailleur}} {{prenom_bailleur}} {{nom_bailleur}} {{adresse_bailleur}}
 //   {{civilite}} {{nom}} {{prenom}} {{etat_civil}} {{date_naissance}} {{lieu_naissance}}
 //   {{adresse}} {{telephone}} {{email}} {{surface}} {{description_appartement}}
+//   {{chaudiere_compteurs}} {{equipements_tech}}
 //   {{loyerhcchiffres}} {{loyerhclettres}} {{chargeschiffres}} {{chargeslettres}}
 //   {{cautionchiffres}} {{cautionlettres}} {{irl_date}} {{irl_value}}
 //   (avec garant) : {{civilite_garant}} {{nom_garant}} {{prenom_garant}} {{adresse_garant}}
 //                   {{loyerccchiffres}} {{loyercclettres}}
 //
-// IRL : récupéré automatiquement depuis l'API INSEE (fallback : BAIL_IRL_DATE / BAIL_IRL_VALUE dans .env.local)
+// IRL : utilise BAIL_IRL_DATE / BAIL_IRL_VALUE si définis dans .env, sinon appel API INSEE
 // IDs templates (surchargeables via GDOCS_BAIL_SANS_GARANT_ID / GDOCS_BAIL_AVEC_GARANT_ID) :
 const BAIL_TEMPLATE_SANS_GARANT = process.env.GDOCS_BAIL_SANS_GARANT_ID ?? '1AAXh1epC9e1sK1AGjGFmeCfL2FVVP2RiFba76RK4bOw'
 const BAIL_TEMPLATE_AVEC_GARANT = process.env.GDOCS_BAIL_AVEC_GARANT_ID ?? '1B4s9FYNebcF2R9Tzr7xbh-mgK4p8l-DetMVSZ9GVFWU'
@@ -1279,6 +1282,7 @@ function fmtFrDate(iso: string | null): string {
     day: 'numeric', month: 'long', year: 'numeric',
   })
 }
+
 
 // Conversion nombre entier → lettres françaises (pour les montants de loyer)
 function nombreEnLettres(n: number): string {
@@ -1380,20 +1384,59 @@ export async function generateBailAndUploadToDrive(opts: {
     floor_label: string | null
     building_address: string
     description: string | null
+    owner_title: string | null
+    owner_first_name: string | null
+    owner_last_name: string | null
+    owner_address: string | null
+    owner_phone: string | null
+    owner_email: string | null
   }
   const aptRows = await runSqlAdmin<AptRow>(`
     SELECT a.type AS apt_type, a.surface_area, a.floor_label, b.address AS building_address,
-           a.description
+           a.description,
+           o.title            AS owner_title,
+           o.first_name       AS owner_first_name,
+           o.last_name        AS owner_last_name,
+           o.personal_address AS owner_address,
+           o.phone            AS owner_phone,
+           o.email            AS owner_email
     FROM apartments a
     JOIN buildings b ON b.id = a.building_id
+    LEFT JOIN owners o ON o.id = b.owner_id
     WHERE a.number = '${opts.aptNumber}'
     LIMIT 1
   `)
   const apt = aptRows[0]
   if (!apt) throw new Error(`Appartement ${opts.aptNumber} introuvable pour la génération du bail`)
 
+  // Données d'état civil du bailleur (colonnes ajoutées par migration 20260703)
+  // Résilient si la migration n'a pas encore été appliquée.
+  let ownerEtatCivil: string | null = null
+  let ownerBirthDate: string | null = null
+  let ownerBirthPlace: string | null = null
+  try {
+    type ExtRow = { etat_civil: string | null; birth_date: string | null; birth_place: string | null }
+    const extRows = await runSqlAdmin<ExtRow>(`
+      SELECT o.etat_civil, o.birth_date::text AS birth_date, o.birth_place
+      FROM apartments a
+      JOIN buildings b ON b.id = a.building_id
+      LEFT JOIN owners o ON o.id = b.owner_id
+      WHERE a.number = '${opts.aptNumber}'
+      LIMIT 1
+    `)
+    if (extRows[0]) {
+      ownerEtatCivil = extRows[0].etat_civil
+      ownerBirthDate = extRows[0].birth_date
+      ownerBirthPlace = extRows[0].birth_place
+    }
+  } catch {
+    // Colonnes pas encore migrées — on continue sans ces données
+  }
+  const ownerNee = apt.owner_title === 'M.' ? 'né' : 'née'
+
   // 2. Champs calculés
   const r = (v: string | null | undefined) => v ?? ''
+  const ownerFullName = `${r(apt.owner_first_name)} ${apt.owner_last_name ? apt.owner_last_name.toUpperCase() : ''}`.trim()
   const rentHC    = opts.rentHC    ?? 0
   const charges   = opts.charges   ?? 0
   const deposit   = opts.deposit   ?? 0
@@ -1402,11 +1445,23 @@ export async function generateBailAndUploadToDrive(opts: {
     // Bail
     type_contrat:              'Classique',
     residence:                 'Principale',
-    num_appt:                  opts.aptNumber,
+    num_appt:                  opts.aptNumber === '1000' ? '' : opts.aptNumber,
     etage:                     r(apt.floor_label),
     start_date:                fmtFrDate(opts.signingDate),
     end_date:                  fmtFrDate(opts.endDate),
     duree_bail:                '1 an',
+    // Logement
+    adresse_logement:          apt.building_address,
+    // Bailleur (owner de l'immeuble)
+    civilite_bailleur:         r(apt.owner_title),
+    prenom_bailleur:           r(apt.owner_first_name),
+    nom_bailleur:              apt.owner_last_name ? apt.owner_last_name.toUpperCase() : '',
+    adresse_bailleur:          r(apt.owner_address),
+    etat_civil_bailleur:       ownerEtatCivil ?? '',
+    naissance_bailleur:        ownerBirthDate && ownerBirthPlace
+                                 ? `${ownerNee} le ${fmtShortDate(ownerBirthDate)} à ${ownerBirthPlace}`
+                                 : '',
+    signature_bailleur:        `${r(apt.owner_title)} ${ownerFullName}`.trim(),
     // Locataire
     civilite:                  r(opts.tenantTitle),
     nom:                       opts.tenantLastName.toUpperCase(),
@@ -1420,6 +1475,9 @@ export async function generateBailAndUploadToDrive(opts: {
     // Appartement
     surface:                   apt.surface_area != null ? String(apt.surface_area) : '',
     description_appartement:   r(apt.description),
+    // Équipements — remplacent les paragraphes correspondants dans le template
+    chaudiere_compteurs:       'Le bien est équipé d\'un système de production de chauffage individuel à l\'électricité.\nLe bien est équipé d\'un système de production d\'eau chaude sanitaire individuel à l\'électricité.\nLa répartition de la consommation du locataire se fera de la manière suivante : Forfait de charges incluant l\'eau froide, les charges de syndic imputables au locataire et la taxe d\'ordures ménagères.',
+    equipements_tech:          'Fibre optique\nL\'immeuble est soumis au statut de la copropriété.',
     // Montants (chiffres)
     loyerhcchiffres:           String(rentHC),
     chargeschiffres:           String(charges),
@@ -1430,7 +1488,7 @@ export async function generateBailAndUploadToDrive(opts: {
     chargeslettres:            montantEnLettres(charges),
     cautionlettres:            montantEnLettres(deposit),
     loyercclettres:            montantEnLettres(opts.rentCC),
-    // IRL — valeurs remplies après appel INSEE ci-dessous
+    // IRL — rempli ci-dessous
     irl_date:                  '',
     irl_value:                 '',
     // Garant
@@ -1440,14 +1498,19 @@ export async function generateBailAndUploadToDrive(opts: {
     adresse_garant:            r(opts.guarantorAddress),
   }
 
-  // 2b. IRL depuis INSEE (fallback : variables d'env)
-  try {
-    const irl = await fetchIrlFromInsee()
-    replacements.irl_date  = irl.date
-    replacements.irl_value = irl.value
-  } catch {
-    replacements.irl_date  = process.env.BAIL_IRL_DATE  ?? ''
-    replacements.irl_value = process.env.BAIL_IRL_VALUE ?? ''
+  // 2b. IRL : variables d'env prioritaires (valeur fixée), sinon appel INSEE
+  if (process.env.BAIL_IRL_DATE && process.env.BAIL_IRL_VALUE) {
+    replacements.irl_date  = process.env.BAIL_IRL_DATE
+    replacements.irl_value = process.env.BAIL_IRL_VALUE
+  } else {
+    try {
+      const irl = await fetchIrlFromInsee()
+      replacements.irl_date  = irl.date
+      replacements.irl_value = irl.value
+    } catch {
+      replacements.irl_date  = ''
+      replacements.irl_value = ''
+    }
   }
 
   const auth = makeGoogleAuth()
@@ -1463,16 +1526,51 @@ export async function generateBailAndUploadToDrive(opts: {
   const tempId = copyRes.data.id!
 
   try {
-    // 4. Remplacement des champs {{champ}} via Docs API
+    // 4. Remplacement des champs {{champ}} + texte hardcodé du template via Docs API
+    //
+    // Le template Google Docs contient des données de Clémentine ALAOUI M'HAMMEDI hardcodées
+    // (adresse "9 rue du Moulinet", nom, état civil, téléphone, email).
+    // replaceAllText cible le texte exact pour remplacer par les données de l'owner en DB.
     await docs.documents.batchUpdate({
       documentId: tempId,
       requestBody: {
-        requests: Object.entries(replacements).map(([key, value]) => ({
-          replaceAllText: {
-            containsText: { text: `{{${key}}}`, matchCase: true },
-            replaceText: value,
+        requests: [
+          // Placeholders {{champ}}
+          ...Object.entries(replacements).map(([key, value]) => ({
+            replaceAllText: {
+              containsText: { text: `{{${key}}}`, matchCase: true },
+              replaceText: value,
+            },
+          })),
+          // Adresse immeuble (hardcodée "9 rue du Moulinet" dans le template)
+          {
+            replaceAllText: {
+              containsText: { text: '9 rue du Moulinet', matchCase: true },
+              replaceText: apt.building_address,
+            },
           },
-        })),
+          // Nom du bailleur (hardcodé "Clémentine ALAOUI M'HAMMEDI")
+          {
+            replaceAllText: {
+              containsText: { text: "Clémentine ALAOUI M'HAMMEDI", matchCase: true },
+              replaceText: ownerFullName,
+            },
+          },
+          // Téléphone bailleur (hardcodé "06 28 07 67 29")
+          {
+            replaceAllText: {
+              containsText: { text: '06 28 07 67 29', matchCase: true },
+              replaceText: r(apt.owner_phone),
+            },
+          },
+          // Email bailleur (hardcodé "location.moulinet@gmail.com")
+          {
+            replaceAllText: {
+              containsText: { text: 'location.moulinet@gmail.com', matchCase: true },
+              replaceText: r(apt.owner_email),
+            },
+          },
+        ],
       },
     })
 

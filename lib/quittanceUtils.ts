@@ -1,5 +1,12 @@
 // Fonctions pures pour le calcul des quittances — sans dépendances externes
 
+/** Formate une date ISO "YYYY-MM-DD" en "DD/MM/YYYY" (pour les actes officiels). */
+export function fmtShortDate(iso: string | null): string {
+  if (!iso) return ''
+  const [year, month, day] = iso.split('-')
+  return `${day}/${month}/${year}`
+}
+
 /**
  * Calcule la répartition loyer HC / charges pour une quittance (pleine ou prorata).
  * Garantit que loyerHc + charges == amountReceived (arrondi centième).

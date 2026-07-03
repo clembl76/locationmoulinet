@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcProrataBreakdown } from '@/lib/quittanceUtils'
+import { calcProrataBreakdown, fmtShortDate } from '@/lib/quittanceUtils'
 
 describe('calcProrataBreakdown', () => {
   it('cas plein (pas de prorata) : répartit exactement loyer HC + charges', () => {
@@ -53,5 +53,21 @@ describe('calcProrataBreakdown', () => {
     const { loyerHc, charges } = calcProrataBreakdown(0, 385, 485)
     expect(loyerHc).toBe(0)
     expect(charges).toBe(0)
+  })
+})
+
+describe('fmtShortDate', () => {
+  it('formate une date ISO YYYY-MM-DD en DD/MM/YYYY', () => {
+    expect(fmtShortDate('1983-08-02')).toBe('02/08/1983')
+    expect(fmtShortDate('1954-02-10')).toBe('10/02/1954')
+    expect(fmtShortDate('2026-07-06')).toBe('06/07/2026')
+  })
+
+  it('retourne une chaîne vide pour null', () => {
+    expect(fmtShortDate(null)).toBe('')
+  })
+
+  it('conserve les zéros de padding du mois et du jour', () => {
+    expect(fmtShortDate('2024-01-05')).toBe('05/01/2024')
   })
 })

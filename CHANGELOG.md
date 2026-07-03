@@ -2,6 +2,42 @@
 
 ## [Non publié]
 
+### 2026-07-03 — Bail : placeholders état civil bailleur
+- `lib/quittance.ts` — `generateBailAndUploadToDrive` :
+  - 2 nouveaux placeholders `{{etat_civil_bailleur}}` et `{{naissance_bailleur}}` dans le dict `replacements`
+  - `ownerNee` ("né"/"née" selon le titre de l'owner) calculé avant le dict pour alimenter `naissance_bailleur`
+  - Suppression du raw text replacement combiné "Mariée née le 02/08/1983 à Paris 15e" (remplacé par les 2 placeholders qui fonctionnent sur des lignes séparées)
+- **Mise à jour requise dans les 2 templates Google Docs** : remplacer `Mariée` par `{{etat_civil_bailleur}}` et `née le 02/08/1983 à Paris 15e` par `{{naissance_bailleur}}`
+
+### 2026-07-03 — Bouton "Générer mail arrivée" étendu à tous les bâtiments
+- `app/admin/apartments/[number]/page.tsx` : suppression de la condition `building_short_name === 'Moulinet'` — le bouton `EdlEntreeEmailButton` est maintenant visible pour tous les appartements occupés (non archivés), quel que soit le bâtiment
+
+### 2026-07-03 — Génération du bail : remplacement du texte hardcodé du template (owner réel, adresse bâtiment)
+- `lib/quittanceUtils.ts` : ajout de `fmtShortDate(iso)` (YYYY-MM-DD → DD/MM/YYYY) exportée et testée
+- `lib/quittance.ts` — `generateBailAndUploadToDrive` :
+  - Import de `fmtShortDate` depuis `quittanceUtils`
+  - Requête SQL étendue : 5 nouveaux champs owner — `phone`, `email`, `etat_civil`, `birth_date::text`, `birth_place`
+  - Migration `supabase/migrations/20260703_owners_personal_data.sql` : colonnes `etat_civil TEXT`, `birth_date DATE`, `birth_place TEXT` sur `owners`
+  - `batchUpdate` étendu avec 5 opérations `replaceAllText` sur le texte hardcodé du template :
+    - `"9 rue du Moulinet"` → `buildings.address` (page de garde + section adresse + ACTE DE CAUTIONNEMENT)
+    - `"Clémentine ALAOUI M'HAMMEDI"` → `owners.first_name + owners.last_name` (bailleur + ACTE DE CAUTIONNEMENT)
+    - `"Mariée née le 02/08/1983 à Paris 15e"` → état civil + "née/né" + birth_date + birth_place (si renseignés en DB)
+    - `"06 28 07 67 29"` → `owners.phone`
+    - `"location.moulinet@gmail.com"` → `owners.email`
+- `src/lib/quittanceUtils.test.ts` : 3 tests ajoutés pour `fmtShortDate` (happy path, null, padding zéros)
+- **Actions manuelles requises** : voir Handoff QA
+
+### 2026-07-03 — Génération du bail : bailleur dynamique, adresse logement, IRL 2026, paragraphes équipements
+- `lib/quittance.ts` — `generateBailAndUploadToDrive` :
+  - Requête étendue avec `LEFT JOIN owners` pour récupérer le bailleur de l'immeuble (title, first_name, last_name, personal_address)
+  - 4 nouveaux placeholders bailleur : `{{civilite_bailleur}}`, `{{prenom_bailleur}}`, `{{nom_bailleur}}`, `{{adresse_bailleur}}`
+  - Nouveau placeholder `{{adresse_logement}}` alimenté par l'adresse du bâtiment (`buildings.address`)
+  - `{{num_appt}}` vide pour l'appartement 1000 (Vieux Palais — immeuble mono-logement)
+  - 2 nouveaux placeholders paragraphes : `{{chaudiere_compteurs}}` et `{{equipements_tech}}` avec les textes mis à jour
+  - IRL : variables d'env (`BAIL_IRL_DATE` / `BAIL_IRL_VALUE`) prioritaires sur l'API INSEE (auparavant c'était l'inverse)
+- `.env.local` : IRL mis à jour — 1er trimestre 2026, valeur 146,60
+- **Mise à jour requise dans les templates Google Docs** : ajouter les 7 nouveaux placeholders (voir Handoff QA)
+
 ### 2026-07-03 — Formulaire candidature : regex téléphone + message d'aide bouton désactivé
 - `components/CandidateForm.tsx` : regex téléphone étendue pour accepter les formats avec tirets (`06-37-04-38-55`) et points (`06.37.04.38.55`) qu'iOS peut générer via l'autofill ou la saisie de contacts
 - `components/CandidateForm.tsx` : ajout d'un encadré orange visible au-dessus du bouton "Envoyer ma candidature" listant exactement les conditions non remplies (date, appartement, garant, erreur de format) — plus de bouton grisé sans explication

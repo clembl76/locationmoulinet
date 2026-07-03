@@ -194,11 +194,9 @@ export default async function AdminApartmentDetailPage({
                     aptNumber={apt.number}
                     initialValue={apt.lease_insurance_attestation}
                   />
-                  {apt.building_short_name === 'Moulinet' && (
-                    <div className="mt-4">
-                      <EdlEntreeEmailButton tenantEmail={apt.tenant_email} />
-                    </div>
-                  )}
+                  <div className="mt-4">
+                    <EdlEntreeEmailButton tenantEmail={apt.tenant_email} />
+                  </div>
                 </>
               )}
               {isArchived && apt.lease_docusign_lease_url && (
