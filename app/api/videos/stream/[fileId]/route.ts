@@ -2,7 +2,7 @@ import { google } from 'googleapis'
 import type { NextRequest } from 'next/server'
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   ctx: RouteContext<'/api/videos/stream/[fileId]'>
 ) {
   const { fileId } = await ctx.params
@@ -14,16 +14,44 @@ export async function GET(
   auth.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN })
 
   const token = await auth.getAccessToken()
-  if (!token.token) return new Response('Authentification Google échouée', { status: 500 })
 
-  // Redirect directement vers Google Drive — les octets vidéo ne transitent pas par Vercel.
-  // Cache-Control de 30 min : le token Drive expire en 1h, le CDN rafraîchira avant expiration.
-  const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&access_token=${encodeURIComponent(token.token)}`
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: driveUrl,
-      'Cache-Control': 'public, max-age=1800',
-    },
+  const drive = google.drive({ version: 'v3', auth })
+  const meta = await drive.files.get({ fileId, fields: 'mimeType, size' })
+  const mimeType = meta.data.mimeType ?? 'video/mp4'
+  const fileSize = meta.data.size ? parseInt(meta.data.size) : undefined
+
+  const rangeHeader = req.headers.get('range')
+
+  const upstreamHeaders: Record<string, string> = {
+    Authorization: `Bearer ${token.token}`,
+  }
+  if (rangeHeader) upstreamHeaders['Range'] = rangeHeader
+
+  const upstream = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+    { headers: upstreamHeaders }
+  )
+
+  if (!upstream.ok && upstream.status !== 206) {
+    return new Response('Not found', { status: 404 })
+  }
+
+  const responseHeaders: Record<string, string> = {
+    'Content-Type': mimeType,
+    'Accept-Ranges': 'bytes',
+    // public : autorise le CDN Vercel à mettre en cache (vs private qui l'interdisait)
+    // max-age=86400 : les vidéos ne changent quasiment jamais
+    'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+  }
+
+  const contentRange = upstream.headers.get('content-range')
+  const contentLength = upstream.headers.get('content-length')
+  if (contentRange) responseHeaders['Content-Range'] = contentRange
+  if (contentLength) responseHeaders['Content-Length'] = contentLength
+  else if (fileSize) responseHeaders['Content-Length'] = String(fileSize)
+
+  return new Response(upstream.body, {
+    status: rangeHeader ? 206 : 200,
+    headers: responseHeaders,
   })
 }
