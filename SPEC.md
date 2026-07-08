@@ -20,12 +20,9 @@
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-modifie la facon dont l'email au locataire le jour de signature de l'EDL d'entrée est envoyé : non plus via un cron lorsque la move_in date est atteinte, mais ajoute un bouton "Générer mail arrivée" pour le générer via l'interface en fin du bloc "Bail"
+dans le cas d'un appartement dont le bail n'est pas encore démarré, j'ai l'imprresion que la génération des documents n'a pas été branchée puisque je n'ai aucun brouillon gmail alors que j'ai eu un message de confirmation après avoir généré la quittance de caution et la quittance de loyer sur https://www.locationmoulinet.fr/admin/apartments/27?lease=97f330b8-490b-4bb6-a1d0-3610018e7a84
 
-
-
-
-
+mais j'ai également une régression car sur https://www.locationmoulinet.fr/admin/apartments/23 idem malgré le message de confirmation, rien n'est présent dans les brouillons gmail
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
@@ -36,10 +33,6 @@ modifie la facon dont l'email au locataire le jour de signature de l'EDL d'entr�
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
-
-il faut faire les évolutions suivantes:
-
-- le nom du propriétaire doit partout être celui de owner. là je vois qu'il n'a pas été remplacé sous Signature bailleur  
 
 ## Page Disponibilités visites /admin/disponibilites
 

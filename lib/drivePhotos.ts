@@ -108,7 +108,7 @@ export async function streamFileWithAuth(fileId: string, isThumb: boolean): Prom
       if (res.ok) {
         const contentType = res.headers.get('content-type') ?? 'image/jpeg'
         return new Response(res.body, {
-          headers: { 'Content-Type': contentType, 'Cache-Control': 'public, max-age=3600' },
+          headers: { 'Content-Type': contentType, 'Cache-Control': 'public, max-age=86400, stale-while-revalidate=2592000' },
         })
       }
     }
@@ -122,6 +122,6 @@ export async function streamFileWithAuth(fileId: string, isThumb: boolean): Prom
   if (!res.ok) return new Response('Not found', { status: 404 })
   const contentType = res.headers.get('content-type') ?? 'image/jpeg'
   return new Response(res.body, {
-    headers: { 'Content-Type': contentType, 'Cache-Control': 'public, max-age=3600' },
+    headers: { 'Content-Type': contentType, 'Cache-Control': 'public, max-age=31536000, immutable' },
   })
 }
