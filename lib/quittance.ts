@@ -1793,7 +1793,7 @@ export async function createGmailDraftCandidateAccepted(opts: {
   const body = `<p>Bonjour,</p>
 <p>Je vous remercie pour les informations et documents, je vous confirme donc mon accord pour la location de l'appartement ${opts.aptNumber} au ${opts.buildingAddress} à partir du ${dateFr}.</p>
 <p>Je prépare votre bail, vous recevrez un mail du logiciel Docusign dans lequel il faudra cliquer pour signer en ligne le bail.${garantPhrase}</p>
-<p>Nous prendrons prochainement rendez-vous pour un état des lieux et inventaire, cela prendra 15 minutes environ. Vous signerez également l'état des lieux en ligne. Il faudra souscrire une assurance habitation de votre côté démarrant au ${dateFr} et me donner l'attestation.</p>
+<p>Je vous invite à prendre rendez-vous pour un état des lieux et inventaire avec le gestionnaire M. Micout au 07 82 95 02 78, cela prendra 15 minutes environ. Vous signerez également l'état des lieux en ligne. Il faudra souscrire une assurance habitation de votre côté démarrant au ${dateFr} et me donner l'attestation.</p>
 <p>Enfin, il faudra verser avant le ${dateFr} le loyer du 1er mois de ${opts.firstMonthRent} € et la caution de ${opts.deposit} €. Vous trouverez ci-joint mon RIB. Les loyers suivants de ${opts.rentCC} € seront dûs chaque 1er du mois.</p>
 <p>Je reste à votre disposition pour toute question,</p>
 <p>Cordialement</p>
