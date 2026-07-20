@@ -1100,6 +1100,8 @@ export async function createCalendarPreavisEvent(opts: {
 
 export async function createVisitCalendarEvent(opts: {
   visitorEmail: string
+  visitorName: string
+  visitorPhone: string
   visitDate: string          // YYYY-MM-DD
   visitTime: string          // HH:MM
   slotDurationMinutes: number
@@ -1130,12 +1132,17 @@ export async function createVisitCalendarEvent(opts: {
     opts.contact.contact_website,
   ].filter(Boolean).join('\n')
 
+  const visitorLines = [opts.visitorName, opts.visitorPhone, opts.visitorEmail]
+    .filter(Boolean).join('\n')
+
   const description = [
     `Visite programmée appartement(s) : ${opts.apartmentNumbers.join(', ')}`,
     '',
     `Votre contact :\n${contactLines}`,
     "Appelez lorsque vous êtes arrivé(e) devant l'immeuble.",
     'Par respect pour la personne qui vous accueillera, merci de prévenir de toute modification.',
+    '',
+    `Les coordonnées que vous nous avez communiqué pour vous joindre:\n${visitorLines}`,
     '',
     'Informations utiles :',
     "Il n'est pas nécessaire d'apporter votre dossier locatif le jour de la visite. Vous pourrez ultérieurement déposer toutes vos pièces justificatives en ligne.",

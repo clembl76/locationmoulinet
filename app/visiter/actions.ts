@@ -165,6 +165,8 @@ export async function createVisitorAction(data: {
       if (buildingInfo[0] && settings[0]) {
         await createVisitCalendarEvent({
           visitorEmail: data.email.trim().toLowerCase(),
+          visitorName: `${data.first_name.trim().toUpperCase()} ${data.last_name.trim().toUpperCase()}`,
+          visitorPhone: data.phone.trim(),
           visitDate: data.visit_date,
           visitTime: data.visit_time,
           slotDurationMinutes: settings[0].slot_duration_minutes,
