@@ -849,17 +849,6 @@ export async function getEdlReport(leaseId: string): Promise<EdlReport | null> {
   return rows[0] ?? null
 }
 
-export async function createEdlReport(leaseId: string, entryDate: string): Promise<EdlReport> {
-  const admin = createAdminClient()
-  const { data, error } = await admin
-    .from('check_in_reports')
-    .upsert({ lease_id: leaseId, entry_date: entryDate }, { onConflict: 'lease_id' })
-    .select('id, lease_id, entry_date, exit_date, notes, created_at')
-    .single()
-  if (error) throw new Error(error.message)
-  return data as EdlReport
-}
-
 export async function getEdlPageData(reportId: string, apartmentId: string): Promise<EdlPageData | null> {
   // Phase 1 : récupérer le rapport pour avoir lease_id
   const reportRows = await runSql<EdlReport>(`
