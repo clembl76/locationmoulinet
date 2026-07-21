@@ -4,14 +4,28 @@
  * tel qu'il existait juste avant leur suppression le 2026-07-21.
  *
  * Usage :
- *   node scripts/rollback_legacy_edl_restore.mjs
+ *   1. Ouvrir l'éditeur SQL du dashboard Supabase et exécuter le contenu de
+ *      scripts/rollback_legacy_edl_schema.sql (CREATE TABLE + contraintes + RLS).
+ *      Ce projet n'a pas de connexion Postgres directe ni de RPC générique
+ *      capable d'exécuter du DDL (le seul RPC disponible, run_sql, est en
+ *      lecture seule — voir la note plus bas) : cette étape ne peut donc PAS
+ *      être automatisée depuis ce script.
+ *   2. Une fois les 3 tables recréées, lancer :
+ *        node scripts/rollback_legacy_edl_restore.mjs
+ *      Ce script vérifie que les tables existent puis réinjecte le contenu de
+ *      scripts/rollback_legacy_edl_data.json via l'API standard (PostgREST),
+ *      comme le reste de l'application.
  *
- * Ce script :
- *   1. Exécute scripts/rollback_legacy_edl_schema.sql (recrée les 3 tables, contraintes, RLS)
- *   2. Réinjecte les lignes de scripts/rollback_legacy_edl_data.json
+ * Ce script ne restaure PAS le code applicatif (page, composants, server actions) :
+ * pour ça, `git revert` sur les commits qui ont supprimé la fonctionnalité.
  *
- * Il ne restaure PAS le code applicatif (page, composants, server actions) : pour ça,
- * `git revert` sur le commit qui a supprimé la fonctionnalité.
+ * Note technique : le RPC public.run_sql(query) de ce projet est défini comme
+ *   EXECUTE 'SELECT json_agg(row_to_json(t)) FROM (' || query || ') t'
+ * — il ne peut exécuter QUE des requêtes SELECT (utilisées ailleurs dans le
+ * projet pour des lectures, ex. lib/adminData.ts). Il échoue sur toute
+ * instruction DDL ou DML (CREATE TABLE, INSERT, TRUNCATE...). C'est pour ça
+ * que ce script utilise l'API Supabase standard (.from(table).insert(...))
+ * pour la réinjection de données, et ne tente pas d'exécuter le schéma SQL.
  *
  * Prérequis : .env.local doit contenir NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY
  */
@@ -54,68 +68,51 @@ function ask(question) {
   return new Promise(resolve => rl.question(question, ans => { rl.close(); resolve(ans) }))
 }
 
-async function sql(query) {
-  const { data, error } = await db.rpc('run_sql', { query })
-  if (error) throw new Error(error.message)
-  return data
-}
-
-function insertValue(v) {
-  if (v === null || v === undefined) return 'NULL'
-  if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE'
-  if (typeof v === 'number') return String(v)
-  return `'${String(v).replace(/'/g, "''")}'`
-}
-
-async function insertRows(table, rows) {
-  if (rows.length === 0) {
-    console.log(`  → ${table} : aucune ligne à restaurer (table vide au moment de l'export)`)
-    return
-  }
-  const cols = Object.keys(rows[0])
-  const quoted = cols.map(c => `"${c}"`).join(', ')
-  const values = rows.map(row =>
-    '(' + cols.map(c => insertValue(row[c])).join(', ') + ')'
-  ).join(',\n')
-
-  await sql(`INSERT INTO "${table}" (${quoted}) VALUES\n${values}\nON CONFLICT DO NOTHING`)
-  console.log(`  → ${table} : ${rows.length} ligne(s) restaurée(s)`)
-}
+const TABLES = ['check_in_reports', 'check_in_elements', 'inventory_items']
 
 async function main() {
-  const schemaSql = readFileSync(resolve(root, 'scripts', 'rollback_legacy_edl_schema.sql'), 'utf8')
-  const snapshot = JSON.parse(readFileSync(resolve(root, 'scripts', 'rollback_legacy_edl_data.json'), 'utf8'))
+  const snapshot = JSON.parse(
+    readFileSync(resolve(root, 'scripts', 'rollback_legacy_edl_data.json'), 'utf8')
+  )
 
-  console.log('Ce script va recréer les tables check_in_reports, check_in_elements, inventory_items')
-  console.log(`et réinjecter le contenu exporté le ${snapshot.exported_at}.`)
+  console.log('Vérification que les 3 tables existent déjà (schema.sql doit avoir été exécuté manuellement)…')
+  for (const table of TABLES) {
+    const { error } = await db.from(table).select('*', { count: 'exact', head: true })
+    if (error) {
+      console.error(`\n✗ La table "${table}" n'existe pas ou n'est pas accessible (${error.message}).`)
+      console.error('  Exécute d\'abord scripts/rollback_legacy_edl_schema.sql dans l\'éditeur SQL Supabase, puis relance ce script.')
+      process.exit(1)
+    }
+  }
+  console.log('  → les 3 tables existent.\n')
+
+  console.log(`Snapshot du ${snapshot.exported_at} :`)
   console.log(`  check_in_reports : ${snapshot.check_in_reports.length} ligne(s)`)
   console.log(`  check_in_elements: ${snapshot.check_in_elements.length} ligne(s)`)
   console.log(`  inventory_items  : ${snapshot.inventory_items.length} ligne(s)`)
   console.log()
 
-  const ans = await ask('Confirmer ? (oui/non) : ')
+  const ans = await ask('Réinjecter ces données ? (oui/non) : ')
   if (ans.trim().toLowerCase() !== 'oui') {
     console.log('Annulé.')
     process.exit(0)
   }
 
-  console.log('\nRecréation du schéma…')
-  const statements = schemaSql
-    .split(/;\s*\n/)
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && !s.startsWith('--'))
-
-  for (const statement of statements) {
-    await sql(statement)
+  for (const table of TABLES) {
+    const rows = snapshot[table]
+    if (rows.length === 0) {
+      console.log(`  → ${table} : rien à réinjecter (vide au moment de l'export)`)
+      continue
+    }
+    const { error } = await db.from(table).upsert(rows)
+    if (error) {
+      console.error(`  ✗ ${table} : échec — ${error.message}`)
+      process.exit(1)
+    }
+    console.log(`  → ${table} : ${rows.length} ligne(s) réinjectée(s)`)
   }
-  console.log('  → schéma recréé (tables, contraintes, index, RLS)')
 
-  console.log('\nRéinjection des données…')
-  await insertRows('check_in_reports', snapshot.check_in_reports)
-  await insertRows('check_in_elements', snapshot.check_in_elements)
-  await insertRows('inventory_items', snapshot.inventory_items)
-
-  console.log('\nRollback terminé. Le code applicatif doit être restauré séparément (git revert).')
+  console.log('\nRestauration des données terminée. Le code applicatif doit être restauré séparément (git revert).')
 }
 
 main().catch(e => { console.error('Erreur :', e.message); process.exit(1) })

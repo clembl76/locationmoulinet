@@ -3,9 +3,13 @@
 -- (check_in_reports, check_in_elements, inventory_items — page /admin/apartments/[number]/edl/[reportId]).
 --
 -- À utiliser uniquement si la suppression du 2026-07-21 doit être annulée :
---   1. Exécuter ce fichier (Supabase SQL editor, ou via scripts/rollback_legacy_edl_restore.mjs)
---   2. Réinjecter les données avec scripts/rollback_legacy_edl_restore.mjs (lit rollback_legacy_edl_data.json)
---   3. Restaurer le code applicatif supprimé via `git revert` sur le commit de suppression
+--   1. Coller ce fichier dans l'éditeur SQL du dashboard Supabase et l'exécuter.
+--      (Ce projet n'a ni connexion Postgres directe ni RPC générique capable
+--      d'exécuter du DDL — le seul RPC dispo, run_sql, est en lecture seule —
+--      donc cette étape ne peut pas être automatisée par un script.)
+--   2. Réinjecter les données avec `node scripts/rollback_legacy_edl_restore.mjs`
+--      (lit rollback_legacy_edl_data.json, via l'API Supabase standard)
+--   3. Restaurer le code applicatif supprimé via `git revert` sur les commits de suppression
 --
 -- IMPORTANT : ne recrée PAS les types enum `room_type` / `item_condition`. Ils sont partagés
 -- avec les tables actives inventory/surfaces/items (système "EDL figé") et existent déjà —
