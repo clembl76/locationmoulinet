@@ -5,6 +5,8 @@
 # Page Détail appartement /#apartments/num
 
 ## Page Visiter /visiter
+Modifie la description de l'evenement lors de la prise de rendez vous lors d'une visite.
+Ajoute en dessous de la liste des appartements sélectionnés, ajoute le commentaire saisi par le visiteur.
 
 ## Page Candidater /candidater
 
@@ -18,8 +20,7 @@
 
 
 ## Page Appartments /admin/apartments
-Ajoute ici un bouton qui permet d'envoyer la liste des locataires actuels et à venir par mail.
-Par la même occasion, vérifie si ce méchanisme déjà existant fonctionne correctement en dehors du lancement manuel par le bouton car de mémoire il devait se déclencher à la signature d'un nouveau bail et je ne crois pas l'avoir reçu la dernière fois
+
 
 ## Page Détail d'un appartment /admin/apartments/num
 

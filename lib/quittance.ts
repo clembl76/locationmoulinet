@@ -1102,6 +1102,7 @@ export async function createVisitCalendarEvent(opts: {
   visitorEmail: string
   visitorName: string
   visitorPhone: string
+  visitorComment: string
   visitDate: string          // YYYY-MM-DD
   visitTime: string          // HH:MM
   slotDurationMinutes: number
@@ -1135,8 +1136,9 @@ export async function createVisitCalendarEvent(opts: {
   const visitorLines = [opts.visitorName, opts.visitorPhone, opts.visitorEmail]
     .filter(Boolean).join('\n')
 
-  const description = [
+  const descriptionParts = [
     `Visite programmée appartement(s) : ${opts.apartmentNumbers.join(', ')}`,
+    ...(opts.visitorComment ? [`\nCommentaire : ${opts.visitorComment}`] : []),
     '',
     `Votre contact :\n${contactLines}`,
     "Appelez lorsque vous êtes arrivé(e) devant l'immeuble.",
@@ -1147,7 +1149,8 @@ export async function createVisitCalendarEvent(opts: {
     'Informations utiles :',
     "Il n'est pas nécessaire d'apporter votre dossier locatif le jour de la visite. Vous pourrez ultérieurement déposer toutes vos pièces justificatives en ligne.",
     'Conditions indispensables : être étudiant, gagner 3 fois le loyer ou avoir un garant qui gagne 3 fois le loyer.',
-  ].join('\n')
+  ]
+  const description = descriptionParts.join('\n')
 
   const attendees = [{ email: opts.visitorEmail }]
   if (opts.contact.contact_email) attendees.unshift({ email: opts.contact.contact_email })

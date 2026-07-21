@@ -167,6 +167,7 @@ export async function createVisitorAction(data: {
           visitorEmail: data.email.trim().toLowerCase(),
           visitorName: `${data.first_name.trim().toUpperCase()} ${data.last_name.trim().toUpperCase()}`,
           visitorPhone: data.phone.trim(),
+          visitorComment: data.comments.trim(),
           visitDate: data.visit_date,
           visitTime: data.visit_time,
           slotDurationMinutes: settings[0].slot_duration_minutes,
