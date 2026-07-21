@@ -2,6 +2,9 @@
 
 ## [Non publié]
 
+### 2026-07-21 — Fix : transactions Linxo partiellement affichées dans le détail d'un appartement
+- `lib/adminData.ts` — `getLinxoTransactionsForApartment` : remplacement du pattern `.catch()` (fallback uniquement sur erreur SQL) par une requête `SELECT DISTINCT … WHERE lease_id = '…' OR (apartment_num = '…' AND date …)` — couvre les transactions catégorisées avant la migration de la colonne `lease_id`
+
 ### 2026-07-21 — Création automatique de contacts Google à l'acceptation d'un candidat
 - `lib/quittance.ts` : nouvelle fonction exportée `createGoogleContacts` (Google People API v1)
   - Crée un contact pour le candidat (entreprise = "Apt X")

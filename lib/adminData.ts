@@ -488,23 +488,19 @@ export async function getLinxoTransactionsForApartment(
   toDate?: string | null
 ): Promise<ApartmentLinxoTransaction[]> {
   if (leaseId) {
+    // Union : transactions explicitement liées au bail (via lease_id) OU transactions
+    // de l'appartement dans la plage de dates du bail (couvre les transactions catégorisées
+    // avant que la colonne lease_id n'existe ou celles où lease_id n'a pas été écrit).
     return runSql<ApartmentLinxoTransaction>(`
-      SELECT id, date, montant, description
+      SELECT DISTINCT id, date, montant, description
       FROM transactions_linxo
       WHERE lease_id = '${leaseId}'
+         OR (apartment_num = '${aptNumber}'
+             ${fromDate ? `AND date >= '${fromDate}'` : ''}
+             ${toDate ? `AND date <= '${toDate}'` : ''})
       ORDER BY date DESC
       LIMIT 50
-    `).catch(() =>
-      runSql<ApartmentLinxoTransaction>(`
-        SELECT id, date, montant, description
-        FROM transactions_linxo
-        WHERE apartment_num = '${aptNumber}'
-          ${fromDate ? `AND date >= '${fromDate}'` : ''}
-          ${toDate ? `AND date <= '${toDate}'` : ''}
-        ORDER BY date DESC
-        LIMIT 50
-      `)
-    )
+    `)
   }
   return runSql<ApartmentLinxoTransaction>(`
     SELECT id, date, montant, description

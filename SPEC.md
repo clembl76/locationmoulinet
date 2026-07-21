@@ -21,16 +21,6 @@
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-Met à jour le mail "informations pour votre arrivée dans le logement" en ajoutant une ligne :
-
-"Bonjour,
-
-suite à votre état des lieux d'entrée dans l'appartement, voici les informations pratiques pour vous installer.
-
-Votre code d'accès à l'immeuble :  (cadenas) 35 84 72 91 (cadenas)
-
-Vos contacts pendant toute votre location :
-..."
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
