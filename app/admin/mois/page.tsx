@@ -1,6 +1,5 @@
 import { getDashboardStats, getAdminApartments } from '@/lib/adminData'
 import GenerateRentsButton from '@/components/admin/GenerateRentsButton'
-import SeedTestRentsButton from '@/components/admin/SeedTestRentsButton'
 import MoisLoyersClient from '@/components/admin/MoisLoyersClient'
 
 export const dynamic = 'force-dynamic'
@@ -48,8 +47,6 @@ export default async function MoisEnCours() {
           <GenerateRentsButton year={nextYear} month={nextMonth} mois={nextMois} />
         </div>
       </div>
-      <SeedTestRentsButton />
-
       {/* Occupation */}
       <section>
         <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Occupation</h2>

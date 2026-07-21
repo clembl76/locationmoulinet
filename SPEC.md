@@ -15,7 +15,7 @@
 ## Page Tableau de bord /admin
 
 ## Page Mois en cours /admin/mois
-Ajoute un bouton identique au bouton permettant de générer les loyer du mois en cours (Juillet) mais permettant de générer les loyers du mois à venir (Aout)
+Supprime la ligne "TEST Seed — jan/fév/mars 2026 (tous payés)" et tout le code associé, je n'ai plus besoin de générer de faux loyers pour tester
 
 ## Page Appartments /admin/apartments
 

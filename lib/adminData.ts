@@ -1445,36 +1445,3 @@ export async function checkCautionTransaction(aptNumber: string): Promise<boolea
 
 // ─── Seed test rents (données de test — à supprimer ensuite) ──────────────────
 
-export async function seedTestRents(): Promise<{ total: number }> {
-  // 1. Génère les loyers attendus pour jan/fév/mars 2025 (idempotent)
-  for (const { year, month } of [
-    { year: 2026, month: 1 },
-    { year: 2026, month: 2 },
-    { year: 2026, month: 3 },
-  ]) {
-    await generateMonthlyRents(year, month)
-  }
-
-  // 2. Récupère toutes les lignes jan/fév/mars 2025 pour connaître amount_expected
-  const toUpdate = await runSql<{ id: string; amount_expected: number; year: number; month: number }>(`
-    SELECT id, amount_expected, year, month
-    FROM rents
-    WHERE year = 2026 AND month IN (1, 2, 3)
-  `)
-
-  // 3. Met à jour chaque ligne via le client admin (run_sql = SELECT only)
-  const admin = createAdminClient()
-  for (const row of toUpdate) {
-    const receivedAt = `2026-${String(row.month).padStart(2, '0')}-05`
-    await admin
-      .from('rents')
-      .update({
-        amount_received: row.amount_expected,
-        received_at: receivedAt,
-        notes: 'TEST — données de seed',
-      })
-      .eq('id', row.id)
-  }
-
-  return { total: toUpdate.length }
-}
