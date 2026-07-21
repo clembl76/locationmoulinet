@@ -142,7 +142,7 @@ export async function createBailAction(
     aptNumber,
     moveType: 'entrée',
     moveDate,
-  }).catch(() => { /* non-bloquant */ })
+  }).catch((e) => { console.error('[sendTenantListEmail] nouveau-bail :', e instanceof Error ? e.message : e) })
 
   redirect(`/admin/apartments/${aptNumber}`)
 }

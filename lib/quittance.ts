@@ -1993,6 +1993,75 @@ export async function sendTenantListEmail(opts: {
   })
 }
 
+// ─── Email — liste locataires (envoi manuel, sans locataire déclencheur) ─────
+
+export async function sendTenantListEmailFull(): Promise<void> {
+  type TenantRow = {
+    apartment_number: string
+    title: string | null
+    first_name: string
+    last_name: string
+    phone: string | null
+    email: string | null
+    move_in_inspection_date: string | null
+    move_out_inspection_date: string | null
+  }
+
+  const tenants = await runSqlAdmin<TenantRow>(
+    `SELECT a.number AS apartment_number, t.title, t.first_name, t.last_name, t.phone, t.email,
+            l.move_in_inspection_date, l.move_out_inspection_date
+     FROM leases l
+     JOIN apartments a ON a.id = l.apartment_id
+     JOIN lease_tenants lt ON lt.lease_id = l.id
+     JOIN tenants t ON t.id = lt.tenant_id
+     WHERE l.status = 'active'
+       AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
+     ORDER BY a.number::integer`
+  )
+
+  const today = new Date()
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  const fmtDate = (iso: string) => {
+    const [y, m, d] = iso.split('-')
+    return `${d}/${m}/${y}`
+  }
+
+  const rows = tenants.map(t => {
+    const lines: string[] = [
+      `Appartement ${t.apartment_number}`,
+      `${t.title ? t.title + ' ' : ''}${t.last_name.toUpperCase()} ${t.first_name}`,
+      t.phone ?? '—',
+      t.email ?? '—',
+    ]
+    if (t.move_out_inspection_date && t.move_out_inspection_date >= todayStr)
+      lines.push(`Sortie le ${fmtDate(t.move_out_inspection_date)}`)
+    else if (t.move_in_inspection_date && t.move_in_inspection_date >= todayStr)
+      lines.push(`Entrée le ${fmtDate(t.move_in_inspection_date)}`)
+    return `<p>${lines.join('<br>')}</p>`
+  }).join('\n')
+
+  const body = `<p><em>Envoi manuel — ${fmtDate(todayStr)}</em></p><hr>${rows}`
+
+  const subject = 'Liste de locataires'
+  const mime = [
+    `To: ${TENANT_LIST_EMAIL_RECIPIENT}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/html; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    Buffer.from(body).toString('base64'),
+  ].join('\r\n')
+
+  const raw = Buffer.from(mime).toString('base64url')
+  const auth = makeGoogleAuth()
+  const gmail = google.gmail({ version: 'v1', auth })
+  await gmail.users.messages.send({
+    userId: 'me',
+    requestBody: { raw },
+  })
+}
+
 // ─── Notification email — nouvelle candidature ────────────────────────────────
 
 export async function sendCandidateNotificationEmail(opts: {

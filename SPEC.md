@@ -18,7 +18,8 @@
 
 
 ## Page Appartments /admin/apartments
-
+Ajoute ici un bouton qui permet d'envoyer la liste des locataires actuels et à venir par mail.
+Par la même occasion, vérifie si ce méchanisme déjà existant fonctionne correctement en dehors du lancement manuel par le bouton car de mémoire il devait se déclencher à la signature d'un nouveau bail et je ne crois pas l'avoir reçu la dernière fois
 
 ## Page Détail d'un appartment /admin/apartments/num
 
@@ -31,20 +32,6 @@
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
-Implémente une nouvelle fonctionnalité.
-Lors qu'un candidat passe en statut Accepté, génère un contact Google dans le compte location.moulinet@gmail.com
-Nom : Nom du candidat
-Prénom : Prénom du candidat
-Téléphone : Téléphone du candidat
-Email : Email du candidat
-Fonction et entreprise : Numéro de l'appartement pour lequel une candidature est faite
-
-Ainsi qu'un contact Google dans le compte location.moulinet@gmail.com pour son garant
-Nom : Nom du garant
-Prénom : Prénom du garant
-Téléphone : Téléphone du garant
-Email : Email du garant
-Fonction et entreprise : Numéro de l'appartement pour lequel une candidature est faite +  "Garant"
 
 ## Page Disponibilités visites /admin/disponibilites
 

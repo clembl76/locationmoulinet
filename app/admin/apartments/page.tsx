@@ -3,6 +3,7 @@ import { getAdminApartments, getFutureLeases, getClosingLeases, getArchivedLease
 export const dynamic = 'force-dynamic'
 import ApartmentsClient from '@/components/admin/ApartmentsClient'
 import ArchivesSection from '@/components/admin/ArchivesSection'
+import SendTenantListButton from '@/components/admin/SendTenantListButton'
 
 export default async function AdminApartmentsPage({
   searchParams,
@@ -22,6 +23,10 @@ export default async function AdminApartmentsPage({
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <h1 className="text-2xl font-bold text-gray-900">Appartements</h1>
+        <SendTenantListButton />
+      </div>
       <ApartmentsClient
         apartments={apartments}
         initialStatus={status ?? null}

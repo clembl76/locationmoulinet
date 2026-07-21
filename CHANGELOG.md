@@ -2,6 +2,15 @@
 
 ## [Non publié]
 
+### 2026-07-21 — Création automatique de contacts Google à l'acceptation d'un candidat
+- `lib/quittance.ts` : nouvelle fonction exportée `createGoogleContacts` (Google People API v1)
+  - Crée un contact pour le candidat (entreprise = "Apt X")
+  - Crée un contact pour le garant si présent (entreprise = "Apt X Garant")
+  - Champs : nom, prénom, email, téléphone
+- `app/admin/mise-en-location/candidats/[id]/actions.ts` : appel best-effort de `createGoogleContacts` lors du passage en statut `accepted`
+- `scripts/get_refresh_token.py` : ajout du scope `https://www.googleapis.com/auth/contacts`
+- **Prérequis activés** : People API activée dans Google Cloud Console + `GMAIL_REFRESH_TOKEN` régénéré avec le scope contacts
+
 ### 2026-07-03 — Bail : placeholders état civil bailleur
 - `lib/quittance.ts` — `generateBailAndUploadToDrive` :
   - 2 nouveaux placeholders `{{etat_civil_bailleur}}` et `{{naissance_bailleur}}` dans le dict `replacements`
