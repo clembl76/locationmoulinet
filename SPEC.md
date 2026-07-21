@@ -15,7 +15,7 @@
 ## Page Tableau de bord /admin
 
 ## Page Mois en cours /admin/mois
-Supprime la ligne "TEST Seed — jan/fév/mars 2026 (tous payés)" et tout le code associé, je n'ai plus besoin de générer de faux loyers pour tester
+
 
 ## Page Appartments /admin/apartments
 
@@ -31,6 +31,20 @@ Supprime la ligne "TEST Seed — jan/fév/mars 2026 (tous payés)" et tout le co
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
+Implémente une nouvelle fonctionnalité.
+Lors qu'un candidat passe en statut Accepté, génère un contact Google dans le compte location.moulinet@gmail.com
+Nom : Nom du candidat
+Prénom : Prénom du candidat
+Téléphone : Téléphone du candidat
+Email : Email du candidat
+Fonction et entreprise : Numéro de l'appartement pour lequel une candidature est faite
+
+Ainsi qu'un contact Google dans le compte location.moulinet@gmail.com pour son garant
+Nom : Nom du garant
+Prénom : Prénom du garant
+Téléphone : Téléphone du garant
+Email : Email du garant
+Fonction et entreprise : Numéro de l'appartement pour lequel une candidature est faite +  "Garant"
 
 ## Page Disponibilités visites /admin/disponibilites
 

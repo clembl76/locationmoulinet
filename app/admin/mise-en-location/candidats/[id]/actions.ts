@@ -2,7 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
-import { moveCandidateFolderToTenants, generateBailAndUploadToDrive, triggerCandidateAcceptedWebhook, createGmailDraftCandidateAccepted } from '@/lib/quittance'
+import { moveCandidateFolderToTenants, generateBailAndUploadToDrive, triggerCandidateAcceptedWebhook, createGmailDraftCandidateAccepted, createGoogleContacts } from '@/lib/quittance'
 import { revalidatePath } from 'next/cache'
 
 // ── Calcul du loyer du 1er mois au prorata depuis la date de signature ───────
@@ -169,6 +169,23 @@ export async function updateApplicationStatusAction(
           }
         } catch {
           // non-bloquant : un échec de génération du bail ne doit pas empêcher l'acceptation du candidat
+        }
+
+        // Création des contacts Google (best-effort)
+        try {
+          await createGoogleContacts({
+            candidateFirstName: row.first_name,
+            candidateLastName: row.last_name,
+            candidateEmail: row.email,
+            candidatePhone: row.phone,
+            apartmentNumber: row.apartment_number,
+            guarantorFirstName: row.g_first_name,
+            guarantorLastName: row.g_last_name,
+            guarantorEmail: row.g_email,
+            guarantorPhone: row.g_phone,
+          })
+        } catch {
+          // non-bloquant : un échec de création de contact ne doit pas empêcher l'acceptation du candidat
         }
       }
     }

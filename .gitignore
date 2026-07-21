@@ -45,5 +45,9 @@ next-env.d.ts
 # sauvegardes DB locales
 /backups/
 
+# OAuth credentials (ne jamais committer)
+credentials.json
+scripts/credentials.json
+
 # Claude Code (peut contenir des secrets dans l'historique des commandes)
 .claude/

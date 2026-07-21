@@ -2035,3 +2035,40 @@ export async function sendCandidateNotificationEmail(opts: {
     requestBody: { raw },
   })
 }
+
+// ─── Google People — création de contacts candidat/garant ────────────────────
+
+export async function createGoogleContacts(opts: {
+  candidateFirstName: string
+  candidateLastName: string
+  candidateEmail: string | null
+  candidatePhone: string | null
+  apartmentNumber: string
+  guarantorFirstName: string | null
+  guarantorLastName: string | null
+  guarantorEmail: string | null
+  guarantorPhone: string | null
+}): Promise<void> {
+  const auth = makeGoogleAuth()
+  const people = google.people({ version: 'v1', auth })
+
+  await people.people.createContact({
+    requestBody: {
+      names: [{ givenName: opts.candidateFirstName, familyName: opts.candidateLastName }],
+      ...(opts.candidateEmail ? { emailAddresses: [{ value: opts.candidateEmail }] } : {}),
+      ...(opts.candidatePhone ? { phoneNumbers: [{ value: opts.candidatePhone }] } : {}),
+      organizations: [{ name: `Apt ${opts.apartmentNumber}` }],
+    },
+  })
+
+  if (opts.guarantorLastName) {
+    await people.people.createContact({
+      requestBody: {
+        names: [{ givenName: opts.guarantorFirstName ?? '', familyName: opts.guarantorLastName }],
+        ...(opts.guarantorEmail ? { emailAddresses: [{ value: opts.guarantorEmail }] } : {}),
+        ...(opts.guarantorPhone ? { phoneNumbers: [{ value: opts.guarantorPhone }] } : {}),
+        organizations: [{ name: `Apt ${opts.apartmentNumber} Garant` }],
+      },
+    })
+  }
+}

@@ -1,6 +1,6 @@
 """
 Régénère le GMAIL_REFRESH_TOKEN pour locationmoulinet.
-Scopes requis : gmail.compose + drive + calendar
+Scopes requis : gmail.compose + drive + calendar + contacts
 
 Usage :
   1. Copie credentials.json depuis gestion-locative/ dans ce dossier (ou indique le chemin)
@@ -17,6 +17,7 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.send',
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/contacts',
 ]
 
 # Cherche credentials.json ici ou dans gestion-locative
