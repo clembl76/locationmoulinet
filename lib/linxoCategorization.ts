@@ -57,9 +57,9 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
   if (txErr) return { updated: 0, errors: [txErr.message] }
   const transactions = txRows ?? []
 
-  // 2. Fetch tenants with their apartment and lease
+  // 2. Fetch tenants with their apartment and lease (tous les baux, pas seulement actifs)
   const tenants = await runSqlAdmin<TenantInfo>(`
-    SELECT DISTINCT ON (t.id)
+    SELECT DISTINCT ON (t.id, l.id)
       t.last_name,
       t.first_name,
       a.number AS apartment_num,
@@ -69,13 +69,12 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
     JOIN lease_tenants lt ON lt.tenant_id = t.id
     JOIN leases l ON l.id = lt.lease_id
     JOIN apartments a ON a.id = l.apartment_id
-    WHERE l.move_out_inspection_date IS NULL
-    ORDER BY t.id
+    ORDER BY t.id, l.id
   `)
 
-  // 3. Fetch guarantors with their tenant's apartment and lease
+  // 3. Fetch guarantors with their tenant's apartment and lease (tous les baux)
   const guarantors = await runSqlAdmin<GuarantorInfo>(`
-    SELECT DISTINCT ON (g.id)
+    SELECT DISTINCT ON (g.id, l.id)
       g.last_name,
       t.last_name AS tenant_last_name,
       a.number AS apartment_num,
@@ -85,8 +84,7 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
     JOIN lease_tenants lt ON lt.tenant_id = t.id
     JOIN leases l ON l.id = lt.lease_id
     JOIN apartments a ON a.id = l.apartment_id
-    WHERE l.move_out_inspection_date IS NULL
-    ORDER BY g.id
+    ORDER BY g.id, l.id
   `)
 
   // 4. Fetch mappings (ordered by pattern length desc for most-specific-first matching)
@@ -127,6 +125,32 @@ export async function runCategorization(): Promise<{ updated: number; errors: st
         } catch {
           // ignore — column not yet migrated
         }
+      }
+    }
+  }
+
+  // 5. Backfill lease_id sur les transactions déjà validées qui ont apartment_num + tenant_name
+  //    mais pas encore de lease_id (catégorisées avant la migration de la colonne lease_id).
+  const { data: validatedWithoutLease } = await admin
+    .from('transactions_linxo')
+    .select('id, apartment_num, tenant_name')
+    .is('lease_id', null)
+    .not('apartment_num', 'is', null)
+    .not('tenant_name', 'is', null)
+
+  for (const tx of validatedWithoutLease ?? []) {
+    const matched = tenants.find(t =>
+      t.apartment_num === tx.apartment_num &&
+      normalize(tx.tenant_name ?? '').includes(normalize(t.last_name))
+    )
+    if (matched) {
+      try {
+        await admin
+          .from('transactions_linxo')
+          .update({ lease_id: matched.lease_id })
+          .eq('id', tx.id)
+      } catch {
+        // ignore
       }
     }
   }

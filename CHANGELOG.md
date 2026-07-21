@@ -2,8 +2,12 @@
 
 ## [Non publié]
 
-### 2026-07-21 — Fix : transactions Linxo partiellement affichées dans le détail d'un appartement
-- `lib/adminData.ts` — `getLinxoTransactionsForApartment` : remplacement du pattern `.catch()` (fallback uniquement sur erreur SQL) par une requête `SELECT DISTINCT … WHERE lease_id = '…' OR (apartment_num = '…' AND date …)` — couvre les transactions catégorisées avant la migration de la colonne `lease_id`
+### 2026-07-21 — Fix v3 : transactions Linxo — filtre uniquement par lease_id + backfill au Catégoriser
+- `lib/adminData.ts` — `getLinxoTransactionsForApartment` : revenu au filtre simple `WHERE lease_id = X` (suppression de toute logique OR/tenant_name/date)
+- `lib/linxoCategorization.ts` — deux corrections :
+  1. Requêtes tenant/garant sans `WHERE l.move_out_inspection_date IS NULL` — tous les baux (actifs et archivés) sont désormais candidats à la reconnaissance du nom
+  2. Étape de backfill ajoutée en fin de `runCategorization` : pour toutes les transactions avec `apartment_num + tenant_name` mais sans `lease_id`, la fonction calcule et écrit le bon `lease_id` (matching sur `apartment_num` + sous-chaîne `tenant_name`)
+- **Action requise** : cliquer "Catégoriser" une fois en prod pour que le backfill s'exécute sur les transactions de MASSON (juin 2026, caution)
 
 ### 2026-07-21 — Création automatique de contacts Google à l'acceptation d'un candidat
 - `lib/quittance.ts` : nouvelle fonction exportée `createGoogleContacts` (Google People API v1)
