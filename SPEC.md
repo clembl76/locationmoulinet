@@ -20,15 +20,13 @@
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-Modifie le bouton "Créer le document d'EDL d'entrée"
-- son titre devient "Voir l'EDL/Inventaire"
-- il redirige vers la page /admin/inventory avec si possible l'appartement dont il vient pré-selectionné
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
 ## Page EDL /admin/apartments/num/edl/id-edl
 
 ## Page Paiements /admin/payments
+Inverse l'ordre des 2 boutons "Catégoriser" et "Importer depuis Drive"
 
 ## Page Mise en location /admin/mise-en-location
 

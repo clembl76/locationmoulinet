@@ -309,18 +309,18 @@ export default function LinxoTable({
           {categorizeMsg && <span className="text-xs text-gray-500">{categorizeMsg}</span>}
           {importMsg && <span className="text-xs text-gray-500">{importMsg}</span>}
           <button
-            onClick={handleCategorize}
-            disabled={categorizing}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {categorizing ? 'Catégorisation…' : 'Catégoriser'}
-          </button>
-          <button
             onClick={handleImport}
             disabled={importing}
             className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {importing ? 'Import en cours…' : 'Importer depuis Drive'}
+          </button>
+          <button
+            onClick={handleCategorize}
+            disabled={categorizing}
+            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {categorizing ? 'Catégorisation…' : 'Catégoriser'}
           </button>
         </div>
       </div>
