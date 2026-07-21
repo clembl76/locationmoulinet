@@ -1,4 +1,4 @@
-import { getAdminApartmentDetail, getLinxoTransactionsForApartment, getRentForMonth, checkCautionTransaction, getEdlReport, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
+import { getAdminApartmentDetail, getLinxoTransactionsForApartment, getRentForMonth, checkCautionTransaction, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
 import { getDriveTenantFolderUrl, getDriveEdlEntryUrl } from '@/lib/quittance'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
@@ -33,11 +33,10 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [linxoTxs, rentRecord, , edlReport, guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
+  const [linxoTxs, rentRecord, , guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
     getLinxoTransactionsForApartment(number, apt?.lease_id, apt?.move_in_date, apt?.move_out_date).catch(() => []),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
-    apt?.lease_id ? getEdlReport(apt.lease_id) : Promise.resolve(null),
     apt?.lease_id ? getGuarantorForLease(apt.lease_id) : Promise.resolve(null),
     apt?.tenant_last_name ? getDriveTenantFolderUrl(number, apt.tenant_last_name) : Promise.resolve(null),
     apt?.tenant_last_name ? getDriveEdlEntryUrl(number, apt.tenant_last_name) : Promise.resolve(null),
@@ -362,21 +361,12 @@ export default async function AdminApartmentDetailPage({
           {isOccupied && !isArchived && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
-              {edlReport ? (
-                <a
-                  href={`/admin/apartments/${apt.number}/edl/${edlReport.id}`}
-                  className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
-                >
-                  Voir le document d&apos;EDL
-                </a>
-              ) : (
-                <a
-                  href={`/admin/inventory?apt=${apt.id}`}
-                  className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
-                >
-                  Voir l&apos;EDL/Inventaire
-                </a>
-              )}
+              <a
+                href={`/admin/inventory?apt=${apt.id}`}
+                className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+              >
+                Voir l&apos;EDL/Inventaire
+              </a>
               {driveEdlUrl && (
                 <a
                   href={driveEdlUrl}
@@ -397,19 +387,6 @@ export default async function AdminApartmentDetailPage({
                   EDL Entrée sur Docusign →
                 </a>
               )}
-            </div>
-          )}
-
-          {/* EDL archivé — lecture seule */}
-          {isArchived && edlReport && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
-              <a
-                href={`/admin/apartments/${apt.number}/edl/${edlReport.id}`}
-                className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
-              >
-                Voir le document d&apos;EDL
-              </a>
             </div>
           )}
 
