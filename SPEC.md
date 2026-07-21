@@ -20,9 +20,9 @@
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-dans le cas d'un appartement dont le bail n'est pas encore démarré, j'ai l'imprresion que la génération des documents n'a pas été branchée puisque je n'ai aucun brouillon gmail alors que j'ai eu un message de confirmation après avoir généré la quittance de caution et la quittance de loyer sur https://www.locationmoulinet.fr/admin/apartments/27?lease=97f330b8-490b-4bb6-a1d0-3610018e7a84
-
-mais j'ai également une régression car sur https://www.locationmoulinet.fr/admin/apartments/23 idem malgré le message de confirmation, rien n'est présent dans les brouillons gmail
+Modifie le bouton "Créer le document d'EDL d'entrée"
+- son titre devient "Voir l'EDL/Inventaire"
+- il redirige vers la page /admin/inventory avec si possible l'appartement dont il vient pré-selectionné
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 

@@ -7,7 +7,6 @@ import AttestationLocationButton from '@/components/admin/AttestationLocationBut
 import InsuranceCheckbox from '@/components/admin/InsuranceCheckbox'
 import DocusignUrls from '@/components/admin/DocusignUrls'
 import PreavisButton from '@/components/admin/PreavisButton'
-import EdlButton from '@/components/admin/EdlButton'
 import ClosingLeaseActions from '@/components/admin/ClosingLeaseActions'
 import EdlEntreeEmailButton from '@/components/admin/EdlEntreeEmailButton'
 import AttestationLoyerCafButton from '@/components/admin/AttestationLoyerCafButton'
@@ -371,11 +370,12 @@ export default async function AdminApartmentDetailPage({
                   Voir le document d&apos;EDL
                 </a>
               ) : (
-                <EdlButton
-                  leaseId={apt.lease_id!}
-                  aptNumber={apt.number}
-                  moveInDate={apt.move_in_date}
-                />
+                <a
+                  href={`/admin/inventory?apt=${apt.id}`}
+                  className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                >
+                  Voir l&apos;EDL/Inventaire
+                </a>
               )}
               {driveEdlUrl && (
                 <a

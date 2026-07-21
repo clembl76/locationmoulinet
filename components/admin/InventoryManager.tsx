@@ -346,12 +346,16 @@ function AddItemForm({
 
 export default function InventoryManager({
   apartments,
+  initialAptId,
 }: {
   apartments: ApartmentForInventory[]
+  initialAptId?: string
 }) {
   const router = useRouter()
-  const [aptId, setAptId] = useState('')
-  const [selectedApt, setSelectedApt] = useState<ApartmentForInventory | null>(null)
+  const [aptId, setAptId] = useState(initialAptId ?? '')
+  const [selectedApt, setSelectedApt] = useState<ApartmentForInventory | null>(
+    initialAptId ? (apartments.find(a => a.apartment_id === initialAptId) ?? null) : null
+  )
   const [inventory, setInventory] = useState<InventoryRow[]>([])
   const [allItems, setAllItems] = useState<ItemRow[]>([])
   const [loading, setLoading] = useState(false)
@@ -369,6 +373,16 @@ export default function InventoryManager({
   useEffect(() => {
     getAllItemsAction().then(setAllItems).catch(() => {})
   }, [])
+
+  // Charger l'inventaire si un appartement est pré-sélectionné via URL
+  useEffect(() => {
+    if (!initialAptId) return
+    setLoading(true)
+    getInventoryForApartmentAction(initialAptId).then(rows => {
+      setInventory(rows)
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [initialAptId])
 
   function selectApartment(id: string) {
     setAptId(id)
