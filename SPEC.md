@@ -15,6 +15,7 @@
 ## Page Tableau de bord /admin
 
 ## Page Mois en cours /admin/mois
+Ajoute un bouton identique au bouton permettant de générer les loyer du mois en cours (Juillet) mais permettant de générer les loyers du mois à venir (Aout)
 
 ## Page Appartments /admin/apartments
 
@@ -26,7 +27,6 @@
 ## Page EDL /admin/apartments/num/edl/id-edl
 
 ## Page Paiements /admin/payments
-Inverse l'ordre des 2 boutons "Catégoriser" et "Importer depuis Drive"
 
 ## Page Mise en location /admin/mise-en-location
 

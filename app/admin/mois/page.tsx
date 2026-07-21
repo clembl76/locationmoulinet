@@ -30,6 +30,10 @@ export default async function MoisEnCours() {
   const month = now.getMonth() + 1
   const mois = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
 
+  const nextMonth = month === 12 ? 1 : month + 1
+  const nextYear = month === 12 ? year + 1 : year
+  const nextMois = new Date(nextYear, nextMonth - 1, 1).toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
+
   const [stats, apartments] = await Promise.all([
     getDashboardStats(),
     getAdminApartments(),
@@ -39,7 +43,10 @@ export default async function MoisEnCours() {
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Mois en cours</h1>
-        <GenerateRentsButton year={year} month={month} mois={mois} />
+        <div className="flex flex-wrap gap-3">
+          <GenerateRentsButton year={year} month={month} mois={mois} />
+          <GenerateRentsButton year={nextYear} month={nextMonth} mois={nextMois} />
+        </div>
       </div>
       <SeedTestRentsButton />
 
