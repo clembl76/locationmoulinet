@@ -104,6 +104,7 @@ export const EDL_ENTREE_EMAIL_SUBJECT = 'informations pour votre arrivée dans l
 export function buildEdlEntreeEmailBody(): string {
   return `<p>Bonjour,</p>
 <p>suite à votre état des lieux d'entrée dans l'appartement, voici les informations pratiques pour vous installer.</p>
+<p>Votre code d'accès à l'immeuble : (cadenas) 35 84 72 91 (cadenas)</p>
 <p>Vos contacts pendant toute votre location :</p>
 <ul>
   <li><strong>Administratif, Loyers, Quittances etc</strong> : Mme ALAOUI par mail location.moulinet@gmail.com ou Whatsapp +33628076729.</li>

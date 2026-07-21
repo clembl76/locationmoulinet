@@ -23,6 +23,11 @@ describe('buildEdlEntreeEmailBody', () => {
     expect(body).toContain('07 82 95 02 78')
   })
 
+  it("contient le code d'accès à l'immeuble", () => {
+    expect(body).toContain("code d'accès à l'immeuble")
+    expect(body).toContain('35 84 72 91')
+  })
+
   it('contient les informations Wifi', () => {
     expect(body).toContain('SFR_EC4F')
     expect(body).toContain('q3nzn3z9cac1rklz4d8y')

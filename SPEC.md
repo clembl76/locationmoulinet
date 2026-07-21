@@ -5,8 +5,6 @@
 # Page Détail appartement /#apartments/num
 
 ## Page Visiter /visiter
-Modifie la description de l'evenement lors de la prise de rendez vous lors d'une visite.
-Ajoute en dessous de la liste des appartements sélectionnés, ajoute le commentaire saisi par le visiteur.
 
 ## Page Candidater /candidater
 
@@ -23,6 +21,16 @@ Ajoute en dessous de la liste des appartements sélectionnés, ajoute le comment
 
 
 ## Page Détail d'un appartment /admin/apartments/num
+Met à jour le mail "informations pour votre arrivée dans le logement" en ajoutant une ligne :
+
+"Bonjour,
+
+suite à votre état des lieux d'entrée dans l'appartement, voici les informations pratiques pour vous installer.
+
+Votre code d'accès à l'immeuble :  (cadenas) 35 84 72 91 (cadenas)
+
+Vos contacts pendant toute votre location :
+..."
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
