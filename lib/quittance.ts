@@ -5,7 +5,7 @@ import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
 import { buildTenantListEmailBody, buildEdlEntreeEmailBody, EDL_ENTREE_EMAIL_SUBJECT } from './emailFormatting'
-import { calcProrataBreakdown, fmtShortDate } from './quittanceUtils'
+import { calcProrataBreakdown, computeQuittancePeriod, fmtShortDate } from './quittanceUtils'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -38,6 +38,9 @@ export type QuittanceData = {
   rent_excluding_charges: number
   charges: number
   rent_including_charges: number
+  // Bail (pour la période réelle en cas de mois au prorata)
+  lease_signing_date: string | null
+  lease_move_out_date: string | null
 }
 
 // ─── Fetch data ───────────────────────────────────────────────────────────────
@@ -58,7 +61,9 @@ export async function getQuittanceData(leaseId: string): Promise<QuittanceData |
       o.last_name       AS owner_last_name,
       a.rent_excluding_charges,
       a.charges,
-      a.rent_including_charges
+      a.rent_including_charges,
+      l.signing_date::text AS lease_signing_date,
+      l.move_out_inspection_date::text AS lease_move_out_date
     FROM leases l
     JOIN apartments a      ON a.id = l.apartment_id
     JOIN buildings b       ON b.id = a.building_id
@@ -73,10 +78,6 @@ export async function getQuittanceData(leaseId: string): Promise<QuittanceData |
 }
 
 // ─── PDF generation ───────────────────────────────────────────────────────────
-
-function daysInMonth(year: number, month: number): number {
-  return new Date(Date.UTC(year, month, 0)).getUTCDate()
-}
 
 function pad(n: number) { return String(n).padStart(2, '0') }
 
@@ -105,9 +106,11 @@ export async function generateQuittancePdf(
   amountReceived: number
 ): Promise<{ pdfBytes: Uint8Array; filename: string }> {
   const moisFr = MOIS_FR[month]
-  const lastDay = daysInMonth(year, month)
-  const dateDebut = `01/${pad(month)}/${year}`
-  const dateFin = `${pad(lastDay)}/${pad(month)}/${year}`
+  const { periodStartIso, periodEndIso } = computeQuittancePeriod(
+    year, month, data.lease_signing_date, data.lease_move_out_date
+  )
+  const dateDebut = fmtShortDate(periodStartIso)
+  const dateFin = fmtShortDate(periodEndIso)
   const today = new Date()
   const todayStr = `${pad(today.getDate())}/${pad(today.getMonth() + 1)}/${today.getFullYear()}`
 

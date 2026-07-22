@@ -2,6 +2,17 @@
 
 ## [Non publié]
 
+### 2026-07-22 — Quittance de loyer : dates réelles de la période en cas de mois au prorata
+- `lib/quittanceUtils.ts` : nouvelle fonction pure exportée et testée `computeQuittancePeriod(year, month, leaseSigningDateIso, leaseMoveOutDateIso)` — détermine les bornes réelles de la période facturée :
+  - prorata d'entrée (signature ce mois-ci) : période du jour de signature au dernier jour du mois
+  - prorata de sortie (fin de bail ce mois-ci) : période du 1er du mois au jour de fin du bail
+  - sinon (mois plein) : du 1er au dernier jour du mois, comme avant
+- `lib/quittance.ts` :
+  - `QuittanceData` : 2 nouveaux champs `lease_signing_date`, `lease_move_out_date` (ajoutés à la requête `getQuittanceData`)
+  - `generateQuittancePdf` : `dateDebut`/`dateFin` calculés via `computeQuittancePeriod` + `fmtShortDate` au lieu du 1er/dernier jour du mois systématique
+  - Suppression de la fonction locale `daysInMonth` devenue inutilisée
+- `src/lib/quittanceUtils.test.ts` : 8 nouveaux tests pour `computeQuittancePeriod` (mois plein, prorata entrée, prorata sortie, bail signé et terminé le même mois, cas limites signature/sortie le 1er/dernier jour)
+
 ### 2026-07-21 — Fix v3 : transactions Linxo — filtre uniquement par lease_id + backfill au Catégoriser
 - `lib/adminData.ts` — `getLinxoTransactionsForApartment` : revenu au filtre simple `WHERE lease_id = X` (suppression de toute logique OR/tenant_name/date)
 - `lib/linxoCategorization.ts` — deux corrections :

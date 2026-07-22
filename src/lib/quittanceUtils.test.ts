@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcProrataBreakdown, fmtShortDate } from '@/lib/quittanceUtils'
+import { calcProrataBreakdown, computeQuittancePeriod, fmtShortDate } from '@/lib/quittanceUtils'
 
 describe('calcProrataBreakdown', () => {
   it('cas plein (pas de prorata) : répartit exactement loyer HC + charges', () => {
@@ -53,6 +53,59 @@ describe('calcProrataBreakdown', () => {
     const { loyerHc, charges } = calcProrataBreakdown(0, 385, 485)
     expect(loyerHc).toBe(0)
     expect(charges).toBe(0)
+  })
+})
+
+describe('computeQuittancePeriod', () => {
+  it('mois plein (pas de signature ni de sortie ce mois-ci) : du 1er au dernier jour du mois', () => {
+    const { periodStartIso, periodEndIso } = computeQuittancePeriod(2026, 7, null, null)
+    expect(periodStartIso).toBe('2026-07-01')
+    expect(periodEndIso).toBe('2026-07-31')
+  })
+
+  it('mois plein : gère correctement un mois de 30 jours', () => {
+    const { periodStartIso, periodEndIso } = computeQuittancePeriod(2026, 4, null, null)
+    expect(periodStartIso).toBe('2026-04-01')
+    expect(periodEndIso).toBe('2026-04-30')
+  })
+
+  it('mois plein : gère correctement février en année bissextile', () => {
+    const { periodEndIso } = computeQuittancePeriod(2024, 2, null, null)
+    expect(periodEndIso).toBe('2024-02-29')
+  })
+
+  it('mois plein : signature/sortie dans un autre mois ne change rien', () => {
+    const { periodStartIso, periodEndIso } = computeQuittancePeriod(2026, 7, '2026-05-15', '2026-09-10')
+    expect(periodStartIso).toBe('2026-07-01')
+    expect(periodEndIso).toBe('2026-07-31')
+  })
+
+  it('prorata d\'entrée : la période commence à la date de signature, finit au dernier jour du mois', () => {
+    const { periodStartIso, periodEndIso } = computeQuittancePeriod(2026, 7, '2026-07-15', null)
+    expect(periodStartIso).toBe('2026-07-15')
+    expect(periodEndIso).toBe('2026-07-31')
+  })
+
+  it('prorata de sortie : la période commence au 1er du mois, finit à la date de fin du bail', () => {
+    const { periodStartIso, periodEndIso } = computeQuittancePeriod(2026, 7, null, '2026-07-10')
+    expect(periodStartIso).toBe('2026-07-01')
+    expect(periodEndIso).toBe('2026-07-10')
+  })
+
+  it('bail signé et terminé dans le même mois : les deux bornes sont ajustées', () => {
+    const { periodStartIso, periodEndIso } = computeQuittancePeriod(2026, 7, '2026-07-05', '2026-07-20')
+    expect(periodStartIso).toBe('2026-07-05')
+    expect(periodEndIso).toBe('2026-07-20')
+  })
+
+  it('signature le 1er du mois : équivalent à un mois plein (pas de décalage)', () => {
+    const { periodStartIso } = computeQuittancePeriod(2026, 7, '2026-07-01', null)
+    expect(periodStartIso).toBe('2026-07-01')
+  })
+
+  it('sortie le dernier jour du mois : équivalent à un mois plein (pas de décalage)', () => {
+    const { periodEndIso } = computeQuittancePeriod(2026, 7, null, '2026-07-31')
+    expect(periodEndIso).toBe('2026-07-31')
   })
 })
 
