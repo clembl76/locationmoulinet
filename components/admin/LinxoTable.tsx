@@ -8,14 +8,14 @@ const SOURCE_LABELS: Record<string, string> = {
   moulinet:    'Moulinet',
   bonsenfants: 'Bons Enfants',
   vieuxpalais: 'Vieux Palais',
-  perso:       'Perso',
+  renard:      'Renard',
 }
 
 const SOURCE_COLORS: Record<string, string> = {
   moulinet:    'bg-blue-100 text-blue-700',
   bonsenfants: 'bg-emerald-100 text-emerald-700',
   vieuxpalais: 'bg-amber-100 text-amber-700',
-  perso:       'bg-violet-100 text-violet-700',
+  renard:      'bg-violet-100 text-violet-700',
 }
 
 const PAGE_SIZE = 10
@@ -351,7 +351,7 @@ export default function LinxoTable({
           <option value="moulinet">Moulinet</option>
           <option value="bonsenfants">Bons Enfants</option>
           <option value="vieuxpalais">Vieux Palais</option>
-          <option value="perso">Perso</option>
+          <option value="renard">Renard</option>
         </select>
         <select
           value={filterSupplier}
