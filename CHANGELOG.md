@@ -2,6 +2,26 @@
 
 ## [Non publié]
 
+### 2026-07-22 — Écran Paiements : remplacement du filtre/badge "Perso" par "Renard"
+- `components/admin/LinxoTable.tsx` : `SOURCE_LABELS`/`SOURCE_COLORS` — entrée `perso` remplacée par `renard: 'Renard'` (couleur violet réutilisée) ; option du filtre Source `<option value="perso">Perso</option>` remplacée par `<option value="renard">Renard</option>`
+- **Contexte** : la base ne contient plus aucune transaction `source = 'perso'` (réattribuées manuellement à `renard`) ; l'UI n'affichait plus correctement les transactions Renard (badge gris par défaut, pas de filtre dédié) alors même que `lib/linxoImport.ts` reconnaît `renard` depuis un peu plus tôt cette session
+- `src/components/admin/LinxoTable.test.tsx` (nouveau) : 3 tests — badge "Renard" avec la bonne couleur, présence de l'option "Renard"/absence de "Perso" dans le filtre, filtrage effectif par source
+
+### 2026-07-22 — Import Linxo : exclusion de "perso" de la liste fermée des fichiers acceptés
+- `lib/linxoImport.ts` : `KNOWN_LINXO_SOURCES` réduite à `['moulinet', 'bonsenfants', 'vieuxpalais', 'renard']` — un fichier `perso.csv` (ou variante) est désormais ignoré comme n'importe quel fichier non reconnu, au lieu d'être importé sous `source = 'perso'`
+- Le filtre "Perso" reste disponible dans `components/admin/LinxoTable.tsx` (transactions déjà importées avec ce tag avant ce changement) — seule l'acceptation de **nouveaux** fichiers est concernée
+- `src/lib/linxoImport.test.ts` : test "reconnaît perso" remplacé par un test confirmant l'exclusion, `KNOWN_LINXO_SOURCES` mis à jour (4 sources)
+
+### 2026-07-22 — Import Linxo : liste fermée des fichiers acceptés, fichiers non reconnus ignorés
+- `lib/linxoImport.ts` :
+  - `detectSource` retourne désormais `LinxoSource | null` (au lieu de retomber sur le nom de fichier brut) — liste fermée exportée `KNOWN_LINXO_SOURCES = ['moulinet', 'bonsenfants', 'vieuxpalais', 'renard', 'perso']`
+  - `importLinxoCsvs` : un fichier CSV dont le nom ne correspond à aucune source connue est désormais ignoré (aucun téléchargement, aucun insert) et génère un message explicite dans `errors` : `Fichier ignoré (nom non reconnu, attendu : moulinet, bonsenfants, vieuxpalais, renard, perso) : <nom>` — visible dans le compteur d'erreurs de `LinxoTable` et loggé en console
+- `src/lib/linxoImport.test.ts` : mise à jour du test "fichier non reconnu" (retourne `null` au lieu du fallback), ajout d'un test sur `KNOWN_LINXO_SOURCES`
+
+### 2026-07-22 — Import Linxo : reconnaissance du fichier CSV pour l'immeuble Renard
+- `lib/linxoImport.ts` — `detectSource` (désormais exportée) : ajout de la branche `if (lower.includes('renard')) return 'renard'`, manquante alors que Moulinet/Bons Enfants/Vieux Palais/perso étaient déjà reconnus. Sans cette branche, un fichier Renard tombait dans le fallback générique (nom de fichier brut sans normalisation), fragilisant la déduplication par fingerprint.
+- `src/lib/linxoImport.test.ts` (nouveau) : 7 tests couvrant les 5 sources reconnues (avec variantes de séparateur), la casse, et le fallback sur fichier non reconnu
+
 ### 2026-07-22 — Quittance de loyer : dates réelles de la période en cas de mois au prorata
 - `lib/quittanceUtils.ts` : nouvelle fonction pure exportée et testée `computeQuittancePeriod(year, month, leaseSigningDateIso, leaseMoveOutDateIso)` — détermine les bornes réelles de la période facturée :
   - prorata d'entrée (signature ce mois-ci) : période du jour de signature au dernier jour du mois

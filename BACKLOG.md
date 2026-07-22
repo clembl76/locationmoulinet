@@ -22,9 +22,6 @@ gérer un cout d'inventaire/réparations
 
 supprime les tables supabase qui ne sont plus utilisées			
 				
-les quittances au prorata mettent le mois complet pour les dates
-
-				
 ETAT DES LIEUX				
 
 

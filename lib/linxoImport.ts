@@ -14,13 +14,18 @@ function makeAuth() {
   return auth
 }
 
-function detectSource(filename: string): string {
+// Liste fermée des sources Linxo reconnues — tout fichier dont le nom ne
+// correspond à aucune de ces entrées est ignoré (voir importLinxoCsvs).
+export const KNOWN_LINXO_SOURCES = ['moulinet', 'bonsenfants', 'vieuxpalais', 'renard'] as const
+export type LinxoSource = typeof KNOWN_LINXO_SOURCES[number]
+
+export function detectSource(filename: string): LinxoSource | null {
   const lower = filename.toLowerCase()
   if (lower.includes('moulinet')) return 'moulinet'
   if (lower.includes('bonsenfants') || lower.includes('bons-enfants') || lower.includes('bons_enfants')) return 'bonsenfants'
   if (lower.includes('vieuxpalais') || lower.includes('vieux-palais') || lower.includes('vieux_palais') || lower.includes('vieux palais')) return 'vieuxpalais'
-  if (lower.includes('perso')) return 'perso'
-  return lower.replace(/\.csv$/i, '')
+  if (lower.includes('renard')) return 'renard'
+  return null
 }
 
 // Converts French decimal format "1 234,56" or "-1234.56" → number
@@ -144,6 +149,15 @@ export async function importLinxoCsvs(): Promise<LinxoImportResult> {
 
   for (const file of csvFiles) {
     const source = detectSource(file.name ?? '')
+
+    // Liste fermée : un fichier CSV dont le nom ne correspond à aucune source
+    // connue (moulinet, bonsenfants, vieuxpalais, renard) est ignoré.
+    if (!source) {
+      errors.push(
+        `Fichier ignoré (nom non reconnu, attendu : ${KNOWN_LINXO_SOURCES.join(', ')}) : ${file.name}`
+      )
+      continue
+    }
 
     // Download file content as buffer to handle UTF-16 LE encoding (Linxo export format)
     let text: string
