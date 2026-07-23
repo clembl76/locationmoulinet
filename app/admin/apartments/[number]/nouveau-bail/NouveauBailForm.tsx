@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import { createBailAction } from './actions'
+import { FAMILY_STATUSES } from '@/lib/familyStatus'
 
 const TITLES = ['M.', 'Mme']
-const FAMILY_STATUSES = ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Pacsé(e)']
 const RESIDENCY_TYPES = ['Principale', 'Secondaire']
 const LEASE_TYPES = ['Meublé', 'Vide', 'Colocation']
 

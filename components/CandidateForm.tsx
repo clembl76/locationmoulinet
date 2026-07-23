@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { createCandidateAction, type CandidateResult } from '@/app/candidater/actions'
 import type { CandidateApartment } from '@/lib/adminData'
+import { FAMILY_STATUSES } from '@/lib/familyStatus'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -484,11 +485,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
         <Field label="Situation familiale" required>
           <SelectInput name="family_status" required>
             <option value="">—</option>
-            <option value="Célibataire">Célibataire</option>
-            <option value="Marié(e)">Marié(e)</option>
-            <option value="Pacsé(e)">Pacsé(e)</option>
-            <option value="Divorcé(e)">Divorcé(e)</option>
-            <option value="Veuf/Veuve">Veuf/Veuve</option>
+            {FAMILY_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
           </SelectInput>
         </Field>
       </div>
