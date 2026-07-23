@@ -24,7 +24,7 @@ export default async function Page({
       charges,
       rent_including_charges,
       mezzanine,
-      buildings(address, short_name),
+      buildings(address, short_name, charges_model),
       leases(move_out_inspection_date)
     `)
     .eq('number', number)

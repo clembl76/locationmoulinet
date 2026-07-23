@@ -44,35 +44,49 @@ const QUARTIER_RENARD_EN = `Neighbourhood close to the city centre and public tr
 • Palais de Justice metro: 16 min walk
 • Train station and metro: 17 min walk`
 
-const CHARGES_BULLETS_MOULINET_FR = [
+// Catégories de charges — buildings.charges_model (distinct de
+// apartment_installation.charges_type, qui sert au relevé de compteurs de l'EDL).
+const CHARGES_BULLETS_FORFAIT_TOTAL_FR = [
   "Direct propriétaire, pas de frais d'agence.",
   'Eau froide, eau chaude, électricité, chauffage, wifi inclus.',
   '1 mois de dépôt de garantie.',
   'Éligible aux aides au logement.',
 ]
 
-const CHARGES_BULLETS_MOULINET_EN = [
+const CHARGES_BULLETS_FORFAIT_TOTAL_EN = [
   'Direct from owner, no agency fees.',
   'Cold water, hot water, electricity, heating, wifi included.',
   '1 month security deposit.',
   'Eligible for housing benefits (APL).',
 ]
 
-const CHARGES_BULLETS_AUTRES_FR = [
+const CHARGES_BULLETS_FORFAIT_PARTIEL_FR = [
   "Direct propriétaire, pas de frais d'agence.",
-  'Les charges comprennent : Eau froide, TOM, syndic. Electricité non incluse.',
+  'Forfait de charges : eau froide, TOM, syndic inclus. Électricité et internet non inclus.',
   '1 mois de dépôt de garantie.',
   'Éligible aux aides au logement.',
 ]
 
-const CHARGES_BULLETS_AUTRES_EN = [
+const CHARGES_BULLETS_FORFAIT_PARTIEL_EN = [
   'Direct from owner, no agency fees.',
-  'Service charges include: cold water, refuse collection (TOM), building management. Electricity not included.',
+  'Service charges include: cold water, refuse collection (TOM), building management. Electricity and internet not included.',
   '1 month security deposit.',
   'Eligible for housing benefits (APL).',
 ]
 
-const AUTRES_IMMEUBLES = ['Vieux Palais', 'Bons Enfants', 'Renard']
+const CHARGES_BULLETS_REEL_FR = [
+  "Direct propriétaire, pas de frais d'agence.",
+  'Charges au réel selon consommation (eau, électricité, chauffage) — pas de forfait.',
+  '1 mois de dépôt de garantie.',
+  'Éligible aux aides au logement.',
+]
+
+const CHARGES_BULLETS_REEL_EN = [
+  'Direct from owner, no agency fees.',
+  'Charges billed based on actual consumption (water, electricity, heating) — no flat rate.',
+  '1 month security deposit.',
+  'Eligible for housing benefits (APL).',
+]
 
 export function getQuartierContent(buildingShortName: string | null | undefined, lang: 'fr' | 'en'): string {
   if (buildingShortName === 'Vieux Palais' || buildingShortName === 'Bons Enfants') {
@@ -84,9 +98,16 @@ export function getQuartierContent(buildingShortName: string | null | undefined,
   return lang === 'fr' ? QUARTIER_MOULINET_FR : QUARTIER_MOULINET_EN
 }
 
-export function getChargesBullets(buildingShortName: string | null | undefined, lang: 'fr' | 'en'): string[] {
-  if (buildingShortName && AUTRES_IMMEUBLES.includes(buildingShortName)) {
-    return lang === 'fr' ? CHARGES_BULLETS_AUTRES_FR : CHARGES_BULLETS_AUTRES_EN
+/**
+ * chargesModel vient de buildings.charges_model : 'forfait_total' | 'forfait_partiel' | 'reel'.
+ * Fallback sur 'forfait_total' (comportement historique) si absent/inconnu.
+ */
+export function getChargesBullets(chargesModel: string | null | undefined, lang: 'fr' | 'en'): string[] {
+  if (chargesModel === 'forfait_partiel') {
+    return lang === 'fr' ? CHARGES_BULLETS_FORFAIT_PARTIEL_FR : CHARGES_BULLETS_FORFAIT_PARTIEL_EN
   }
-  return lang === 'fr' ? CHARGES_BULLETS_MOULINET_FR : CHARGES_BULLETS_MOULINET_EN
+  if (chargesModel === 'reel') {
+    return lang === 'fr' ? CHARGES_BULLETS_REEL_FR : CHARGES_BULLETS_REEL_EN
+  }
+  return lang === 'fr' ? CHARGES_BULLETS_FORFAIT_TOTAL_FR : CHARGES_BULLETS_FORFAIT_TOTAL_EN
 }

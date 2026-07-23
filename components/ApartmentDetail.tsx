@@ -21,7 +21,7 @@ export type ApartmentDetailData = {
   rent_excluding_charges: number | null
   charges: number | null
   rent_including_charges: number
-  buildings: { address: string; short_name: string } | null
+  buildings: { address: string; short_name: string; charges_model: string | null } | null
   leases: { move_out_inspection_date: string | null }[]
 }
 
@@ -208,7 +208,7 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
 
   // Charges & conditions bullet list for price card — varie selon l'immeuble
   const buildingShortName = apartment.buildings?.short_name
-  const chargesBullets = getChargesBullets(buildingShortName, lang)
+  const chargesBullets = getChargesBullets(apartment.buildings?.charges_model, lang)
   const quartierContent = getQuartierContent(buildingShortName, lang)
 
   return (

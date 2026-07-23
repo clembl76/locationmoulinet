@@ -40,34 +40,44 @@ describe('getQuartierContent', () => {
 })
 
 describe('getChargesBullets', () => {
-  it('Moulinet (FR) — charges incluent eau chaude/électricité/chauffage/wifi', () => {
-    const bullets = getChargesBullets('Moulinet', 'fr')
+  it('forfait_total (FR) — charges incluent eau chaude/électricité/chauffage/wifi (Moulinet)', () => {
+    const bullets = getChargesBullets('forfait_total', 'fr')
     expect(bullets).toContain('Eau froide, eau chaude, électricité, chauffage, wifi inclus.')
   })
 
-  it('Vieux Palais (FR) — électricité non incluse, TOM + syndic', () => {
-    const bullets = getChargesBullets('Vieux Palais', 'fr')
-    expect(bullets).toContain('Les charges comprennent : Eau froide, TOM, syndic. Electricité non incluse.')
+  it('forfait_partiel (FR) — électricité et internet non inclus (Vieux Palais, Bons Enfants)', () => {
+    const bullets = getChargesBullets('forfait_partiel', 'fr')
+    expect(bullets).toContain('Forfait de charges : eau froide, TOM, syndic inclus. Électricité et internet non inclus.')
   })
 
-  it('Bons Enfants et Renard (FR) — même liste que Vieux Palais', () => {
-    const reference = getChargesBullets('Vieux Palais', 'fr')
-    expect(getChargesBullets('Bons Enfants', 'fr')).toEqual(reference)
-    expect(getChargesBullets('Renard', 'fr')).toEqual(reference)
+  it('reel (FR) — charges au réel, pas de forfait (Renard)', () => {
+    const bullets = getChargesBullets('reel', 'fr')
+    expect(bullets).toContain('Charges au réel selon consommation (eau, électricité, chauffage) — pas de forfait.')
   })
 
-  it('Vieux Palais (EN) — electricity not included', () => {
-    const bullets = getChargesBullets('Vieux Palais', 'en')
-    expect(bullets.some(b => b.includes('Electricity not included'))).toBe(true)
+  it('reel et forfait_partiel produisent des listes différentes', () => {
+    expect(getChargesBullets('reel', 'fr')).not.toEqual(getChargesBullets('forfait_partiel', 'fr'))
+  })
+
+  it('forfait_partiel (EN) — electricity and internet not included', () => {
+    const bullets = getChargesBullets('forfait_partiel', 'en')
+    expect(bullets.some(b => b.includes('Electricity and internet not included'))).toBe(true)
+  })
+
+  it('reel (EN) — billed based on actual consumption', () => {
+    const bullets = getChargesBullets('reel', 'en')
+    expect(bullets.some(b => b.includes('actual consumption'))).toBe(true)
   })
 
   it('toutes les listes contiennent 4 puces', () => {
-    expect(getChargesBullets('Moulinet', 'fr')).toHaveLength(4)
-    expect(getChargesBullets('Renard', 'fr')).toHaveLength(4)
+    expect(getChargesBullets('forfait_total', 'fr')).toHaveLength(4)
+    expect(getChargesBullets('forfait_partiel', 'fr')).toHaveLength(4)
+    expect(getChargesBullets('reel', 'fr')).toHaveLength(4)
   })
 
-  it('immeuble inconnu ou null — retombe sur la liste Moulinet', () => {
-    expect(getChargesBullets('Autre Immeuble', 'fr')).toEqual(getChargesBullets('Moulinet', 'fr'))
-    expect(getChargesBullets(null, 'en')).toEqual(getChargesBullets('Moulinet', 'en'))
+  it('valeur inconnue ou null — retombe sur la liste forfait_total', () => {
+    expect(getChargesBullets('valeur_inconnue', 'fr')).toEqual(getChargesBullets('forfait_total', 'fr'))
+    expect(getChargesBullets(null, 'en')).toEqual(getChargesBullets('forfait_total', 'en'))
+    expect(getChargesBullets(undefined, 'fr')).toEqual(getChargesBullets('forfait_total', 'fr'))
   })
 })

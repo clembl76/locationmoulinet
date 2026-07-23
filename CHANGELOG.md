@@ -2,6 +2,15 @@
 
 ## [Non publié]
 
+### 2026-07-23 — buildings.charges_model : modèle de charges par immeuble (3 catégories)
+- `supabase/migrations/20260723_buildings_charges_model.sql` — ⚠️ à exécuter manuellement (pas de connexion Postgres directe ni RPC DDL) : ajoute `buildings.charges_model` (`forfait_total` / `forfait_partiel` / `reel`), backfill des 4 immeubles : Moulinet=forfait_total, Vieux Palais=forfait_partiel, Bons Enfants=forfait_partiel, Renard=reel
+- **Distinct de** `apartment_installation.charges_type` (relevé de compteurs pour l'EDL) — deux concepts différents malgré le nom proche, ne pas confondre
+- `lib/apartmentContent.ts` : `getChargesBullets` prend désormais `charges_model` (3 branches + fallback `forfait_total`) au lieu de comparer le nom d'immeuble sur une liste `AUTRES_IMMEUBLES` groupée à tort (Vieux Palais/Bons Enfants/Renard traités identiquement avant, alors que Renard est en réalité "au réel" et non "forfait sans électricité")
+- `app/apartments/[number]/page.tsx` : requête étendue pour sélectionner `buildings.charges_model`
+- `components/ApartmentDetail.tsx` : type `ApartmentDetailData.buildings` étendu, appel à `getChargesBullets` mis à jour
+- `src/lib/apartmentContent.test.ts` : tests `getChargesBullets` réécrits pour les 3 catégories (au lieu de 2), avec un cas confirmant que `reel` et `forfait_partiel` produisent des textes différents
+- **Changement fonctionnel** : la fiche appartement publique de Renard affiche maintenant un texte "charges au réel" distinct de Vieux Palais/Bons Enfants ("forfait hors électricité et internet"), au lieu du même texte générique pour les 3 immeubles
+
 ### 2026-07-23 — Statut candidature : valeur unique pour "accepted" et "rejected"
 - `lib/candidateStatus.ts` (nouveau) : `CANDIDATE_STATUS_LABELS` partagée — `accepted` = "Acceptée" (au lieu de "Retenu" côté détail candidat), `rejected` = "Rejetée" (au lieu de "Refusé" côté détail candidat)
 - `app/admin/mise-en-location/LettingTable.tsx`, `app/admin/mise-en-location/candidats/[id]/page.tsx` : suppression de leur `STATUS_LABELS` local divergent, import depuis `lib/candidateStatus.ts`. Les couleurs (`STATUS_COLORS`) restent locales à chaque écran (styles différents : badge de tableau vs puce d'en-tête avec bordure)
