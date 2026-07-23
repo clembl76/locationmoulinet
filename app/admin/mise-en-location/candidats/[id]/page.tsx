@@ -5,6 +5,7 @@ import {
   getCandidateDocuments,
 } from '@/lib/adminData'
 import { getSession } from '@/lib/session'
+import { CANDIDATE_STATUS_LABELS } from '@/lib/candidateStatus'
 import CandidateActions from './CandidateActions'
 
 export const dynamic = 'force-dynamic'
@@ -42,14 +43,6 @@ function Row({ label, value }: { label: string; value: string | null | undefined
       <dd className="text-sm text-gray-900">{value || '—'}</dd>
     </div>
   )
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  pending:   'Nouvelle',
-  accepted:  'Retenu',
-  rejected:  'Refusé',
-  withdrawn: 'Plus intéressé',
-  signed:    'Bail signé',
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -99,7 +92,7 @@ export default async function CandidateDetailPage({
           </p>
         </div>
         <div className={`text-sm font-semibold px-3 py-1.5 rounded-xl border ${STATUS_COLORS[detail.status] ?? 'bg-gray-100 text-gray-500 border-gray-200'}`}>
-          {STATUS_LABELS[detail.status] ?? detail.status}
+          {CANDIDATE_STATUS_LABELS[detail.status] ?? detail.status}
         </div>
       </div>
 

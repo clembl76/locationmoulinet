@@ -2,20 +2,13 @@
 
 import { useState, Fragment } from 'react'
 import type { LettingApartment, LettingCandidate } from '@/lib/adminData'
+import { CANDIDATE_STATUS_LABELS } from '@/lib/candidateStatus'
 
 function fmtDate(d: string | null) {
   if (!d) return '—'
   return new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'short', year: 'numeric',
   })
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  pending:   'Nouvelle',
-  accepted:  'Acceptée',
-  rejected:  'Rejetée',
-  withdrawn: 'Plus intéressé',
-  signed:    'Bail signé',
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -152,7 +145,7 @@ export default function LettingTable({
                               </td>
                               <td className="px-4 py-2.5">
                                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_COLORS[c.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                                  {STATUS_LABELS[c.status] ?? c.status}
+                                  {CANDIDATE_STATUS_LABELS[c.status] ?? c.status}
                                 </span>
                               </td>
                               <td className="px-4 py-2.5 text-gray-400 text-xs whitespace-nowrap">

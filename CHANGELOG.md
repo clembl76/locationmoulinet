@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-07-23 — Statut candidature : valeur unique pour "accepted" et "rejected"
+- `lib/candidateStatus.ts` (nouveau) : `CANDIDATE_STATUS_LABELS` partagée — `accepted` = "Acceptée" (au lieu de "Retenu" côté détail candidat), `rejected` = "Rejetée" (au lieu de "Refusé" côté détail candidat)
+- `app/admin/mise-en-location/LettingTable.tsx`, `app/admin/mise-en-location/candidats/[id]/page.tsx` : suppression de leur `STATUS_LABELS` local divergent, import depuis `lib/candidateStatus.ts`. Les couleurs (`STATUS_COLORS`) restent locales à chaque écran (styles différents : badge de tableau vs puce d'en-tête avec bordure)
+- `src/lib/candidateStatus.test.ts` (nouveau) : vérifie les 5 libellés unifiés
+- **Changement fonctionnel** : `candidats/[id]/page.tsx` affichait "Retenu"/"Refusé" — un candidat avec le statut `accepted` affiche désormais "Acceptée" sur cet écran (idem "Rejetée" pour `rejected`), pour correspondre au tableau récapitulatif
+
 ### 2026-07-23 — Noms de mois FR : unification des 3 listes dupliquées
 - `lib/monthLabels.ts` (nouveau) : centralise les 3 formats de noms de mois utilisés dans le projet — `MONTHS_FULL` (noms complets), `MONTHS_SHORT` (abréviations 3 lettres sans point), `MONTH_LABELS` (abréviations avec point, indexées 1-12)
 - `components/admin/CaBarChartClient.tsx`, `app/admin/page.tsx` : suppression de leur `MONTHS_SHORT` local dupliqué, import depuis `lib/monthLabels.ts`

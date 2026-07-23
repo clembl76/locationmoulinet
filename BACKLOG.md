@@ -34,5 +34,16 @@ candidatures en attente
 bail en attente de signature
 
 
+
+Revois la traduction, il manque plein de traductions.
+ex : 2e étage au lieu de 2nd floor, description des appartements etc
+
+
+/recap n'est pas du tout à jour. il est sensé montrer uniquement les appartements prochainement ou actuellement disponibles. Là il montre tous les appartemnts, et les indique comme tous disponibles
+
+l'execution des tests et du build prend beaucoup de temps. comment l'optimiser?
+
+
+
 ## Infrastructure / Tech
 
