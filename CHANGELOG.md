@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-07-23 — Constante EXCLUDE_BUREAU : uniformisation de l'exclusion des locaux BUREAU
+- `lib/adminData.ts` : deux constantes exportées — `APARTMENT_TYPE_BUREAU = 'BUREAU'` (valeur brute) et `EXCLUDE_BUREAU` (fragment SQL `` a.type::text != 'BUREAU' ``, dérivé de la première) — remplacent 13 occurrences dispersées, dont 5 sans cast `::text` (incohérence avec la règle documentée dans `BUSINESS_RULES.md`)
+- `getApartmentOptions` : la requête (`FROM apartments` sans alias) reçoit l'alias `a` pour pouvoir réutiliser `EXCLUDE_BUREAU`
+- `app/page.tsx` : requête SQL brute mise à jour pour utiliser `EXCLUDE_BUREAU`
+- `app/recap/page.tsx` : utilise le query-builder Supabase (`.neq('type', ...)`, pas de SQL brut) — mis à jour pour utiliser `APARTMENT_TYPE_BUREAU` au lieu du littéral `'BUREAU'`
+- `src/lib/adminData.test.ts` (nouveau, premier test pour ce fichier) : vérifie la valeur de `APARTMENT_TYPE_BUREAU` et que `EXCLUDE_BUREAU` en dérive bien (source unique)
+
 ### 2026-07-23 — Unification de la liste "Statut familial" (candidature + nouveau bail)
 - `lib/familyStatus.ts` (nouveau) : constante partagée `FAMILY_STATUSES` (5 valeurs : Célibataire, Marié(e), Pacsé(e), Divorcé(e), Veuf/Veuve) + type `FamilyStatus`
 - `app/admin/apartments/[number]/nouveau-bail/NouveauBailForm.tsx` : supprime sa constante locale (4 valeurs, sans "Veuf/Veuve") au profit de la liste partagée — le formulaire de bail propose désormais les mêmes 5 options que la candidature publique

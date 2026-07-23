@@ -1,6 +1,6 @@
 import HomeClient from '@/components/HomeClient'
 import { Apartment } from '@/components/ApartmentCard'
-import { runSqlAdmin } from '@/lib/adminData'
+import { runSqlAdmin, EXCLUDE_BUREAU } from '@/lib/adminData'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +38,7 @@ export default async function Page() {
     WHERE
       (a.valid_from IS NULL OR a.valid_from <= CURRENT_DATE)
       AND (a.valid_to   IS NULL OR a.valid_to   >= CURRENT_DATE)
-      AND a.type::text != 'BUREAU'
+      AND ${EXCLUDE_BUREAU}
     ORDER BY a.number::integer
   `)
 

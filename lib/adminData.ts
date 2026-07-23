@@ -21,6 +21,13 @@ export async function runSqlAdmin<T = Record<string, unknown>>(sql: string): Pro
   return runSql<T>(sql)
 }
 
+// Type d'appartement à exclure des listings (locaux professionnels, pas des logements).
+export const APARTMENT_TYPE_BUREAU = 'BUREAU'
+
+// Fragment SQL réutilisé partout où les locaux de type BUREAU doivent être
+// exclus des listings d'appartements. Suppose un alias `a` sur `apartments`.
+export const EXCLUDE_BUREAU = `a.type::text != '${APARTMENT_TYPE_BUREAU}'`
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AdminApartment = {
@@ -114,7 +121,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       LEFT JOIN tenants t ON t.id = lt.tenant_id
       LEFT JOIN rents r ON r.lease_id = l.id AND r.year = ${year} AND r.month = ${month}
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
       ORDER BY a.id
     ) sub
     ORDER BY number::integer
@@ -158,7 +165,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         SELECT COUNT(DISTINCT a.id)::float AS n
         FROM apartments a
         WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-          AND a.type != 'BUREAU'
+          AND ${EXCLUDE_BUREAU}
       ),
       occ AS (
         SELECT
@@ -169,7 +176,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
           l.move_in_inspection_date <= make_date(${year}::int, m.m::int, 28)
           AND (l.move_out_inspection_date IS NULL
                OR l.move_out_inspection_date >= make_date(${year}::int, m.m::int, 1))
-        JOIN apartments a ON a.id = l.apartment_id AND a.type != 'BUREAU'
+        JOIN apartments a ON a.id = l.apartment_id AND ${EXCLUDE_BUREAU}
         GROUP BY m.m
       )
       SELECT ROUND(
@@ -248,7 +255,7 @@ export async function getAdminApartments(): Promise<AdminApartment[]> {
       LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
       LEFT JOIN tenants t ON t.id = lt.tenant_id
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
       ORDER BY a.id, l.signing_date DESC
     ) sub
     ORDER BY number::integer
@@ -563,7 +570,7 @@ export async function getApartmentsWithActiveLease(): Promise<ApartmentWithLease
       JOIN tenants t ON t.id = lt.tenant_id
       WHERE (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
         AND (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type::text != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
       ORDER BY a.id, t.last_name
     ) sub
     ORDER BY sort_num
@@ -596,7 +603,7 @@ export async function getAllApartmentsForInventory(): Promise<ApartmentForInvent
       LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
       LEFT JOIN tenants t ON t.id = lt.tenant_id
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type::text != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
       ORDER BY a.id, COALESCE(t.last_name, '')
     ) sub
     ORDER BY sort_num
@@ -641,7 +648,7 @@ export async function generateMonthlyRents(
       l.move_out_inspection_date::text AS move_out_date
     FROM leases l
     JOIN apartments a ON a.id = l.apartment_id
-    WHERE a.type != 'BUREAU'
+    WHERE ${EXCLUDE_BUREAU}
       AND l.signing_date <= '${lastDayStr}'::date
       AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= '${firstDayStr}'::date)
   `)
@@ -802,7 +809,7 @@ export async function getAvailableApartments(): Promise<AvailableApartment[]> {
       FROM apartments a
       JOIN buildings b ON b.id = a.building_id
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type::text != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
         AND NOT EXISTS (
           SELECT 1 FROM leases l
           WHERE l.apartment_id = a.id
@@ -824,7 +831,7 @@ export async function getAvailableApartments(): Promise<AvailableApartment[]> {
         AND l.move_out_inspection_date >= CURRENT_DATE
         AND l.move_out_inspection_date <= CURRENT_DATE + INTERVAL '3 months'
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type::text != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
     ) sub
     ORDER BY sub.status ASC, sub.number::integer
   `)
@@ -997,7 +1004,7 @@ export async function getLettingApartments(): Promise<LettingApartment[]> {
       FROM apartments a
       JOIN buildings b ON b.id = a.building_id
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type::text != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
         AND NOT EXISTS (
           SELECT 1 FROM leases l
           WHERE l.apartment_id = a.id
@@ -1015,7 +1022,7 @@ export async function getLettingApartments(): Promise<LettingApartment[]> {
         AND l.move_out_inspection_date >= CURRENT_DATE
         AND l.move_out_inspection_date <= CURRENT_DATE + INTERVAL '3 months'
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-        AND a.type::text != 'BUREAU'
+        AND ${EXCLUDE_BUREAU}
     ) sub
     LEFT JOIN visitor_apartments va ON va.apartment_id = sub.id
     LEFT JOIN candidate_applications ca ON ca.apartment_id = sub.id
@@ -1201,7 +1208,7 @@ export async function getCalendarLeases(year: number): Promise<CalendarLease[]> 
     LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
     LEFT JOIN tenants t ON t.id = lt.tenant_id
     WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-      AND (a.type IS NULL OR a.type::text != 'BUREAU')
+      AND (a.type IS NULL OR ${EXCLUDE_BUREAU})
     ORDER BY a.number::integer, l.signing_date NULLS FIRST
   `)
 }
@@ -1238,9 +1245,9 @@ export async function getTenantOptions(): Promise<TenantOption[]> {
 
 export async function getApartmentOptions(): Promise<ApartmentOption[]> {
   return runSql<ApartmentOption>(`
-    SELECT number FROM apartments
-    WHERE (valid_to IS NULL OR valid_to >= CURRENT_DATE)
-      AND (type IS NULL OR type::text != 'BUREAU')
+    SELECT number FROM apartments a
+    WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+      AND (a.type IS NULL OR ${EXCLUDE_BUREAU})
     ORDER BY number::integer
   `)
 }

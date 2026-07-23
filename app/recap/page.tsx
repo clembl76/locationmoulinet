@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import RecapGrid, { RecapApartment } from '@/components/RecapGrid'
 import { getApartmentStatus } from '@/lib/apartmentStatus'
+import { APARTMENT_TYPE_BUREAU } from '@/lib/adminData'
 import Link from 'next/link'
 
 export default async function RecapPage() {
@@ -19,7 +20,7 @@ export default async function RecapPage() {
     `)
     .lte('valid_from', now.toISOString())
     .or('valid_to.is.null,valid_to.gte.' + now.toISOString())
-    .neq('type', 'BUREAU')
+    .neq('type', APARTMENT_TYPE_BUREAU)
 
   // Only show available and soon — rented apartments are not relevant for visits
   const apartments = ((data ?? []) as unknown as RecapApartment[]).filter(apt => {
