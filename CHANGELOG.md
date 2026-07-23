@@ -2,6 +2,13 @@
 
 ## [Non publié]
 
+### 2026-07-23 — Unification de la liste "Statut familial" (candidature + nouveau bail)
+- `lib/familyStatus.ts` (nouveau) : constante partagée `FAMILY_STATUSES` (5 valeurs : Célibataire, Marié(e), Pacsé(e), Divorcé(e), Veuf/Veuve) + type `FamilyStatus`
+- `app/admin/apartments/[number]/nouveau-bail/NouveauBailForm.tsx` : supprime sa constante locale (4 valeurs, sans "Veuf/Veuve") au profit de la liste partagée — le formulaire de bail propose désormais les mêmes 5 options que la candidature publique
+- `components/CandidateForm.tsx` : les 5 `<option>` codés en dur remplacés par un `.map()` sur `FAMILY_STATUSES`
+- `src/lib/familyStatus.test.ts` (nouveau) : vérifie le contenu exact de la liste
+- `src/app/admin/apartments/[number]/nouveau-bail/NouveauBailForm.test.tsx` (nouveau, premier test pour ce composant) : vérifie que les 5 statuts (dont "Veuf/Veuve") sont bien proposés
+
 ### 2026-07-22 — Écran Paiements : remplacement du filtre/badge "Perso" par "Renard"
 - `components/admin/LinxoTable.tsx` : `SOURCE_LABELS`/`SOURCE_COLORS` — entrée `perso` remplacée par `renard: 'Renard'` (couleur violet réutilisée) ; option du filtre Source `<option value="perso">Perso</option>` remplacée par `<option value="renard">Renard</option>`
 - **Contexte** : la base ne contient plus aucune transaction `source = 'perso'` (réattribuées manuellement à `renard`) ; l'UI n'affichait plus correctement les transactions Renard (badge gris par défaut, pas de filtre dédié) alors même que `lib/linxoImport.ts` reconnaît `renard` depuis un peu plus tôt cette session
