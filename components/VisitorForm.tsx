@@ -3,6 +3,7 @@
 import { useState, useTransition, useMemo } from 'react'
 import { createVisitorAction, getAvailableSlotsAction, type BookingResult } from '@/app/visiter/actions'
 import type { AvailableApartment, VisitAvailabilityRule } from '@/lib/adminData'
+import { MONTHS_FULL } from '@/lib/monthLabels'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,10 +34,6 @@ const INCOME_STEP = 50
 const PHONE_RE = /^(\+33|0033|0)[1-9](\s?\d{2}){4}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-const MONTHS_FR = [
-  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-]
 const DAYS_FR = ['LUN.', 'MAR.', 'MER.', 'JEU.', 'VEN.', 'SAM.', 'DIM.']
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -225,7 +222,7 @@ function CalendarPicker({
             ‹
           </button>
           <span className="text-sm font-semibold text-gray-800">
-            {MONTHS_FR[viewMonth]} {viewYear}
+            {MONTHS_FULL[viewMonth]} {viewYear}
           </span>
           <button
             type="button"

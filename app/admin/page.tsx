@@ -2,6 +2,7 @@ import { getDashboardStats, getCalendarLeases, getCaByMonth } from '@/lib/adminD
 import type { CalendarLease } from '@/lib/adminData'
 import ExportLeasesButton from '@/components/admin/ExportLeasesButton'
 import CaBarChartClient from '@/components/admin/CaBarChartClient'
+import { MONTHS_SHORT } from '@/lib/monthLabels'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,8 +24,6 @@ function StatCard({
 }
 
 // ─── Calendrier occupation ────────────────────────────────────────────────────
-
-const MONTHS_SHORT = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
 
 const APT_COLORS = [
   '#10b981', '#3b82f6', '#8b5cf6', '#f43f5e',

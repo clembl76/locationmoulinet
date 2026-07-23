@@ -3,8 +3,7 @@
 import { useState, useTransition, useEffect } from 'react'
 import type { ApartmentWithLease } from '@/lib/adminData'
 import { generateQuittancesForMonthsAction, getRentsForYearAction } from '@/app/admin/payments/quittancesActions'
-
-const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
+import { MONTHS_FULL } from '@/lib/monthLabels'
 
 type RentInfo = { month: number; amount_expected: number; amount_received: number | null; is_prorata: boolean }
 type MonthResult = { month: number; ok: boolean; filename?: string; error?: string }
@@ -144,7 +143,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
                     monthResult?.ok === false ? 'border-red-200 bg-red-50' : '',
                   ].join(' ')}
                 >
-                  <p className="font-medium">{MOIS[r.month - 1]}</p>
+                  <p className="font-medium">{MONTHS_FULL[r.month - 1]}</p>
                   <p className={`text-xs mt-0.5 ${isSelected ? 'text-blue-primary' : 'text-gray-400'}`}>
                     {fmtAmount(r)}
                   </p>

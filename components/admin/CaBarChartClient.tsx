@@ -2,8 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import type { CaMonthRow } from '@/lib/adminData'
-
-const MONTHS_SHORT = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+import { MONTHS_SHORT } from '@/lib/monthLabels'
 
 const BUILDING_COLORS = [
   '#3b82f6',

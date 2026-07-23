@@ -1,5 +1,6 @@
 import { createAdminClient } from './supabaseAdmin'
 import { runSqlAdmin } from './adminData'
+import { MONTH_LABELS } from './monthLabels'
 
 type Mapping = { libelle_pattern: string; type: string; supplier: string }
 
@@ -25,12 +26,6 @@ export type CategorizedResult = {
   apartment_num: string | null
   tenant_name: string | null
   lease_id: string | null
-}
-
-const MONTH_LABELS: Record<number, string> = {
-  1: 'janv.', 2: 'févr.', 3: 'mars', 4: 'avr.',
-  5: 'mai', 6: 'juin', 7: 'juil.', 8: 'août',
-  9: 'sept.', 10: 'oct.', 11: 'nov.', 12: 'déc.',
 }
 
 function monthLabel(dateStr: string | null): string {
