@@ -2,6 +2,15 @@
 
 ## [Non publié]
 
+### 2026-07-23 — Noms de mois FR : unification des 3 listes dupliquées
+- `lib/monthLabels.ts` (nouveau) : centralise les 3 formats de noms de mois utilisés dans le projet — `MONTHS_FULL` (noms complets), `MONTHS_SHORT` (abréviations 3 lettres sans point), `MONTH_LABELS` (abréviations avec point, indexées 1-12)
+- `components/admin/CaBarChartClient.tsx`, `app/admin/page.tsx` : suppression de leur `MONTHS_SHORT` local dupliqué, import depuis `lib/monthLabels.ts`
+- `components/admin/QuittancesGenerator.tsx` : `MOIS` (local) supprimé, remplacé par `MONTHS_FULL` importé
+- `components/VisitorForm.tsx` : `MONTHS_FR` (local) supprimé, remplacé par `MONTHS_FULL` importé
+- `lib/linxoCategorization.ts` : `MONTH_LABELS` (local) supprimé, importé depuis `lib/monthLabels.ts`
+- `src/lib/monthLabels.test.ts` (nouveau) : vérifie le contenu exact des 3 constantes
+- Refactor pur, aucun changement de comportement (mêmes valeurs partout, `MOIS`/`MONTHS_FR` renommés en `MONTHS_FULL` pour une nomenclature cohérente)
+
 ### 2026-07-23 — TYPE_LABELS (Studio/T1-T4) : constante partagée entre ApartmentCard et ApartmentDetail
 - `lib/apartmentTypeLabels.ts` (nouveau) : constante `TYPE_LABELS` (libellés bilingues FR/EN par type d'appartement)
 - `components/ApartmentCard.tsx`, `components/ApartmentDetail.tsx` : suppression de la constante locale dupliquée à l'identique, import depuis `lib/apartmentTypeLabels.ts`
