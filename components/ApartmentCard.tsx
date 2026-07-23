@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useLang } from '@/context/LanguageContext'
 import { getApartmentStatus, formatAvailableFrom } from '@/lib/apartmentStatus'
+import { TYPE_LABELS } from '@/lib/apartmentTypeLabels'
 
 type Lease = { move_out_inspection_date: string | null }
 
@@ -21,14 +22,6 @@ export type Apartment = {
 }
 
 type Photo = { id: string; name: string; src: string; thumb: string }
-
-const TYPE_LABELS: Record<string, { fr: string; en: string }> = {
-  STUDIO: { fr: 'Studio', en: 'Studio' },
-  T1: { fr: 'T1', en: '1-room apt.' },
-  T2: { fr: 'T2', en: '2-room apt.' },
-  T3: { fr: 'T3', en: '3-room apt.' },
-  T4: { fr: 'T4', en: '4-room apt.' },
-}
 
 function PhotoPlaceholder() {
   return (

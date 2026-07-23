@@ -7,6 +7,7 @@ import { useLang } from '@/context/LanguageContext'
 import type { DrivePhoto, DriveVideo } from '@/lib/drivePhotos'
 import { getApartmentStatus, formatAvailableFrom } from '@/lib/apartmentStatus'
 import { getQuartierContent, getChargesBullets } from '@/lib/apartmentContent'
+import { TYPE_LABELS } from '@/lib/apartmentTypeLabels'
 
 export type ApartmentDetailData = {
   id: string
@@ -22,14 +23,6 @@ export type ApartmentDetailData = {
   rent_including_charges: number
   buildings: { address: string; short_name: string } | null
   leases: { move_out_inspection_date: string | null }[]
-}
-
-const TYPE_LABELS: Record<string, { fr: string; en: string }> = {
-  STUDIO: { fr: 'Studio', en: 'Studio' },
-  T1: { fr: 'T1', en: '1-room apt.' },
-  T2: { fr: 'T2', en: '2-room apt.' },
-  T3: { fr: 'T3', en: '3-room apt.' },
-  T4: { fr: 'T4', en: '4-room apt.' },
 }
 
 // ─── Gallery ────────────────────────────────────────────────────────────────

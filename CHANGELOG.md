@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-07-23 — TYPE_LABELS (Studio/T1-T4) : constante partagée entre ApartmentCard et ApartmentDetail
+- `lib/apartmentTypeLabels.ts` (nouveau) : constante `TYPE_LABELS` (libellés bilingues FR/EN par type d'appartement)
+- `components/ApartmentCard.tsx`, `components/ApartmentDetail.tsx` : suppression de la constante locale dupliquée à l'identique, import depuis `lib/apartmentTypeLabels.ts`
+- `src/lib/apartmentTypeLabels.test.ts` (nouveau) : vérifie le contenu exact de la liste
+- Refactor pur, aucun changement de comportement (mêmes valeurs, même logique de lookup dans les deux composants)
+
 ### 2026-07-23 — Constante EXCLUDE_BUREAU : uniformisation de l'exclusion des locaux BUREAU
 - `lib/adminData.ts` : deux constantes exportées — `APARTMENT_TYPE_BUREAU = 'BUREAU'` (valeur brute) et `EXCLUDE_BUREAU` (fragment SQL `` a.type::text != 'BUREAU' ``, dérivé de la première) — remplacent 13 occurrences dispersées, dont 5 sans cast `::text` (incohérence avec la règle documentée dans `BUSINESS_RULES.md`)
 - `getApartmentOptions` : la requête (`FROM apartments` sans alias) reçoit l'alias `a` pour pouvoir réutiliser `EXCLUDE_BUREAU`
