@@ -41,7 +41,6 @@ ex : 2e étage au lieu de 2nd floor, description des appartements etc
 
 
 
-l'execution des tests et du build prend beaucoup de temps. comment l'optimiser?
 
 
 
