@@ -1,32 +1,34 @@
-import { supabase } from '@/lib/supabase'
 import RecapGrid, { RecapApartment } from '@/components/RecapGrid'
 import { getApartmentStatus } from '@/lib/apartmentStatus'
-import { APARTMENT_TYPE_BUREAU } from '@/lib/adminData'
+import { runSqlAdmin, EXCLUDE_BUREAU } from '@/lib/adminData'
 import Link from 'next/link'
 
 export default async function RecapPage() {
   const now = new Date()
 
-  const { data } = await supabase
-    .from('apartments')
-    .select(`
-      id,
-      number,
-      type,
-      surface_area,
-      mezzanine,
-      rent_including_charges,
-      leases(move_out_inspection_date)
-    `)
-    .lte('valid_from', now.toISOString())
-    .or('valid_to.is.null,valid_to.gte.' + now.toISOString())
-    .neq('type', APARTMENT_TYPE_BUREAU)
+  const data = await runSqlAdmin<RecapApartment>(`
+    SELECT
+      a.id,
+      a.number,
+      a.type::text,
+      a.surface_area,
+      a.mezzanine,
+      a.rent_including_charges,
+      COALESCE(
+        (SELECT json_agg(json_build_object('move_out_inspection_date', l.move_out_inspection_date::text))
+         FROM leases l WHERE l.apartment_id = a.id),
+        '[]'::json
+      ) AS leases
+    FROM apartments a
+    WHERE a.valid_from <= CURRENT_DATE
+      AND (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+      AND ${EXCLUDE_BUREAU}
+    ORDER BY a.number::integer
+  `)
 
   // Only show available and soon — rented apartments are not relevant for visits
-  const apartments = ((data ?? []) as unknown as RecapApartment[]).filter(apt => {
-    const { status } = getApartmentStatus(
-      (apt.leases ?? []) as { move_out_inspection_date: string | null }[]
-    )
+  const apartments = data.filter(apt => {
+    const { status } = getApartmentStatus(apt.leases ?? [])
     return status !== 'rented'
   })
 

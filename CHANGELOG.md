@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-07-24 — Fix : /recap et fiche appartement affichaient tous les logements comme disponibles
+- **Cause racine** : `app/recap/page.tsx` et `app/apartments/[number]/page.tsx` utilisaient le client Supabase anon (`lib/supabase.ts`) avec un embed `leases(move_out_inspection_date)`. La migration `20260419_reenable_rls_all_tables.sql` a supprimé la policy publique "Public can read leases" (correction de sécurité — les baux contiennent loyer, caution, dates de signature) sans la remplacer par un accès public restreint. Résultat : `leases` renvoyait systématiquement `[]` pour le rôle anon, donc `getApartmentStatus([])` retournait toujours `'available'`, peu importe l'occupation réelle
+- **Fix** : les deux pages utilisent désormais `runSqlAdmin` (RPC `run_sql`, `SECURITY DEFINER`, contourne RLS) au lieu du client anon — même pattern déjà utilisé par `app/page.tsx` (page d'accueil), qui n'était donc pas affectée par ce bug
+- Pas de nouvelle policy RLS ajoutée : rouvrir un accès public à la table `leases` réexposerait loyer/caution/dates de signature de tous les baux via l'API REST Supabase, ce qui était précisément ce que la migration de sécurité visait à empêcher
+- Aucun test existant sur ces 2 pages (pages serveur Next.js sans logique pure extractible testée séparément)
+
 ### 2026-07-23 — buildings.charges_model : modèle de charges par immeuble (3 catégories)
 - `supabase/migrations/20260723_buildings_charges_model.sql` — ⚠️ à exécuter manuellement (pas de connexion Postgres directe ni RPC DDL) : ajoute `buildings.charges_model` (`forfait_total` / `forfait_partiel` / `reel`), backfill des 4 immeubles : Moulinet=forfait_total, Vieux Palais=forfait_partiel, Bons Enfants=forfait_partiel, Renard=reel
 - **Distinct de** `apartment_installation.charges_type` (relevé de compteurs pour l'EDL) — deux concepts différents malgré le nom proche, ne pas confondre
