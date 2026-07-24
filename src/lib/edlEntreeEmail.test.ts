@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { buildEdlEntreeEmailBody, EDL_ENTREE_EMAIL_SUBJECT } from '@/lib/emailFormatting'
 

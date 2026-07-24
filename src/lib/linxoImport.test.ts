@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { detectSource, KNOWN_LINXO_SOURCES } from '@/lib/linxoImport'
 

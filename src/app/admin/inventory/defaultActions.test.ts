@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { DEFAULT_INVENTORY, DEFAULT_EDL, DEFAULT_INVENTORY_NAMED } from '@/app/admin/inventory/defaultData'
 

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { APARTMENT_TYPE_BUREAU, EXCLUDE_BUREAU } from '@/lib/adminData'
 

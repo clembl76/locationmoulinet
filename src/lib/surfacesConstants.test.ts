@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { SURFACE_TYPES, SURFACE_MATERIALS, ROOM_TYPES } from '@/lib/surfacesConstants'
 

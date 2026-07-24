@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { buildEdlPdfFilename } from '@/lib/edlFigePdf'
 import type { ApartmentWithLease } from '@/lib/adminData'

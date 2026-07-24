@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { MONTHS_FULL, MONTHS_SHORT, MONTH_LABELS } from '@/lib/monthLabels'
 

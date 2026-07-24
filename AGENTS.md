@@ -48,6 +48,7 @@ Sans précision de mode, l'agent se comporte comme DEV par défaut.
 - Couvrir : happy path, cas limites, interactions utilisateur, messages d'erreur
 - Exécuter `npm run test:coverage` — tous les tests doivent passer avant de livrer
 - Stack : Vitest + React Testing Library + user-event (voir `vitest.config.ts`)
+- **Performance** : si le fichier de test ne rend aucun composant React (pas d'appel à `render()`/`@testing-library/react` — fonctions pures, constantes, logique de requête), ajouter `// @vitest-environment node` en toute première ligne du fichier. Ça évite le coût de démarrage de jsdom, inutile sans rendu DOM. Dès qu'un test appelle `render()`, laisser l'environnement par défaut (`jsdom`, défini dans `vitest.config.ts`) — ne pas ajouter ce commentaire dans ce cas.
 - **Toujours afficher en fin de réponse** :
   1. Le récap des tests (N passés / N échoués / durée)
   2. Le tableau de couverture par fichier (% Stmts / Branch / Funcs / Lines + lignes non couvertes)
