@@ -1399,7 +1399,7 @@ async function getEdlToSendActions(): Promise<AdminAction[]> {
       'proprietaire' AS owner,
       ${SIGNED_AT_CREATED} AS "createdAt",
       (l.move_in_inspection_date - INTERVAL '7 days')::date::text AS "dueDate",
-      ('/admin/apartments/' || a.number) AS "linkUrl"
+      ('/admin/apartments/' || a.number || '?lease=' || l.id) AS "linkUrl"
     FROM leases l
     JOIN apartments a ON a.id = l.apartment_id
     JOIN lease_tenants lt ON lt.lease_id = l.id

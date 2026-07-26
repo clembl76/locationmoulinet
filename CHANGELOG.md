@@ -2,6 +2,9 @@
 
 ## [Non publié]
 
+### 2026-07-26 — Actions : "edl à envoyer" pointe vers le bail concerné
+- `lib/adminData.ts` : `getEdlToSendActions` génère désormais `linkUrl` avec `?lease={l.id}` en plus du numéro d'appartement — nécessaire car l'EDL doit être envoyé avant le début du bail, donc le bail concerné n'est pas forcément celui affiché par défaut sur la fiche appartement (`getAdminApartmentDetail` sait déjà résoudre un bail précis via ce paramètre)
+
 ### 2026-07-25 — Actions : suppression du texte "(en retard)"
 - `components/admin/AdminActionsTable.tsx` : retrait du libellé "(en retard)" à côté de la date limite — la couleur rouge suffit
 - `src/components/admin/AdminActionsTable.test.tsx` : tests adaptés (vérifient la classe `text-red-600` au lieu du texte)
