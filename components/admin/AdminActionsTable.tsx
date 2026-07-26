@@ -86,7 +86,6 @@ export default function AdminActionsTable({ actions }: { actions: AdminAction[] 
                     <td className="px-4 py-2.5 text-gray-500">{fmtDate(a.createdAt)}</td>
                     <td className={`px-4 py-2.5 ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-700'}`}>
                       {fmtDate(a.dueDate)}
-                      {isOverdue && <span className="ml-1.5 text-xs">(en retard)</span>}
                     </td>
                   </tr>
                 )

@@ -50,15 +50,16 @@ describe('AdminActionsTable', () => {
       .toHaveAttribute('href', '/admin/mise-en-location/candidats/app-42')
   })
 
-  it('marque "(en retard)" une action dont la date limite est dépassée', () => {
+  it('affiche la date limite en rouge quand elle est dépassée', () => {
     render(<AdminActionsTable actions={[makeAction({ dueDate: '2020-01-01' })]} />)
-    expect(screen.getByText('(en retard)')).toBeInTheDocument()
+    expect(screen.getByText('1 janv. 2020')).toHaveClass('text-red-600')
   })
 
-  it('ne marque pas en retard une action dont la date limite est dans le futur', () => {
+  it('n\'affiche pas la date limite en rouge quand elle est dans le futur', () => {
     const farFuture = `${new Date().getFullYear() + 5}-01-01`
     render(<AdminActionsTable actions={[makeAction({ dueDate: farFuture })]} />)
-    expect(screen.queryByText('(en retard)')).not.toBeInTheDocument()
+    const cell = screen.getByText(`1 janv. ${new Date().getFullYear() + 5}`)
+    expect(cell).not.toHaveClass('text-red-600')
   })
 
   it('filtre par owner', async () => {
