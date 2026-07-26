@@ -2,6 +2,10 @@
 
 ## [Non publié]
 
+### 2026-07-25 — Actions : suppression du texte "(en retard)"
+- `components/admin/AdminActionsTable.tsx` : retrait du libellé "(en retard)" à côté de la date limite — la couleur rouge suffit
+- `src/components/admin/AdminActionsTable.test.tsx` : tests adaptés (vérifient la classe `text-red-600` au lieu du texte)
+
 ### 2026-07-25 — Actions : possibilité de résoudre "date d'edl d'entrée à déterminer"
 - `supabase/migrations/20260725_move_in_date_confirmed.sql` — ⚠️ à exécuter manuellement (pas de connexion Postgres directe ni RPC DDL) : `leases.move_in_date_confirmed_at`
 - `lib/adminData.ts` : `getEntryEdlDateToConfirmActions` exclut désormais les baux où `move_in_date_confirmed_at IS NOT NULL` ; `AdminApartmentDetail`/`getAdminApartmentDetail` exposent `lease_move_in_date_confirmed`
