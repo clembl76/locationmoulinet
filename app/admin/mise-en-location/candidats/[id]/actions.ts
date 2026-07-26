@@ -30,10 +30,14 @@ export async function updateApplicationStatusAction(
   try {
     const admin = createAdminClient()
 
-    // Statut candidature
+    // Statut candidature (+ accepted_at si on passe en accepted, pour le tableau de bord des actions)
+    const applicationUpdate: Record<string, unknown> = { status: candidateStatus }
+    if (candidateStatus === 'accepted') {
+      applicationUpdate.accepted_at = new Date().toISOString()
+    }
     const { error: aErr } = await admin
       .from('candidate_applications')
-      .update({ status: candidateStatus })
+      .update(applicationUpdate)
       .eq('id', applicationId)
     if (aErr) throw new Error(aErr.message)
 
@@ -277,6 +281,7 @@ export async function signLeaseAction(opts: {
       .from('leases')
       .insert({
         apartment_id: apartmentId,
+        candidate_application_id: opts.applicationId,
         signing_date: signingDate,
         move_in_inspection_date: signingDate,
         end_date: endDate,
@@ -340,10 +345,11 @@ export async function signLeaseAction(opts: {
       // Non-bloquant : si l'insert échoue (ex. doublon), on ignore
     }
 
-    // 8. Marquer candidature comme signée
+    // 8. Marquer candidature comme signée (signed_at alimente la date de création
+    // des actions attestation d'assurance/caution/EDL sur le tableau de bord des actions)
     await admin
       .from('candidate_applications')
-      .update({ status: 'signed' })
+      .update({ status: 'signed', signed_at: new Date().toISOString() })
       .eq('id', opts.applicationId)
 
     // 9. Mettre à jour le statut visiteur si lié

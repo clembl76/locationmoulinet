@@ -138,7 +138,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       number: r.number,
       tenant_name: [r.tenant_first_name, r.tenant_last_name].filter(Boolean).join(' '),
       move_out_date: r.move_out_date!,
-      days_until: Math.ceil((new Date(r.move_out_date!).getTime() - now.getTime()) / (24 * 3600 * 1000)),
+      days_until: Math.ceil((new Date(r.move_out_date! + 'T12:00:00').getTime() - now.getTime()) / (24 * 3600 * 1000)),
     }))
 
   // Pie chart: locataires actifs sans départ prévu ayant un loyer généré ce mois
@@ -282,6 +282,8 @@ export type AdminApartmentDetail = AdminApartment & {
   lease_status: string | null
   lease_edl_signed: boolean
   lease_deposit_returned: boolean
+  lease_edl_sent: boolean
+  lease_listing_published: boolean
 }
 
 export async function getAdminApartmentDetail(number: string, leaseId?: string): Promise<AdminApartmentDetail | null> {
@@ -346,14 +348,24 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
   if (!base) return null
 
   // Champs de clôture — colonnes ajoutées par migration 20260619 ; fallback si absent
+  // Champs edl_sent_at/listing_published_at — ajoutés par migration 20260724 ; même fallback
+  type ClosingFields = {
+    lease_status: string
+    lease_edl_signed: boolean
+    lease_deposit_returned: boolean
+    lease_edl_sent: boolean
+    lease_listing_published: boolean
+  }
   const closingFields = base.lease_id
-    ? await runSql<{ lease_status: string; lease_edl_signed: boolean; lease_deposit_returned: boolean }>(`
+    ? await runSql<ClosingFields>(`
         SELECT
           COALESCE(status, 'active') AS lease_status,
           COALESCE(edl_signed, FALSE) AS lease_edl_signed,
-          COALESCE(deposit_returned, FALSE) AS lease_deposit_returned
+          COALESCE(deposit_returned, FALSE) AS lease_deposit_returned,
+          (edl_sent_at IS NOT NULL) AS lease_edl_sent,
+          (listing_published_at IS NOT NULL) AS lease_listing_published
         FROM leases WHERE id = '${base.lease_id}' LIMIT 1
-      `).catch(() => [] as { lease_status: string; lease_edl_signed: boolean; lease_deposit_returned: boolean }[])
+      `).catch(() => [] as ClosingFields[])
     : []
 
   return {
@@ -361,6 +373,8 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
     lease_status: closingFields[0]?.lease_status ?? 'active',
     lease_edl_signed: closingFields[0]?.lease_edl_signed ?? false,
     lease_deposit_returned: closingFields[0]?.lease_deposit_returned ?? false,
+    lease_edl_sent: closingFields[0]?.lease_edl_sent ?? false,
+    lease_listing_published: closingFields[0]?.lease_listing_published ?? false,
   }
 }
 
@@ -1288,6 +1302,218 @@ export async function checkCautionTransaction(aptNumber: string): Promise<boolea
       AND direction::text = 'CREDIT'
   `)
   return Number(rows[0]?.count ?? 0) > 0
+}
+
+// ─── Tableau de bord des actions (/admin/actions) ─────────────────────────────
+
+export type AdminActionOwner = 'proprietaire' | 'locataire' | 'candidat'
+
+export type AdminAction = {
+  title: string
+  apartmentNumber: string
+  tenantName: string | null
+  owner: AdminActionOwner
+  createdAt: string
+  dueDate: string
+  linkUrl: string
+}
+
+const ACTIVE_LEASE = `(l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)`
+
+// Date de création pour attestation/caution/EDL : date de passage de la candidature
+// au statut 'signed'. Fallback sur signing_date pour les baux créés avant l'ajout
+// de candidate_application_id (pas de lien vers une candidature).
+const SIGNED_AT_JOIN = `LEFT JOIN candidate_applications ca ON ca.id = l.candidate_application_id`
+const SIGNED_AT_CREATED = `COALESCE(ca.signed_at::text, l.signing_date::text)`
+
+async function getInsuranceMissingActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'attestation d''assurance non reçue' AS title,
+      'locataire' AS owner,
+      ${SIGNED_AT_CREATED} AS "createdAt",
+      l.move_in_inspection_date::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t ON t.id = lt.tenant_id
+    ${SIGNED_AT_JOIN}
+    WHERE COALESCE(l.insurance_attestation, FALSE) = FALSE
+      AND ${ACTIVE_LEASE}
+  `).catch(() => [] as AdminAction[]) // colonnes candidate_application_id/signed_at — migration 20260725
+}
+
+async function getDepositMissingActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'caution non reçue' AS title,
+      'locataire' AS owner,
+      ${SIGNED_AT_CREATED} AS "createdAt",
+      l.move_in_inspection_date::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t ON t.id = lt.tenant_id
+    ${SIGNED_AT_JOIN}
+    WHERE COALESCE(l.deposit_paid, FALSE) = FALSE
+      AND ${ACTIVE_LEASE}
+  `).catch(() => [] as AdminAction[]) // colonnes candidate_application_id/signed_at — migration 20260725
+}
+
+async function getRentDueActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'loyer à payer' AS title,
+      'locataire' AS owner,
+      r.created_at::text AS "createdAt",
+      make_date(r.year::int, r.month::int, 12)::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM rents r
+    JOIN leases l ON l.id = r.lease_id
+    JOIN apartments a ON a.id = l.apartment_id
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE r.amount_received IS NULL
+      AND make_date(r.year::int, r.month::int, 1) <= CURRENT_DATE
+  `)
+}
+
+async function getEdlToSendActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'edl à envoyer' AS title,
+      'proprietaire' AS owner,
+      ${SIGNED_AT_CREATED} AS "createdAt",
+      (l.move_in_inspection_date - INTERVAL '7 days')::date::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t ON t.id = lt.tenant_id
+    ${SIGNED_AT_JOIN}
+    WHERE l.edl_sent_at IS NULL
+      AND ${ACTIVE_LEASE}
+  `).catch(() => [] as AdminAction[]) // colonnes edl_sent_at (20260724) + candidate_application_id/signed_at (20260725)
+}
+
+async function getEntryEdlDateToConfirmActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'date d''edl d''entrée à déterminer' AS title,
+      'proprietaire' AS owner,
+      ${SIGNED_AT_CREATED} AS "createdAt",
+      (${SIGNED_AT_CREATED}::date + INTERVAL '3 days')::date::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN lease_tenants lt ON lt.lease_id = l.id
+    JOIN tenants t ON t.id = lt.tenant_id
+    ${SIGNED_AT_JOIN}
+    WHERE l.signing_date = l.move_in_inspection_date
+      AND ${ACTIVE_LEASE}
+  `).catch(() => [] as AdminAction[]) // colonnes candidate_application_id/signed_at — migration 20260725
+}
+
+async function getApplicationsPendingActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (c.first_name || ' ' || c.last_name) AS "tenantName",
+      'candidatures à approuver ou refuser' AS title,
+      'proprietaire' AS owner,
+      ca.created_at::text AS "createdAt",
+      (ca.created_at::date + INTERVAL '1 day')::date::text AS "dueDate",
+      ('/admin/mise-en-location/candidats/' || ca.id) AS "linkUrl"
+    FROM candidate_applications ca
+    JOIN candidates c ON c.id = ca.candidate_id
+    JOIN apartments a ON a.id = ca.apartment_id
+    WHERE ca.status::text = 'pending'
+  `)
+}
+
+async function getLeaseAwaitingSignatureActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (c.first_name || ' ' || c.last_name) AS "tenantName",
+      'bail en attente de signature' AS title,
+      'candidat' AS owner,
+      ca.accepted_at::text AS "createdAt",
+      (ca.accepted_at::date + INTERVAL '1 day')::date::text AS "dueDate",
+      ('/admin/mise-en-location/candidats/' || ca.id) AS "linkUrl"
+    FROM candidate_applications ca
+    JOIN candidates c ON c.id = ca.candidate_id
+    JOIN apartments a ON a.id = ca.apartment_id
+    WHERE ca.status::text = 'accepted'
+      AND ca.accepted_at IS NOT NULL
+  `).catch(() => [] as AdminAction[]) // colonne accepted_at — migration 20260724
+}
+
+async function getDepositToReturnActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'caution à restituer' AS title,
+      'proprietaire' AS owner,
+      l.move_out_inspection_date::text AS "createdAt",
+      (l.move_out_inspection_date + INTERVAL '1 month')::date::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE l.move_out_inspection_date IS NOT NULL
+      AND l.move_out_inspection_date <= CURRENT_DATE
+      AND COALESCE(l.deposit_returned, FALSE) = FALSE
+  `)
+}
+
+async function getListingToPublishActions(): Promise<AdminAction[]> {
+  return runSql<AdminAction>(`
+    SELECT
+      a.number AS "apartmentNumber",
+      (t.first_name || ' ' || t.last_name) AS "tenantName",
+      'annonce à publier' AS title,
+      'proprietaire' AS owner,
+      l.notice_given_at::text AS "createdAt",
+      (l.move_out_inspection_date - INTERVAL '7 days')::date::text AS "dueDate",
+      ('/admin/apartments/' || a.number) AS "linkUrl"
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
+    LEFT JOIN tenants t ON t.id = lt.tenant_id
+    WHERE l.move_out_inspection_date IS NOT NULL
+      AND l.move_out_inspection_date >= CURRENT_DATE
+      AND l.listing_published_at IS NULL
+  `).catch(() => [] as AdminAction[]) // colonnes notice_given_at/listing_published_at — migration 20260724
+}
+
+export async function getAdminActions(): Promise<AdminAction[]> {
+  const lists = await Promise.all([
+    getInsuranceMissingActions(),
+    getDepositMissingActions(),
+    getRentDueActions(),
+    getEdlToSendActions(),
+    getApplicationsPendingActions(),
+    getLeaseAwaitingSignatureActions(),
+    getDepositToReturnActions(),
+    getListingToPublishActions(),
+    getEntryEdlDateToConfirmActions(),
+  ])
+  return lists.flat().sort((a, b) => a.dueDate.localeCompare(b.dueDate))
 }
 
 // ─── Seed test rents (données de test — à supprimer ensuite) ──────────────────

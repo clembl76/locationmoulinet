@@ -14,9 +14,26 @@ export async function savePreavisAction(
     const admin = createAdminClient()
 
     // 1. Mettre à jour move_out_inspection_date ET end_date
+    // notice_given_at n'est renseignée qu'au premier préavis (pas écrasée si la date est modifiée ensuite)
+    const { data: currentLease } = await admin
+      .from('leases')
+      .select('notice_given_at')
+      .eq('id', leaseId)
+      .single()
+
+    const updatePayload: Record<string, unknown> = {
+      move_out_inspection_date: moveOutDate,
+      end_date: moveOutDate,
+    }
+    if (!currentLease?.notice_given_at) {
+      const today = new Date()
+      updatePayload.notice_given_at =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    }
+
     const { error } = await admin
       .from('leases')
-      .update({ move_out_inspection_date: moveOutDate, end_date: moveOutDate })
+      .update(updatePayload)
       .eq('id', leaseId)
     if (error) throw new Error(error.message)
 
@@ -216,6 +233,49 @@ export async function updateInsuranceAttestationAction(
     const { error } = await admin
       .from('leases')
       .update({ insurance_attestation: value })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+function todayStr(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+export async function updateEdlSentAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ edl_sent_at: value ? todayStr() : null })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateListingPublishedAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ listing_published_at: value ? todayStr() : null })
       .eq('id', leaseId)
     if (error) throw new Error(error.message)
     revalidatePath(`/admin/apartments/${aptNumber}`)

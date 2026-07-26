@@ -12,7 +12,7 @@ export function getApartmentStatus(
 
   // Future move-out = tenant has given notice
   const futureDates = leases
-    .map(l => (l.move_out_inspection_date ? new Date(l.move_out_inspection_date) : null))
+    .map(l => (l.move_out_inspection_date ? new Date(l.move_out_inspection_date + 'T12:00:00') : null))
     .filter((d): d is Date => d !== null && d > now)
     .sort((a, b) => a.getTime() - b.getTime())
 

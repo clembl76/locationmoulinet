@@ -25,15 +25,6 @@ supprime les tables supabase qui ne sont plus utilisées
 ETAT DES LIEUX				
 
 
-faire un tableau de bord me mettant les rappels
-attestation d'assurance non recue
-caution
-loyer
-edl à envoyer
-candidatures en attente
-bail en attente de signature
-
-
 
 Revois la traduction, il manque plein de traductions.
 ex : 2e étage au lieu de 2nd floor, description des appartements etc

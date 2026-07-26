@@ -2,6 +2,52 @@
 
 ## [Non publié]
 
+### 2026-07-25 — Fix : décalage d'un jour sur les dates affichées (fuseaux en retard sur UTC)
+- **Cause** : `new Date("YYYY-MM-DD")` sans heure est toujours interprété comme minuit UTC — pour un visiteur dans un fuseau en retard sur UTC (ex. Ottawa, UTC-4/-5), ça affiche la veille. Règle déjà documentée dans `BUSINESS_RULES.md` (toujours ajouter `T12:00:00`) mais pas appliquée partout
+- **10 occurrences corrigées** : `apt.move_in_date` (fiche appartement — bug signalé, ex. 01/08 affiché 31/07), `lib/apartmentStatus.ts` (calcul partagé de `availableFrom`, utilisé par le site public et les écrans admin), `lib/adminData.ts` (`days_until` des départs à venir — affectait aussi un calcul, pas seulement l'affichage), `app/admin/mois/page.tsx`, `components/admin/ApartmentsClient.tsx`, `app/admin/apartments/page.tsx`, `components/admin/LinxoTable.tsx`, `components/admin/PaymentsClient.tsx`, `app/admin/apartments/[number]/page.tsx` (transactions Linxo + date d'encaissement du loyer)
+- `src/lib/apartmentStatus.test.ts` (nouveau, premier test pour ce fichier partagé) : 8 tests, dont un reproduisant exactement le cas signalé (sortie le 2026-08-01 → ne doit jamais afficher le 31/07)
+
+### 2026-07-25 — Actions : nouvelle action "date d'EDL d'entrée à déterminer"
+- Déclenchée quand `leases.signing_date = leases.move_in_inspection_date` (la date d'emménagement n'a jamais été confirmée/ajustée après la signature) — 9 baux concernés actuellement
+- Owner `proprietaire`, date de création = passage au statut `signed` (même règle que assurance/caution/EDL à envoyer), date limite = création + 3 jours (règle par défaut) — **à confirmer**, non précisés explicitement dans la demande
+- `lib/adminData.ts` : `getEntryEdlDateToConfirmActions()`, ajoutée à `getAdminActions()` (9ᵉ type d'action)
+
+### 2026-07-25 — Actions : date de création = passage au statut "signed" (assurance, caution, EDL)
+- **Constat** : ni `leases` ni `candidate_applications` ne traçaient la date à laquelle une candidature passe au statut `signed` — `leases` n'a même pas de colonne de création générique, et rien ne reliait un bail à sa candidature d'origine
+- `supabase/migrations/20260725_lease_signed_at_tracking.sql` — ⚠️ à exécuter manuellement (pas de connexion Postgres directe ni RPC DDL) : `leases.candidate_application_id` (lien vers la candidature) + `candidate_applications.signed_at`
+- `app/admin/mise-en-location/candidats/[id]/actions.ts` — `signLeaseAction` : renseigne `candidate_application_id` à la création du bail et `signed_at` au passage du statut à `signed`
+- `lib/adminData.ts` : les 3 requêtes "attestation d'assurance non reçue", "caution non reçue" et "edl à envoyer" utilisent désormais `COALESCE(candidate_applications.signed_at, leases.signing_date)` comme date de création (repli sur `signing_date` pour les baux créés avant l'ajout du lien, faute de valeur connue) — fallback `.catch(() => [])` tant que la migration n'est pas appliquée
+- Tests ajoutés à `src/app/admin/mise-en-location/candidats/[id]/actions.test.ts` pour `signLeaseAction` (candidate_application_id, signed_at)
+- **Baux existants** : sans backfill, `signed_at` sera `NULL` pour tous les baux créés avant cette migration → repli automatique sur `signing_date` (comportement identique à avant pour l'historique)
+
+### 2026-07-24 — Actions : lien vers la vraie destination (appartement ou candidat)
+- `lib/adminData.ts` : ajout de `linkUrl` au type `AdminAction`, calculé par requête — `/admin/apartments/{number}` pour 6 des 8 types d'actions, `/admin/mise-en-location/candidats/{application_id}` pour "candidatures à approuver ou refuser" et "bail en attente de signature"
+- `components/admin/AdminActionsTable.tsx` : le lien clique désormais sur le **titre** de l'action (pointant vers `linkUrl`) plutôt que sur la colonne "Appartement" (qui redirigeait toujours vers la fiche appartement même quand ce n'était pas la bonne destination)
+- `src/components/admin/AdminActionsTable.test.tsx` : tests ajoutés vérifiant `linkUrl` pour le cas appartement et le cas candidat
+
+### 2026-07-24 — Nouveau tableau de bord des actions (/admin/actions)
+- **8 types d'actions** calculées à la volée (pas de table stockée) à partir de l'état déjà en base — chaque action disparaît automatiquement dès que le champ sous-jacent change :
+
+  | Titre | Owner | Déclencheur | Création | Échéance |
+  |---|---|---|---|---|
+  | Attestation d'assurance non reçue | locataire | `leases.insurance_attestation = false` | `signing_date` | `move_in_inspection_date` |
+  | Caution non reçue | locataire | `leases.deposit_paid = false` | `signing_date` | `move_in_inspection_date` |
+  | Loyer à payer | locataire | `rents.amount_received IS NULL` | `rents.created_at` | 12 du mois du loyer |
+  | EDL à envoyer | propriétaire | `leases.edl_sent_at IS NULL` | `signing_date` | `move_in_inspection_date - 7j` |
+  | Candidatures à approuver ou refuser | propriétaire | `candidate_applications.status = 'pending'` | `created_at` | `created_at + 1j` |
+  | Bail en attente de signature | candidat | `candidate_applications.status = 'accepted'` | `accepted_at` | `accepted_at + 1j` |
+  | Caution à restituer | propriétaire | départ effectué, `leases.deposit_returned = false` | `move_out_inspection_date` | `move_out_inspection_date + 1 mois` |
+  | Annonce à publier | propriétaire | `leases.listing_published_at IS NULL` | `notice_given_at` | `move_out_inspection_date - 7j` |
+
+- `supabase/migrations/20260724_admin_actions_dashboard.sql` — ⚠️ à exécuter manuellement (pas de connexion Postgres directe ni RPC DDL) : 4 nouvelles colonnes — `leases.edl_sent_at`, `leases.notice_given_at`, `leases.listing_published_at`, `candidate_applications.accepted_at`
+- `lib/adminData.ts` : `getAdminActions()` (+ type `AdminAction`/`AdminActionOwner`) — 8 requêtes composées via `Promise.all`, triées par date limite. Les requêtes sur les 3 colonnes `leases.*` neuves et sur `accepted_at` ont un fallback `.catch(() => [])` pour ne pas casser le tableau de bord tant que la migration n'a pas été appliquée
+- `app/admin/apartments/[number]/actions.ts` : `savePreavisAction` renseigne `notice_given_at` au premier préavis seulement (jamais écrasée ensuite) ; nouvelles actions `updateEdlSentAction`/`updateListingPublishedAction`
+- `app/admin/mise-en-location/candidats/[id]/actions.ts` : `updateApplicationStatusAction` renseigne `accepted_at` quand le statut passe à `accepted`
+- `components/admin/EdlSentCheckbox.tsx`, `components/admin/ListingPublishedCheckbox.tsx` (nouveaux) — cases à cocher sur la fiche appartement, même pattern que `InsuranceCheckbox`/`DepositPaidCheckbox`
+- `app/admin/actions/page.tsx` + `components/admin/AdminActionsTable.tsx` (nouveaux) — tableau trié par échéance, filtre par owner, mise en évidence des actions en retard
+- `components/admin/AdminNavbar.tsx` : entrée "Actions" ajoutée à la nav admin
+- Tests (nouveaux) : `EdlSentCheckbox.test.tsx`, `ListingPublishedCheckbox.test.tsx`, `AdminActionsTable.test.tsx`, cas ajoutés à `actions.test.ts` (apartments) et nouveau `actions.test.ts` (candidats/[id]) pour `notice_given_at`/`accepted_at`/les 2 nouvelles actions
+
 ### 2026-07-24 — Fix : /recap et fiche appartement affichaient tous les logements comme disponibles
 - **Cause racine** : `app/recap/page.tsx` et `app/apartments/[number]/page.tsx` utilisaient le client Supabase anon (`lib/supabase.ts`) avec un embed `leases(move_out_inspection_date)`. La migration `20260419_reenable_rls_all_tables.sql` a supprimé la policy publique "Public can read leases" (correction de sécurité — les baux contiennent loyer, caution, dates de signature) sans la remplacer par un accès public restreint. Résultat : `leases` renvoyait systématiquement `[]` pour le rôle anon, donc `getApartmentStatus([])` retournait toujours `'available'`, peu importe l'occupation réelle
 - **Fix** : les deux pages utilisent désormais `runSqlAdmin` (RPC `run_sql`, `SECURITY DEFINER`, contourne RLS) au lieu du client anon — même pattern déjà utilisé par `app/page.tsx` (page d'accueil), qui n'était donc pas affectée par ce bug

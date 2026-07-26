@@ -76,7 +76,7 @@ export default async function MoisEnCours() {
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-medium text-amber-600">
-                    {new Date(d.move_out_date).toLocaleDateString('fr-FR')}
+                    {new Date(d.move_out_date + 'T12:00:00').toLocaleDateString('fr-FR')}
                   </span>
                   <span className="text-xs text-gray-400 ml-2">
                     ({d.days_until === 0 ? "aujourd'hui" : `J-${d.days_until}`})

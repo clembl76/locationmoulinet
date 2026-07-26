@@ -64,7 +64,7 @@ export default async function AdminApartmentsPage({
                     </td>
                     <td className="px-5 py-3 text-gray-700 whitespace-nowrap">
                       <a href={`/admin/apartments/${fl.apartment_number}?lease=${fl.lease_id}`} className="block">
-                        {new Date(fl.signing_date).toLocaleDateString('fr-FR')}
+                        {new Date(fl.signing_date + 'T12:00:00').toLocaleDateString('fr-FR')}
                       </a>
                     </td>
                     <td className="px-5 py-3 text-right text-gray-500 whitespace-nowrap hidden sm:table-cell">

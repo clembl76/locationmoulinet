@@ -10,6 +10,8 @@ import PreavisButton from '@/components/admin/PreavisButton'
 import ClosingLeaseActions from '@/components/admin/ClosingLeaseActions'
 import EdlEntreeEmailButton from '@/components/admin/EdlEntreeEmailButton'
 import AttestationLoyerCafButton from '@/components/admin/AttestationLoyerCafButton'
+import EdlSentCheckbox from '@/components/admin/EdlSentCheckbox'
+import ListingPublishedCheckbox from '@/components/admin/ListingPublishedCheckbox'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -117,7 +119,7 @@ export default async function AdminApartmentDetailPage({
                 <InfoRow label="Téléphone" value={apt.tenant_phone} />
                 <InfoRow
                   label="Entrée"
-                  value={apt.move_in_date ? new Date(apt.move_in_date).toLocaleDateString('fr-FR') : null}
+                  value={apt.move_in_date ? new Date(apt.move_in_date + 'T12:00:00').toLocaleDateString('fr-FR') : null}
                 />
                 {apt.move_out_date && (
                   <InfoRow
@@ -229,7 +231,7 @@ export default async function AdminApartmentDetailPage({
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {linxoTxs.map((tx, i) => {
-                      const d = new Date(tx.date)
+                      const d = new Date(tx.date + 'T12:00:00')
                       const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
                       const montantStr = tx.montant != null
                         ? tx.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
@@ -281,7 +283,7 @@ export default async function AdminApartmentDetailPage({
                         Encaissé — {rentRecord.amount_received} €
                         {rentRecord.received_at && (
                           <span className="text-gray-400 font-normal ml-1">
-                            le {new Date(rentRecord.received_at).toLocaleDateString('fr-FR')}
+                            le {new Date(rentRecord.received_at + 'T12:00:00').toLocaleDateString('fr-FR')}
                           </span>
                         )}
                       </span>
@@ -341,6 +343,13 @@ export default async function AdminApartmentDetailPage({
                 aptNumber={apt.number}
                 currentMoveOut={apt.move_out_date}
               />
+              {apt.move_out_date && (
+                <ListingPublishedCheckbox
+                  leaseId={apt.lease_id!}
+                  aptNumber={apt.number}
+                  initialValue={apt.lease_listing_published}
+                />
+              )}
             </div>
           )}
 
@@ -367,6 +376,11 @@ export default async function AdminApartmentDetailPage({
               >
                 Voir l&apos;EDL/Inventaire
               </a>
+              <EdlSentCheckbox
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                initialValue={apt.lease_edl_sent}
+              />
               {driveEdlUrl && (
                 <a
                   href={driveEdlUrl}

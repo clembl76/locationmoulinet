@@ -176,7 +176,7 @@ export default function PaymentsClient({ transactions }: { transactions: AllTran
                     className={`${clickable ? 'cursor-pointer hover:bg-blue-light/50' : ''} transition-colors`}
                   >
                     <td className="px-4 py-3 text-gray-700 whitespace-nowrap">
-                      {new Date(tx.date).toLocaleDateString('fr-FR')}
+                      {new Date(tx.date + 'T12:00:00').toLocaleDateString('fr-FR')}
                     </td>
                     <td className={`px-4 py-3 text-right font-semibold whitespace-nowrap ${tx.direction === 'CREDIT' ? 'text-green-600' : 'text-red-500'}`}>
                       {tx.direction === 'CREDIT' ? '+' : '−'}{Number(tx.amount).toLocaleString('fr-FR')} €

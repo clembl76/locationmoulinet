@@ -434,7 +434,7 @@ export default function LinxoTable({
                   className={tx.validated ? 'bg-green-50/50' : 'hover:bg-gray-50 transition-colors'}
                 >
                   <td className="px-3 py-2 text-gray-700 whitespace-nowrap text-xs">
-                    {tx.date ? new Date(tx.date).toLocaleDateString('fr-FR') : '—'}
+                    {tx.date ? new Date(tx.date + 'T12:00:00').toLocaleDateString('fr-FR') : '—'}
                   </td>
                   <td className={`px-3 py-2 text-right font-semibold whitespace-nowrap text-xs ${
                     tx.montant !== null && tx.montant >= 0 ? 'text-green-600' : 'text-red-500'
