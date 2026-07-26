@@ -284,6 +284,7 @@ export type AdminApartmentDetail = AdminApartment & {
   lease_deposit_returned: boolean
   lease_edl_sent: boolean
   lease_listing_published: boolean
+  lease_move_in_date_confirmed: boolean
 }
 
 export async function getAdminApartmentDetail(number: string, leaseId?: string): Promise<AdminApartmentDetail | null> {
@@ -355,6 +356,7 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
     lease_deposit_returned: boolean
     lease_edl_sent: boolean
     lease_listing_published: boolean
+    lease_move_in_date_confirmed: boolean
   }
   const closingFields = base.lease_id
     ? await runSql<ClosingFields>(`
@@ -363,7 +365,8 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
           COALESCE(edl_signed, FALSE) AS lease_edl_signed,
           COALESCE(deposit_returned, FALSE) AS lease_deposit_returned,
           (edl_sent_at IS NOT NULL) AS lease_edl_sent,
-          (listing_published_at IS NOT NULL) AS lease_listing_published
+          (listing_published_at IS NOT NULL) AS lease_listing_published,
+          (move_in_date_confirmed_at IS NOT NULL) AS lease_move_in_date_confirmed
         FROM leases WHERE id = '${base.lease_id}' LIMIT 1
       `).catch(() => [] as ClosingFields[])
     : []
@@ -375,6 +378,7 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
     lease_deposit_returned: closingFields[0]?.lease_deposit_returned ?? false,
     lease_edl_sent: closingFields[0]?.lease_edl_sent ?? false,
     lease_listing_published: closingFields[0]?.lease_listing_published ?? false,
+    lease_move_in_date_confirmed: closingFields[0]?.lease_move_in_date_confirmed ?? false,
   }
 }
 
@@ -1422,8 +1426,9 @@ async function getEntryEdlDateToConfirmActions(): Promise<AdminAction[]> {
     JOIN tenants t ON t.id = lt.tenant_id
     ${SIGNED_AT_JOIN}
     WHERE l.signing_date = l.move_in_inspection_date
+      AND l.move_in_date_confirmed_at IS NULL
       AND ${ACTIVE_LEASE}
-  `).catch(() => [] as AdminAction[]) // colonnes candidate_application_id/signed_at — migration 20260725
+  `).catch(() => [] as AdminAction[]) // colonnes candidate_application_id/signed_at (20260725) + move_in_date_confirmed_at (20260725)
 }
 
 async function getApplicationsPendingActions(): Promise<AdminAction[]> {

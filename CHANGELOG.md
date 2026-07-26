@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-07-25 — Actions : possibilité de résoudre "date d'edl d'entrée à déterminer"
+- `supabase/migrations/20260725_move_in_date_confirmed.sql` — ⚠️ à exécuter manuellement (pas de connexion Postgres directe ni RPC DDL) : `leases.move_in_date_confirmed_at`
+- `lib/adminData.ts` : `getEntryEdlDateToConfirmActions` exclut désormais les baux où `move_in_date_confirmed_at IS NOT NULL` ; `AdminApartmentDetail`/`getAdminApartmentDetail` exposent `lease_move_in_date_confirmed`
+- `app/admin/apartments/[number]/actions.ts` : nouvelle action `updateMoveInDateConfirmedAction`
+- `components/admin/MoveInDateConfirmedCheckbox.tsx` (nouveau, même pattern que `EdlSentCheckbox`/`ListingPublishedCheckbox`) — affichée sur la fiche appartement uniquement quand `signing_date = move_in_inspection_date` (donc exactement quand l'action est active)
+- Tests ajoutés : `MoveInDateConfirmedCheckbox.test.tsx`, cas dans `actions.test.ts` (apartments)
+- **Demande initiale** : supprimer les alertes "date d'edl d'entrée à déterminer" pour tous les baux sauf l'appartement 31 (locataire Nahe Massot Confais) — traité via un backfill ciblé sur cette nouvelle colonne, cf. commande exécutée séparément
+
 ### 2026-07-25 — Fix : décalage d'un jour sur les dates affichées (fuseaux en retard sur UTC)
 - **Cause** : `new Date("YYYY-MM-DD")` sans heure est toujours interprété comme minuit UTC — pour un visiteur dans un fuseau en retard sur UTC (ex. Ottawa, UTC-4/-5), ça affiche la veille. Règle déjà documentée dans `BUSINESS_RULES.md` (toujours ajouter `T12:00:00`) mais pas appliquée partout
 - **10 occurrences corrigées** : `apt.move_in_date` (fiche appartement — bug signalé, ex. 01/08 affiché 31/07), `lib/apartmentStatus.ts` (calcul partagé de `availableFrom`, utilisé par le site public et les écrans admin), `lib/adminData.ts` (`days_until` des départs à venir — affectait aussi un calcul, pas seulement l'affichage), `app/admin/mois/page.tsx`, `components/admin/ApartmentsClient.tsx`, `app/admin/apartments/page.tsx`, `components/admin/LinxoTable.tsx`, `components/admin/PaymentsClient.tsx`, `app/admin/apartments/[number]/page.tsx` (transactions Linxo + date d'encaissement du loyer)

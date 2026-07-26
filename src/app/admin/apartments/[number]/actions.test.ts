@@ -24,6 +24,7 @@ import {
   updateDepositPaidAction,
   updateEdlSentAction,
   updateListingPublishedAction,
+  updateMoveInDateConfirmedAction,
   savePreavisAction,
 } from '@/app/admin/apartments/[number]/actions'
 
@@ -103,6 +104,29 @@ describe('updateListingPublishedAction', () => {
     await updateListingPublishedAction('lease-1', '7', false)
 
     expect(update).toHaveBeenCalledWith({ listing_published_at: null })
+  })
+})
+
+describe('updateMoveInDateConfirmedAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('renseigne move_in_date_confirmed_at (date du jour) quand value=true', async () => {
+    const { update } = makeAdminMock()
+
+    const result = await updateMoveInDateConfirmedAction('lease-1', '31', true)
+
+    expect(result).toEqual({ ok: true })
+    expect(update).toHaveBeenCalledWith({ move_in_date_confirmed_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) })
+  })
+
+  it('remet move_in_date_confirmed_at à null quand value=false', async () => {
+    const { update } = makeAdminMock()
+
+    await updateMoveInDateConfirmedAction('lease-1', '31', false)
+
+    expect(update).toHaveBeenCalledWith({ move_in_date_confirmed_at: null })
   })
 })
 

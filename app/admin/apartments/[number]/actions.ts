@@ -266,6 +266,25 @@ export async function updateEdlSentAction(
   }
 }
 
+export async function updateMoveInDateConfirmedAction(
+  leaseId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ move_in_date_confirmed_at: value ? todayStr() : null })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 export async function updateListingPublishedAction(
   leaseId: string,
   aptNumber: string,
