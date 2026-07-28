@@ -26,7 +26,8 @@ export async function updateApplicationStatusAction(
   applicationId: string,
   candidateStatus: 'accepted' | 'rejected' | 'withdrawn',
   visitorId: string | null,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; irlWarning?: string }> {
+  let irlWarning: string | undefined
   try {
     const admin = createAdminClient()
 
@@ -106,7 +107,7 @@ export async function updateApplicationStatusAction(
         const endDate = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`
         const rentCC = row.rent_including_charges ?? 0
         try {
-          const { filename, webViewLink } = await generateBailAndUploadToDrive({
+          const { filename, webViewLink, irlWarning: warning } = await generateBailAndUploadToDrive({
             aptNumber: row.apartment_number,
             signingDate,
             endDate,
@@ -132,6 +133,7 @@ export async function updateApplicationStatusAction(
             guarantorBirthPlace: row.g_birth_place,
             guarantorAddress: row.g_address,
           })
+          irlWarning = warning
 
           // Notification Make.com : candidat accepté + bail généré (best-effort)
           try {
@@ -196,7 +198,7 @@ export async function updateApplicationStatusAction(
 
     revalidatePath(`/admin/mise-en-location/candidats/${applicationId}`)
     revalidatePath('/admin/mise-en-location')
-    return { ok: true }
+    return { ok: true, irlWarning }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }

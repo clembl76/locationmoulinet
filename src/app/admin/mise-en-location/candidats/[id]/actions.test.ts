@@ -5,19 +5,28 @@ vi.mock('@/lib/supabaseAdmin', () => ({
   createAdminClient: vi.fn(),
 }))
 
-// runSqlAdmin renvoie [] : le bloc "candidat accepté" (génération bail, webhook, mails,
-// contacts) est alors sauté (row === undefined), sans avoir besoin de mocker lib/quittance.
+// runSqlAdmin renvoie [] par défaut : le bloc "candidat accepté" (génération bail, webhook,
+// mails, contacts) est alors sauté (row === undefined). Certains tests le surchargent avec
+// mockResolvedValueOnce pour exercer ce bloc.
 vi.mock('@/lib/adminData', () => ({
   runSqlAdmin: vi.fn().mockResolvedValue([]),
 }))
 
-vi.mock('@/lib/quittance', () => ({}))
+vi.mock('@/lib/quittance', () => ({
+  generateBailAndUploadToDrive: vi.fn(),
+  triggerCandidateAcceptedWebhook: vi.fn().mockResolvedValue(undefined),
+  createGmailDraftCandidateAccepted: vi.fn().mockResolvedValue(undefined),
+  createGoogleContacts: vi.fn().mockResolvedValue(undefined),
+  moveCandidateFolderToTenants: vi.fn().mockResolvedValue(undefined),
+}))
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
+import { runSqlAdmin } from '@/lib/adminData'
+import { generateBailAndUploadToDrive } from '@/lib/quittance'
 import { updateApplicationStatusAction, signLeaseAction } from '@/app/admin/mise-en-location/candidats/[id]/actions'
 
 function makeAdminMock() {
@@ -61,6 +70,59 @@ describe('updateApplicationStatusAction — accepted_at', () => {
 
     expect(result.ok).toBe(true)
     expect(update).toHaveBeenCalledWith({ status: 'withdrawn' })
+  })
+})
+
+describe('updateApplicationStatusAction — irlWarning', () => {
+  const bailRow = {
+    candidate_id: 'cand-1',
+    title: null, first_name: 'Jean', last_name: 'Dupont', email: null, phone: null,
+    birth_date: null, birth_place: null, address: null, family_status: null,
+    desired_signing_date: '2026-08-01',
+    apartment_number: '7', building_short_name: 'Moulinet', building_address: '9 rue du Moulinet',
+    rent_including_charges: 500, rent_excluding_charges: 450, charges: 50,
+    g_title: null, g_first_name: null, g_last_name: null, g_email: null, g_phone: null,
+    g_birth_date: null, g_birth_place: null, g_address: null,
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('remonte l\'irlWarning renvoyé par generateBailAndUploadToDrive quand le candidat est accepté', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({
+      filename: 'bail.pdf',
+      irlWarning: 'IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025...',
+    })
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.irlWarning).toBe('IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025...')
+  })
+
+  it('n\'expose aucune irlWarning quand l\'IRL utilisé est à jour', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({ filename: 'bail.pdf' })
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.irlWarning).toBeUndefined()
+  })
+
+  it('reste ok même si la génération du bail échoue (best-effort) et n\'expose pas d\'irlWarning', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockRejectedValueOnce(new Error('Google Drive down'))
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.irlWarning).toBeUndefined()
   })
 })
 

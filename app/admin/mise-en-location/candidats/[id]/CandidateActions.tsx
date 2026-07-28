@@ -45,12 +45,14 @@ export default function CandidateActions({
   const [pending, startTransition] = useTransition()
   const [signError, setSignError] = useState<string | null>(null)
   const [signDone, setSignDone] = useState(false)
+  const [irlWarning, setIrlWarning] = useState<string | null>(null)
 
   const isTerminal = ['accepted', 'rejected', 'withdrawn', 'signed'].includes(currentStatus)
 
   function handleStatus(status: 'accepted' | 'rejected' | 'withdrawn') {
-    startTransition(() => {
-      void updateApplicationStatusAction(applicationId, status, visitorId)
+    startTransition(async () => {
+      const result = await updateApplicationStatusAction(applicationId, status, visitorId)
+      setIrlWarning(result.irlWarning ?? null)
     })
   }
 
@@ -115,6 +117,11 @@ export default function CandidateActions({
           <span className="text-green-600 font-bold">✓</span>
           <span className="text-sm font-medium text-green-800">Candidat retenu</span>
         </div>
+        {irlWarning && (
+          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            ⚠️ {irlWarning}
+          </p>
+        )}
         <button
           onClick={handleSign}
           disabled={pending}

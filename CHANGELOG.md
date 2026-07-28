@@ -2,6 +2,22 @@
 
 ## [Non publié]
 
+### 2026-07-28 — Bail : alerte si l'IRL utilisé est dépassé
+- **Cause du signalement** : lors de la génération d'un bail, l'IRL affiché avait 2 trimestres de retard (4e trimestre 2025 au lieu du 2e trimestre 2026 attendu) sans qu'aucun signal ne le remonte
+- `lib/quittanceUtils.ts` (nouveau, fonctions pures) : `getExpectedIrlQuarter()` calcule le dernier trimestre IRL qui devrait déjà être publié par l'INSEE selon son calendrier de publication (mi-avril/juillet/octobre/janvier) ; `parseIrlLabel()` parse un libellé du type "2e trimestre 2026" ; `checkIrlFreshness()` compare et retourne un message d'alerte si l'IRL utilisé est antérieur à celui attendu (best-effort : pas d'alerte si le libellé n'est pas reconnu, ex. valeur fixée manuellement au format libre)
+- `lib/quittance.ts` : `generateBailAndUploadToDrive()` appelle `checkIrlFreshness()` sur l'IRL retenu (variables d'env `BAIL_IRL_DATE`/`BAIL_IRL_VALUE` ou API INSEE) — logge un `console.warn` et expose désormais `irlWarning?: string` dans son retour
+- `app/admin/mise-en-location/candidats/[id]/actions.ts` : `updateApplicationStatusAction()` propage `irlWarning` dans son retour
+- `app/admin/mise-en-location/candidats/[id]/CandidateActions.tsx` : bannière d'alerte affichée sous "Candidat retenu" quand `irlWarning` est renvoyé après le clic sur "Choisir"
+- Tests : `src/lib/quittanceUtils.test.ts` (nouveaux cas, dont la reproduction exacte du bug signalé), `actions.test.ts` (propagation d'`irlWarning`, y compris en cas d'échec de génération du bail), `CandidateActions.test.tsx` (nouveau)
+- **Limite assumée** : alerte seulement, pas de blocage de l'acceptation — conforme à la demande ("au moins un message d'alerte")
+
+### 2026-07-28 — Fix : l'appel API INSEE pour l'IRL ne fonctionnait jamais
+- **Découvert en vérifiant le point ci-dessus** : `.env.local` fixait `BAIL_IRL_DATE`/`BAIL_IRL_VALUE` en dur (prioritaires sur l'appel API), et la valeur était déjà dépassée (1er trimestre 2026 au lieu du 2e trimestre 2026 publié depuis le 15/07) — retirés de `.env.local` pour que l'API fasse foi
+- **Bug plus profond** : même sans cet override, `fetchIrlFromInsee()` (`lib/quittance.ts`) ne fonctionnait pas — son regex cherchait des attributs `ObsDimension`/`ObsValue` (`value="..."`) qui n'existent pas dans la réponse réelle de l'API SDMX INSEE (attributs `TIME_PERIOD`/`OBS_VALUE`, vérifié par un appel direct à l'API). Le parsing échouait donc systématiquement (`Format INSEE inattendu`), silencieusement absorbé par le `catch` existant (`irl_date`/`irl_value` mis à `''`)
+- `lib/quittanceUtils.ts` : parsing extrait dans `parseInseeIrlXml()` (fonction pure, testable), avec les bons noms d'attributs
+- `lib/quittance.ts` : `fetchIrlFromInsee()` délègue à `parseInseeIrlXml()`
+- Tests : `src/lib/quittanceUtils.test.ts` — fixture reprenant la vraie réponse de l'API (T2 2026, 148,37)
+
 ### 2026-07-26 — Actions : "edl à envoyer" pointe vers le bail concerné
 - `lib/adminData.ts` : `getEdlToSendActions` génère désormais `linkUrl` avec `?lease={l.id}` en plus du numéro d'appartement — nécessaire car l'EDL doit être envoyé avant le début du bail, donc le bail concerné n'est pas forcément celui affiché par défaut sur la fiche appartement (`getAdminApartmentDetail` sait déjà résoudre un bail précis via ce paramètre)
 

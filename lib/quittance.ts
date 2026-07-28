@@ -5,7 +5,7 @@ import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
 import { buildTenantListEmailBody, buildEdlEntreeEmailBody, EDL_ENTREE_EMAIL_SUBJECT } from './emailFormatting'
-import { calcProrataBreakdown, computeQuittancePeriod, fmtShortDate } from './quittanceUtils'
+import { calcProrataBreakdown, checkIrlFreshness, computeQuittancePeriod, fmtShortDate, parseInseeIrlXml } from './quittanceUtils'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -1337,17 +1337,9 @@ async function fetchIrlFromInsee(): Promise<{ date: string; value: string }> {
   if (!res.ok) throw new Error(`INSEE API ${res.status}`)
   const xml = await res.text()
 
-  const periodMatch = xml.match(/ObsDimension[^>]+value="(\d{4})-Q(\d)"/)
-  const valueMatch  = xml.match(/ObsValue[^>]+value="([\d.]+)"/)
-  if (!periodMatch || !valueMatch) throw new Error('Format INSEE inattendu')
-
-  const year    = periodMatch[1]
-  const quarter = parseInt(periodMatch[2])
-  const labels  = ['', '1er', '2e', '3e', '4e']
-  return {
-    date:  `${labels[quarter]} trimestre ${year}`,
-    value: valueMatch[1].replace('.', ','),
-  }
+  const irl = parseInseeIrlXml(xml)
+  if (!irl) throw new Error('Format INSEE inattendu')
+  return irl
 }
 
 function montantEnLettres(montant: number): string {
@@ -1383,7 +1375,7 @@ export async function generateBailAndUploadToDrive(opts: {
   guarantorBirthDate: string | null
   guarantorBirthPlace: string | null
   guarantorAddress: string | null
-}): Promise<{ filename: string; webViewLink?: string }> {
+}): Promise<{ filename: string; webViewLink?: string; irlWarning?: string }> {
   const candidatesRootId = process.env.GDRIVE_CANDIDATES_FOLDER_ID
   if (!candidatesRootId) throw new Error('Google Drive non configuré (GDRIVE_CANDIDATES_FOLDER_ID manquant)')
 
@@ -1526,6 +1518,10 @@ export async function generateBailAndUploadToDrive(opts: {
     }
   }
 
+  // 2c. Alerte si l'IRL utilisé n'est pas le dernier trimestre normalement déjà publié par l'INSEE
+  const irlWarning = replacements.irl_date ? checkIrlFreshness(replacements.irl_date) : null
+  if (irlWarning) console.warn(`[generateBailAndUploadToDrive] ${irlWarning}`)
+
   const auth = makeGoogleAuth()
   const drive = google.drive({ version: 'v3', auth })
   const docs  = google.docs({ version: 'v1', auth })
@@ -1610,7 +1606,7 @@ export async function generateBailAndUploadToDrive(opts: {
       media: { mimeType: 'application/pdf', body: Readable.from(pdfBuffer) },
       fields: 'id, webViewLink',
     })
-    return { filename, webViewLink: created.data.webViewLink ?? undefined }
+    return { filename, webViewLink: created.data.webViewLink ?? undefined, irlWarning: irlWarning ?? undefined }
   } finally {
     // 8. Suppression de la copie temporaire (best-effort)
     await drive.files.delete({ fileId: tempId }).catch(() => {})
