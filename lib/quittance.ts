@@ -5,7 +5,7 @@ import { Readable } from 'stream'
 import { google } from 'googleapis'
 import { runSqlAdmin } from './adminData'
 import { buildTenantListEmailBody, buildEdlEntreeEmailBody, EDL_ENTREE_EMAIL_SUBJECT } from './emailFormatting'
-import { calcProrataBreakdown, checkIrlFreshness, computeQuittancePeriod, fmtShortDate, parseInseeIrlXml } from './quittanceUtils'
+import { calcProrataBreakdown, checkIrlFreshness, computeQuittancePeriod, escapeDriveQueryValue, fmtShortDate, parseInseeIrlXml } from './quittanceUtils'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -808,7 +808,7 @@ async function findTenantFolder(drive: ReturnType<typeof google.drive>, aptNumbe
   // Nomenclature dossier : "{aptNum}_{NOM_EN_MAJUSCULES}"
   const searchName = `${aptNumber}_${tenantLastName.toUpperCase()}`
   const res = await drive.files.list({
-    q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name contains '${searchName}' and trashed = false`,
+    q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name contains '${escapeDriveQueryValue(searchName)}' and trashed = false`,
     fields: 'files(id, name, webViewLink)',
     pageSize: 5,
   })
@@ -1182,7 +1182,7 @@ async function getOrCreateFolder(
   folderName: string
 ): Promise<string> {
   const res = await drive.files.list({
-    q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`,
+    q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${escapeDriveQueryValue(folderName)}' and trashed = false`,
     fields: 'files(id)',
     pageSize: 1,
   })
@@ -1254,7 +1254,7 @@ export async function moveCandidateFolderToTenants(opts: {
   // Trouver le dossier source dans /candidats
   const srcName = `${opts.aptNumber}-${opts.candidateLastName.toUpperCase()}`
   const srcRes = await drive.files.list({
-    q: `'${candidatesRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${srcName}' and trashed = false`,
+    q: `'${candidatesRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${escapeDriveQueryValue(srcName)}' and trashed = false`,
     fields: 'files(id)',
     pageSize: 1,
   })
@@ -1593,7 +1593,7 @@ export async function generateBailAndUploadToDrive(opts: {
     // 6. Trouver le dossier candidat dans /candidats
     const folderName = `${opts.aptNumber}-${opts.tenantLastName.toUpperCase()}`
     const folderRes = await drive.files.list({
-      q: `'${candidatesRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`,
+      q: `'${candidatesRootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${escapeDriveQueryValue(folderName)}' and trashed = false`,
       fields: 'files(id)',
       pageSize: 1,
     })

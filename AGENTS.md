@@ -41,6 +41,7 @@ Sans précision de mode, l'agent se comporte comme DEV par défaut.
 - Pour les dates en composants client : jamais `toISOString().slice(0,10)` — utiliser `getFullYear()/getMonth()/getDate()`
 - Pas d'entités HTML dans le JSX — UTF-8 direct uniquement
 - Pas de composants React définis à l'intérieur d'autres composants
+- **Jamais d'erreur silencieuse** : un `catch` vide ou qui ne fait qu'un commentaire ("non-bloquant") est interdit, même pour une action best-effort qu'on ne veut pas bloquante. Il faut toujours au minimum `console.error`/`console.warn` avec le contexte (quelle action, quel id), et si l'action a une UI, remonter un message exploitable jusqu'à l'utilisateur (ex. `warnings: string[]` retourné par la server action, affiché dans le composant). Ne jamais imbriquer une action best-effort B à l'intérieur du `try` d'une action A non liée : un échec de A ne doit pas empêcher B d'être tentée — chaque action indépendante a son propre `try/catch`. (Cf. bug réel : bail Google Drive cassé pour un nom avec apostrophe → webhook Docusign et brouillon Gmail jamais exécutés car imbriqués dans le même `try`, sans aucun message d'erreur.)
 
 **Tests obligatoires** — pour chaque modification de code (pas uniquement les nouvelles features) :
 - Identifier les fonctions pures et composants client impactés

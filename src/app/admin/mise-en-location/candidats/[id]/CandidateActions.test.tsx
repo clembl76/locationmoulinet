@@ -47,13 +47,10 @@ describe('CandidateActions — statut "pending"', () => {
   })
 })
 
-describe('CandidateActions — alerte IRL après acceptation', () => {
-  it('affiche l\'irlWarning renvoyé par le serveur quand le candidat est accepté', async () => {
+describe('CandidateActions — alertes (warnings) après acceptation', () => {
+  it('déclenche bien updateApplicationStatusAction("accepted") au clic sur Choisir', async () => {
     const user = userEvent.setup()
-    mockUpdateApplicationStatus.mockResolvedValue({
-      ok: true,
-      irlWarning: 'IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025...',
-    })
+    mockUpdateApplicationStatus.mockResolvedValue({ ok: true })
 
     render(<CandidateActions {...defaultProps} currentStatus="pending" />)
     await user.click(screen.getByLabelText('Revenus vérifiés'))
@@ -67,14 +64,14 @@ describe('CandidateActions — alerte IRL après acceptation', () => {
   it('n\'affiche aucune alerte quand le statut est déjà "accepted" et qu\'aucune action n\'a été faite', () => {
     render(<CandidateActions {...defaultProps} currentStatus="accepted" />)
     expect(screen.getByText('Candidat retenu')).toBeInTheDocument()
-    expect(screen.queryByText(/IRL potentiellement obsolète/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/échoué/)).not.toBeInTheDocument()
   })
 
-  it('affiche la bannière d\'alerte dans le statut "accepted" si une irlWarning a été renvoyée au clic', async () => {
+  it('affiche la bannière d\'alerte dans le statut "accepted" si des warnings ont été renvoyées au clic', async () => {
     const user = userEvent.setup()
     mockUpdateApplicationStatus.mockResolvedValue({
       ok: true,
-      irlWarning: 'IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025, alors que le 2e trimestre 2026 devrait déjà être publié.',
+      warnings: ['IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025, alors que le 2e trimestre 2026 devrait déjà être publié.'],
     })
 
     // On simule un composant déjà dans l'état "pending" qui bascule vers "accepted"
@@ -88,6 +85,52 @@ describe('CandidateActions — alerte IRL après acceptation', () => {
     rerender(<CandidateActions {...defaultProps} currentStatus="accepted" />)
 
     expect(await screen.findByText(/IRL potentiellement obsolète/)).toBeInTheDocument()
+  })
+
+  it('affiche une bannière par warning quand plusieurs actions best-effort échouent (ex. bug D\'Almeida : bail + webhook + Gmail)', async () => {
+    const user = userEvent.setup()
+    mockUpdateApplicationStatus.mockResolvedValue({
+      ok: true,
+      warnings: [
+        'Génération du bail échouée : Invalid Value',
+        'Webhook Make.com échoué : Make.com a répondu 500',
+      ],
+    })
+
+    const { rerender } = render(<CandidateActions {...defaultProps} currentStatus="pending" />)
+    await user.click(screen.getByLabelText('Revenus vérifiés'))
+    await user.click(screen.getByRole('button', { name: 'Choisir' }))
+    await waitFor(() => expect(mockUpdateApplicationStatus).toHaveBeenCalled())
+    rerender(<CandidateActions {...defaultProps} currentStatus="accepted" />)
+
+    expect(await screen.findByText(/Génération du bail échouée/)).toBeInTheDocument()
+    expect(screen.getByText(/Webhook Make\.com échoué/)).toBeInTheDocument()
+  })
+})
+
+describe('CandidateActions — signature du bail', () => {
+  it('affiche les warnings de signLeaseAction (ex. échec déplacement dossier Drive) après signature', async () => {
+    const user = userEvent.setup()
+    mockSignLease.mockResolvedValue({
+      ok: true,
+      warnings: ["Déplacement du dossier Drive échoué : Invalid Value"],
+    })
+
+    render(<CandidateActions {...defaultProps} currentStatus="accepted" />)
+    await user.click(screen.getByRole('button', { name: 'Bail signé' }))
+
+    expect(await screen.findByText(/Déplacement du dossier Drive échoué/)).toBeInTheDocument()
+    expect(screen.getByText('Bail signé — locataire créé')).toBeInTheDocument()
+  })
+
+  it('affiche le message d\'erreur si signLeaseAction échoue', async () => {
+    const user = userEvent.setup()
+    mockSignLease.mockResolvedValue({ ok: false, error: 'Candidature introuvable' })
+
+    render(<CandidateActions {...defaultProps} currentStatus="accepted" />)
+    await user.click(screen.getByRole('button', { name: 'Bail signé' }))
+
+    expect(await screen.findByText('Candidature introuvable')).toBeInTheDocument()
   })
 })
 

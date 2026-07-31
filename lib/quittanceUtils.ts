@@ -1,5 +1,15 @@
 // Fonctions pures pour le calcul des quittances — sans dépendances externes
 
+/**
+ * Échappe une valeur pour l'insérer dans un littéral de requête Google Drive API (paramètre `q`).
+ * Une apostrophe non échappée dans un nom (ex. "D'Almeida") casse la requête (`Invalid Value`
+ * renvoyé par l'API) — les littéraux `q` utilisent l'apostrophe comme délimiteur et doivent
+ * échapper toute apostrophe interne avec un antislash.
+ */
+export function escapeDriveQueryValue(value: string): string {
+  return value.split("'").join("\\'")
+}
+
 /** Formate une date ISO "YYYY-MM-DD" en "DD/MM/YYYY" (pour les actes officiels). */
 export function fmtShortDate(iso: string | null): string {
   if (!iso) return ''

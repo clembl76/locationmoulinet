@@ -2,6 +2,22 @@
 
 ## [Non publié]
 
+### 2026-07-29 — Découplage bail/webhook/Gmail/contacts + fin des erreurs silencieuses
+- **Suite du fix D'Almeida** : même corrigé, le couplage restait fragile — une panne de génération du bail (n'importe laquelle, pas seulement l'apostrophe) aurait de nouveau bloqué le webhook Docusign et le brouillon Gmail, sans aucun message
+- `app/admin/mise-en-location/candidats/[id]/actions.ts` (`updateApplicationStatusAction`) : les 4 actions best-effort après acceptation (bail, webhook Make.com, brouillon Gmail, contacts Google) ont chacune leur propre `try/catch` indépendant — l'échec de l'une n'empêche plus les autres d'être tentées. Chaque échec est ajouté à un tableau `warnings: string[]` retourné par l'action (remplace `irlWarning?: string`, qui n'était qu'un cas particulier)
+- Même traitement pour `signLeaseAction` (déplacement du dossier Drive candidat → locataires)
+- `CandidateActions.tsx` : affiche une bannière par warning (au lieu du seul avertissement IRL)
+- `AGENTS.md` : nouvelle règle DEV — interdiction des `catch` silencieux, y compris pour les actions best-effort ; chaque action indépendante doit avoir son propre `try/catch` (ne pas imbriquer B dans le `try` de A)
+- Tests : `actions.test.ts` (régression explicite du bug D'Almeida : webhook + Gmail toujours appelés même si le bail échoue), `CandidateActions.test.tsx`
+
+### 2026-07-29 — Fix : bail/webhook/Gmail non générés pour un candidat au nom à apostrophe
+- **Signalé** : candidat accepté pour l'appt 12 (Emmanuel D'Almeida) sans brouillon Gmail ni bail Docusign
+- **Cause racine confirmée en conditions réelles** : les requêtes Google Drive API (`files.list` avec `q: ... name = '${nom}' ...`) n'échappaient pas les apostrophes. Pour "D'ALMEIDA", la requête devient syntaxiquement invalide → l'API Drive répond `Invalid Value` → `generateBailAndUploadToDrive()` lève une exception → dans `updateApplicationStatusAction`, le webhook Make.com (qui crée l'enveloppe Docusign) et le brouillon Gmail sont imbriqués **dans le même bloc try** que la génération du bail, donc jamais exécutés (silencieusement absorbé par le catch "non-bloquant")
+- `lib/quittanceUtils.ts` : nouvelle fonction pure `escapeDriveQueryValue()` (échappe `'` en `\'`)
+- `lib/quittance.ts` : appliquée aux 4 requêtes Drive concernées (`findTenantFolder`, `getOrCreateFolder`, `moveCandidateFolderToTenants`, `generateBailAndUploadToDrive`)
+- Tests : `src/lib/quittanceUtils.test.ts` (nouveaux cas, dont la reproduction exacte "D'ALMEIDA")
+- **Non traité ici** : le fait que l'échec de `generateBailAndUploadToDrive` bloque aussi le webhook/Gmail (couplage des 3 étapes dans un seul try) reste un problème structurel à part, non corrigé dans ce commit — cf. `AUDIT_DETTE_TECHNIQUE.md`
+
 ### 2026-07-28 — Bail : alerte si l'IRL utilisé est dépassé
 - **Cause du signalement** : lors de la génération d'un bail, l'IRL affiché avait 2 trimestres de retard (4e trimestre 2025 au lieu du 2e trimestre 2026 attendu) sans qu'aucun signal ne le remonte
 - `lib/quittanceUtils.ts` (nouveau, fonctions pures) : `getExpectedIrlQuarter()` calcule le dernier trimestre IRL qui devrait déjà être publié par l'INSEE selon son calendrier de publication (mi-avril/juillet/octobre/janvier) ; `parseIrlLabel()` parse un libellé du type "2e trimestre 2026" ; `checkIrlFreshness()` compare et retourne un message d'alerte si l'IRL utilisé est antérieur à celui attendu (best-effort : pas d'alerte si le libellé n'est pas reconnu, ex. valeur fixée manuellement au format libre)

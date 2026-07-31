@@ -4,6 +4,7 @@ import {
   calcProrataBreakdown,
   checkIrlFreshness,
   computeQuittancePeriod,
+  escapeDriveQueryValue,
   fmtShortDate,
   getExpectedIrlQuarter,
   parseInseeIrlXml,
@@ -131,6 +132,20 @@ describe('fmtShortDate', () => {
 
   it('conserve les zéros de padding du mois et du jour', () => {
     expect(fmtShortDate('2024-01-05')).toBe('05/01/2024')
+  })
+})
+
+describe('escapeDriveQueryValue', () => {
+  it('échappe une apostrophe pour un nom de famille composé (bug réel : "D\'ALMEIDA")', () => {
+    expect(escapeDriveQueryValue("12-D'ALMEIDA")).toBe("12-D\\'ALMEIDA")
+  })
+
+  it('échappe plusieurs apostrophes', () => {
+    expect(escapeDriveQueryValue("O'Brien-D'Almeida")).toBe("O\\'Brien-D\\'Almeida")
+  })
+
+  it('laisse inchangée une valeur sans apostrophe', () => {
+    expect(escapeDriveQueryValue('12-DUPONT')).toBe('12-DUPONT')
   })
 })
 

@@ -45,14 +45,14 @@ export default function CandidateActions({
   const [pending, startTransition] = useTransition()
   const [signError, setSignError] = useState<string | null>(null)
   const [signDone, setSignDone] = useState(false)
-  const [irlWarning, setIrlWarning] = useState<string | null>(null)
+  const [warnings, setWarnings] = useState<string[]>([])
 
   const isTerminal = ['accepted', 'rejected', 'withdrawn', 'signed'].includes(currentStatus)
 
   function handleStatus(status: 'accepted' | 'rejected' | 'withdrawn') {
     startTransition(async () => {
       const result = await updateApplicationStatusAction(applicationId, status, visitorId)
-      setIrlWarning(result.irlWarning ?? null)
+      setWarnings(result.warnings ?? [])
     })
   }
 
@@ -85,11 +85,22 @@ export default function CandidateActions({
       })
       if (result.ok) {
         setSignDone(true)
+        setWarnings(result.warnings ?? [])
       } else {
         setSignError(result.error)
       }
     })
   }
+
+  const warningsBanner = warnings.length > 0 && (
+    <div className="space-y-1.5">
+      {warnings.map((w, i) => (
+        <p key={i} className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          ⚠️ {w}
+        </p>
+      ))}
+    </div>
+  )
 
   // ── Statut "signed" (bail signé) ──────────────────────────────────────────
   if (currentStatus === 'signed' || signDone) {
@@ -99,6 +110,7 @@ export default function CandidateActions({
           <span className="text-green-600 font-bold">✓</span>
           <span className="text-sm font-medium text-green-800">Bail signé — locataire créé</span>
         </div>
+        {warningsBanner}
         <a
           href={`/admin/apartments/${aptNumber}`}
           className="block text-center text-xs text-blue-primary hover:underline"
@@ -117,11 +129,7 @@ export default function CandidateActions({
           <span className="text-green-600 font-bold">✓</span>
           <span className="text-sm font-medium text-green-800">Candidat retenu</span>
         </div>
-        {irlWarning && (
-          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-            ⚠️ {irlWarning}
-          </p>
-        )}
+        {warningsBanner}
         <button
           onClick={handleSign}
           disabled={pending}

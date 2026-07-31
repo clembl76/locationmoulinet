@@ -14,7 +14,7 @@ vi.mock('@/lib/adminData', () => ({
 
 vi.mock('@/lib/quittance', () => ({
   generateBailAndUploadToDrive: vi.fn(),
-  triggerCandidateAcceptedWebhook: vi.fn().mockResolvedValue(undefined),
+  triggerCandidateAcceptedWebhook: vi.fn().mockResolvedValue({ ok: true }),
   createGmailDraftCandidateAccepted: vi.fn().mockResolvedValue(undefined),
   createGoogleContacts: vi.fn().mockResolvedValue(undefined),
   moveCandidateFolderToTenants: vi.fn().mockResolvedValue(undefined),
@@ -26,7 +26,13 @@ vi.mock('next/cache', () => ({
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
-import { generateBailAndUploadToDrive } from '@/lib/quittance'
+import {
+  generateBailAndUploadToDrive,
+  triggerCandidateAcceptedWebhook,
+  createGmailDraftCandidateAccepted,
+  createGoogleContacts,
+  moveCandidateFolderToTenants,
+} from '@/lib/quittance'
 import { updateApplicationStatusAction, signLeaseAction } from '@/app/admin/mise-en-location/candidats/[id]/actions'
 
 function makeAdminMock() {
@@ -73,7 +79,7 @@ describe('updateApplicationStatusAction — accepted_at', () => {
   })
 })
 
-describe('updateApplicationStatusAction — irlWarning', () => {
+describe('updateApplicationStatusAction — warnings (aucune erreur silencieuse)', () => {
   const bailRow = {
     candidate_id: 'cand-1',
     title: null, first_name: 'Jean', last_name: 'Dupont', email: null, phone: null,
@@ -87,9 +93,23 @@ describe('updateApplicationStatusAction — irlWarning', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(triggerCandidateAcceptedWebhook).mockResolvedValue({ ok: true })
+    vi.mocked(createGmailDraftCandidateAccepted).mockResolvedValue(undefined)
+    vi.mocked(createGoogleContacts).mockResolvedValue(undefined)
   })
 
-  it('remonte l\'irlWarning renvoyé par generateBailAndUploadToDrive quand le candidat est accepté', async () => {
+  it('aucune warning quand les 4 actions best-effort réussissent', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({ filename: 'bail.pdf' })
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.warnings).toBeUndefined()
+  })
+
+  it('remonte l\'irlWarning renvoyé par generateBailAndUploadToDrive dans warnings', async () => {
     makeAdminMock()
     vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
     vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({
@@ -100,29 +120,74 @@ describe('updateApplicationStatusAction — irlWarning', () => {
     const result = await updateApplicationStatusAction('app-1', 'accepted', null)
 
     expect(result.ok).toBe(true)
-    expect(result.irlWarning).toBe('IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025...')
+    expect(result.warnings).toEqual(['IRL potentiellement obsolète : bail généré avec le 4e trimestre 2025...'])
   })
 
-  it('n\'expose aucune irlWarning quand l\'IRL utilisé est à jour', async () => {
+  it('régression bug réel : un échec de génération du bail n\'empêche plus le webhook et le brouillon Gmail d\'être tentés', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockRejectedValueOnce(new Error("Invalid Value"))
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.warnings).toContain('Génération du bail échouée : Invalid Value')
+    // Avant la correction, ces deux appels n'étaient jamais atteints car imbriqués dans le
+    // try du bail — c'est exactement le bug signalé (candidat "D'Almeida" : ni bail, ni mail).
+    expect(triggerCandidateAcceptedWebhook).toHaveBeenCalledTimes(1)
+    expect(createGmailDraftCandidateAccepted).toHaveBeenCalledTimes(1)
+  })
+
+  it('signale l\'échec du webhook Make.com sans bloquer le reste', async () => {
     makeAdminMock()
     vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
     vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({ filename: 'bail.pdf' })
+    vi.mocked(triggerCandidateAcceptedWebhook).mockResolvedValueOnce({ ok: false, error: 'Make.com a répondu 500' })
 
     const result = await updateApplicationStatusAction('app-1', 'accepted', null)
 
     expect(result.ok).toBe(true)
-    expect(result.irlWarning).toBeUndefined()
+    expect(result.warnings).toContain('Webhook Make.com échoué : Make.com a répondu 500')
+    expect(createGmailDraftCandidateAccepted).toHaveBeenCalledTimes(1)
   })
 
-  it('reste ok même si la génération du bail échoue (best-effort) et n\'expose pas d\'irlWarning', async () => {
+  it('signale l\'échec du brouillon Gmail sans bloquer le reste', async () => {
     makeAdminMock()
     vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
-    vi.mocked(generateBailAndUploadToDrive).mockRejectedValueOnce(new Error('Google Drive down'))
+    vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({ filename: 'bail.pdf' })
+    vi.mocked(createGmailDraftCandidateAccepted).mockRejectedValueOnce(new Error('GMAIL_REFRESH_TOKEN invalide'))
 
     const result = await updateApplicationStatusAction('app-1', 'accepted', null)
 
     expect(result.ok).toBe(true)
-    expect(result.irlWarning).toBeUndefined()
+    expect(result.warnings).toContain('Brouillon Gmail échoué : GMAIL_REFRESH_TOKEN invalide')
+    expect(createGoogleContacts).toHaveBeenCalledTimes(1)
+  })
+
+  it('signale l\'échec de la création des contacts Google', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockResolvedValueOnce({ filename: 'bail.pdf' })
+    vi.mocked(createGoogleContacts).mockRejectedValueOnce(new Error('Contacts API quota dépassé'))
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.warnings).toContain('Création des contacts Google échouée : Contacts API quota dépassé')
+  })
+
+  it('cumule plusieurs warnings si plusieurs actions échouent', async () => {
+    makeAdminMock()
+    vi.mocked(runSqlAdmin).mockResolvedValueOnce([bailRow])
+    vi.mocked(generateBailAndUploadToDrive).mockRejectedValueOnce(new Error('Drive down'))
+    vi.mocked(triggerCandidateAcceptedWebhook).mockResolvedValueOnce({ ok: false, error: 'timeout' })
+
+    const result = await updateApplicationStatusAction('app-1', 'accepted', null)
+
+    expect(result.ok).toBe(true)
+    expect(result.warnings).toHaveLength(2)
+    expect(result.warnings).toContain('Génération du bail échouée : Drive down')
+    expect(result.warnings).toContain('Webhook Make.com échoué : timeout')
   })
 })
 
@@ -208,5 +273,25 @@ describe('signLeaseAction — candidate_application_id / signed_at', () => {
     expect(appUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'signed', signed_at: expect.any(String) })
     )
+  })
+
+  it('signale (sans bloquer) un échec du déplacement du dossier Drive candidat → locataires', async () => {
+    makeSignLeaseAdminMock()
+    vi.mocked(moveCandidateFolderToTenants).mockRejectedValueOnce(new Error("Invalid Value"))
+
+    const result = await signLeaseAction(baseOpts)
+
+    expect(result.ok).toBe(true)
+    expect(result.ok && result.warnings).toContain('Déplacement du dossier Drive échoué : Invalid Value')
+  })
+
+  it('aucune warning quand le déplacement du dossier Drive réussit', async () => {
+    makeSignLeaseAdminMock()
+    vi.mocked(moveCandidateFolderToTenants).mockResolvedValueOnce(undefined)
+
+    const result = await signLeaseAction(baseOpts)
+
+    expect(result.ok).toBe(true)
+    expect(result.ok && result.warnings).toBeUndefined()
   })
 })

@@ -26,8 +26,9 @@ export async function updateApplicationStatusAction(
   applicationId: string,
   candidateStatus: 'accepted' | 'rejected' | 'withdrawn',
   visitorId: string | null,
-): Promise<{ ok: boolean; error?: string; irlWarning?: string }> {
-  let irlWarning: string | undefined
+): Promise<{ ok: boolean; error?: string; warnings?: string[] }> {
+  const warnings: string[] = []
+  const errMsg = (e: unknown) => e instanceof Error ? e.message : 'erreur inconnue'
   try {
     const admin = createAdminClient()
 
@@ -106,8 +107,15 @@ export async function updateApplicationStatusAction(
         endDateObj.setDate(endDateObj.getDate() - 1)
         const endDate = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`
         const rentCC = row.rent_including_charges ?? 0
+
+        // Les 4 actions suivantes sont indépendantes (best-effort) : l'échec de l'une ne doit
+        // ni bloquer les autres, ni rester silencieux — chaque échec est ajouté à `warnings`.
+        let filename: string | undefined
+        let webViewLink: string | undefined
+
+        // 1. Génération du PDF bail
         try {
-          const { filename, webViewLink, irlWarning: warning } = await generateBailAndUploadToDrive({
+          const result = await generateBailAndUploadToDrive({
             aptNumber: row.apartment_number,
             signingDate,
             endDate,
@@ -133,51 +141,54 @@ export async function updateApplicationStatusAction(
             guarantorBirthPlace: row.g_birth_place,
             guarantorAddress: row.g_address,
           })
-          irlWarning = warning
-
-          // Notification Make.com : candidat accepté + bail généré (best-effort)
-          try {
-            await triggerCandidateAcceptedWebhook({
-              apartmentNumber: row.apartment_number,
-              candidateFirstName: row.first_name,
-              candidateLastName: row.last_name,
-              candidateEmail: row.email,
-              candidatePhone: row.phone,
-              hasGuarantor: !!row.g_last_name,
-              guarantorFirstName: row.g_first_name,
-              guarantorLastName: row.g_last_name,
-              guarantorEmail: row.g_email,
-              signingDate,
-              endDate,
-              rentCC,
-              filename,
-              webViewLink,
-            })
-          } catch {
-            // non-bloquant : un échec du webhook Make.com ne doit pas empêcher l'acceptation du candidat
-          }
-
-          // Brouillon Gmail de confirmation au candidat (best-effort)
-          try {
-            await createGmailDraftCandidateAccepted({
-              candidateEmail: row.email ?? '',
-              aptNumber: row.apartment_number,
-              buildingShortName: row.building_short_name,
-              buildingAddress: row.building_address,
-              moveInDate: signingDate,
-              rentCC,
-              firstMonthRent: computeFirstMonthRent(signingDate, rentCC),
-              deposit: rentCC,
-              hasGuarantor: !!row.g_last_name,
-            })
-          } catch {
-            // non-bloquant : un échec de création du brouillon ne doit pas empêcher l'acceptation du candidat
-          }
-        } catch {
-          // non-bloquant : un échec de génération du bail ne doit pas empêcher l'acceptation du candidat
+          filename = result.filename
+          webViewLink = result.webViewLink
+          if (result.irlWarning) warnings.push(result.irlWarning)
+        } catch (e) {
+          warnings.push(`Génération du bail échouée : ${errMsg(e)}`)
         }
 
-        // Création des contacts Google (best-effort)
+        // 2. Notification Make.com : candidat accepté + bail généré (indépendant du bail ci-dessus)
+        try {
+          const webhookResult = await triggerCandidateAcceptedWebhook({
+            apartmentNumber: row.apartment_number,
+            candidateFirstName: row.first_name,
+            candidateLastName: row.last_name,
+            candidateEmail: row.email,
+            candidatePhone: row.phone,
+            hasGuarantor: !!row.g_last_name,
+            guarantorFirstName: row.g_first_name,
+            guarantorLastName: row.g_last_name,
+            guarantorEmail: row.g_email,
+            signingDate,
+            endDate,
+            rentCC,
+            filename: filename ?? '',
+            webViewLink,
+          })
+          if (!webhookResult.ok) warnings.push(`Webhook Make.com échoué : ${webhookResult.error ?? 'erreur inconnue'}`)
+        } catch (e) {
+          warnings.push(`Webhook Make.com échoué : ${errMsg(e)}`)
+        }
+
+        // 3. Brouillon Gmail de confirmation au candidat (indépendant du bail ci-dessus)
+        try {
+          await createGmailDraftCandidateAccepted({
+            candidateEmail: row.email ?? '',
+            aptNumber: row.apartment_number,
+            buildingShortName: row.building_short_name,
+            buildingAddress: row.building_address,
+            moveInDate: signingDate,
+            rentCC,
+            firstMonthRent: computeFirstMonthRent(signingDate, rentCC),
+            deposit: rentCC,
+            hasGuarantor: !!row.g_last_name,
+          })
+        } catch (e) {
+          warnings.push(`Brouillon Gmail échoué : ${errMsg(e)}`)
+        }
+
+        // 4. Création des contacts Google (indépendant des 3 actions ci-dessus)
         try {
           await createGoogleContacts({
             candidateFirstName: row.first_name,
@@ -190,15 +201,15 @@ export async function updateApplicationStatusAction(
             guarantorEmail: row.g_email,
             guarantorPhone: row.g_phone,
           })
-        } catch {
-          // non-bloquant : un échec de création de contact ne doit pas empêcher l'acceptation du candidat
+        } catch (e) {
+          warnings.push(`Création des contacts Google échouée : ${errMsg(e)}`)
         }
       }
     }
 
     revalidatePath(`/admin/mise-en-location/candidats/${applicationId}`)
     revalidatePath('/admin/mise-en-location')
-    return { ok: true, irlWarning }
+    return { ok: true, warnings: warnings.length ? warnings : undefined }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }
@@ -207,7 +218,7 @@ export async function updateApplicationStatusAction(
 // ── Créer locataire + bail depuis la candidature ("Bail signé") ───────────────
 
 export type SignLeaseResult =
-  | { ok: true }
+  | { ok: true; warnings?: string[] }
   | { ok: false; error: string }
 
 export async function signLeaseAction(opts: {
@@ -236,6 +247,7 @@ export async function signLeaseAction(opts: {
   guarantorBirthPlace: string | null
   guarantorAddress: string | null
 }): Promise<SignLeaseResult> {
+  const warnings: string[] = []
   try {
     const admin = createAdminClient()
 
@@ -359,14 +371,14 @@ export async function signLeaseAction(opts: {
       await admin.from('visitors').update({ status: 'confirmed' }).eq('id', opts.visitorId)
     }
 
-    // 10. Déplacer le dossier Drive candidat → locataires (best-effort)
+    // 10. Déplacer le dossier Drive candidat → locataires (best-effort, mais signalé si échec)
     try {
       await moveCandidateFolderToTenants({
         aptNumber: opts.aptNumber,
         candidateLastName: opts.candidateLastName,
       })
-    } catch {
-      // non-bloquant
+    } catch (e) {
+      warnings.push(`Déplacement du dossier Drive échoué : ${e instanceof Error ? e.message : 'erreur inconnue'}`)
     }
 
     revalidatePath(`/admin/mise-en-location/candidats/${opts.applicationId}`)
@@ -374,7 +386,7 @@ export async function signLeaseAction(opts: {
     revalidatePath(`/admin/apartments/${opts.aptNumber}`)
     revalidatePath('/admin/apartments')
     revalidatePath('/admin')
-    return { ok: true }
+    return { ok: true, warnings: warnings.length ? warnings : undefined }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }
