@@ -1246,7 +1246,9 @@ export async function moveCandidateFolderToTenants(opts: {
 }): Promise<void> {
   const candidatesRootId = process.env.GDRIVE_CANDIDATES_FOLDER_ID
   const tenantsRootId = process.env.GDRIVE_TENANTS_FOLDER_ID
-  if (!candidatesRootId || !tenantsRootId) return
+  if (!candidatesRootId || !tenantsRootId) {
+    throw new Error('GDRIVE_CANDIDATES_FOLDER_ID ou GDRIVE_TENANTS_FOLDER_ID manquant dans .env.local')
+  }
 
   const auth = makeGoogleAuth()
   const drive = google.drive({ version: 'v3', auth })
@@ -1259,7 +1261,7 @@ export async function moveCandidateFolderToTenants(opts: {
     pageSize: 1,
   })
   const srcFolder = srcRes.data.files?.[0]
-  if (!srcFolder?.id) return  // dossier pas trouvé — non bloquant
+  if (!srcFolder?.id) throw new Error(`Dossier candidat "${srcName}" introuvable dans Google Drive`)
 
   // Déplacer dans /locataires (addParents + removeParents) — même nom {aptNum}-NOM
   await drive.files.update({

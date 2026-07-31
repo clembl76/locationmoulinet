@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-07-29 — Fix : dossier Drive candidat→locataires jamais déplacé (autre erreur silencieuse)
+- **Signalé** : après "Bail signé" pour le candidat appt 12 (D'Almeida), le dossier n'apparaît pas dans Drive locataires
+- `lib/quittance.ts` (`moveCandidateFolderToTenants`) : deux `return` silencieux remplacés par des `throw` — env `GDRIVE_CANDIDATES_FOLDER_ID`/`GDRIVE_TENANTS_FOLDER_ID` manquant, et dossier source introuvable. Avant, ces cas ne remontaient absolument rien (ni erreur ni warning), même après le fix de découplage de la veille — le `catch` autour de l'appel ne capture que ce qui *throw*
+- **Cause probable pour D'Almeida** : la requête de recherche du dossier source utilisait encore l'ancien code non corrigé (voir point suivant — déploiement en retard)
+
 ### 2026-07-29 — Découplage bail/webhook/Gmail/contacts + fin des erreurs silencieuses
 - **Suite du fix D'Almeida** : même corrigé, le couplage restait fragile — une panne de génération du bail (n'importe laquelle, pas seulement l'apostrophe) aurait de nouveau bloqué le webhook Docusign et le brouillon Gmail, sans aucun message
 - `app/admin/mise-en-location/candidats/[id]/actions.ts` (`updateApplicationStatusAction`) : les 4 actions best-effort après acceptation (bail, webhook Make.com, brouillon Gmail, contacts Google) ont chacune leur propre `try/catch` indépendant — l'échec de l'une n'empêche plus les autres d'être tentées. Chaque échec est ajouté à un tableau `warnings: string[]` retourné par l'action (remplace `irlWarning?: string`, qui n'était qu'un cas particulier)
