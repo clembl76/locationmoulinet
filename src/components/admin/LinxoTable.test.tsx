@@ -66,3 +66,61 @@ describe('LinxoTable — source Renard', () => {
     expect(screen.getByText('VIR RENARD')).toBeInTheDocument()
   })
 })
+
+describe('LinxoTable — colonne Validé en 1ère position', () => {
+  it('la colonne Validé est la première colonne du tableau', () => {
+    render(<LinxoTable initialRows={[makeTx({})]} />)
+    const headers = screen.getAllByRole('columnheader')
+    expect(headers[0]).toHaveTextContent('Validé')
+    expect(headers[1]).toHaveTextContent('Date')
+  })
+
+  it('la case à cocher Validé est la première cellule de chaque ligne', () => {
+    render(<LinxoTable initialRows={[makeTx({ validated: true })]} />)
+    const row = screen.getByRole('checkbox').closest('tr')!
+    const firstCell = within(row).getAllByRole('cell')[0]
+    expect(within(firstCell).getByRole('checkbox')).toBeChecked()
+  })
+})
+
+describe('LinxoTable — retour à la ligne de la colonne Description', () => {
+  it('la description longue passe à la ligne (pas de troncature avec ellipse)', () => {
+    const longDescription = 'Une description assez longue pour nécessiter plusieurs lignes d\'affichage dans la cellule du tableau'
+    render(<LinxoTable initialRows={[makeTx({ description: longDescription })]} />)
+
+    const cell = screen.getByText(longDescription)
+    expect(cell.className).toContain('whitespace-normal')
+    expect(cell.className).toContain('break-words')
+    expect(cell.className).not.toContain('truncate')
+  })
+
+  it('les autres colonnes éditables (ex. Fournisseur) restent tronquées sur une ligne', () => {
+    render(<LinxoTable initialRows={[makeTx({ supplier: 'Un fournisseur avec un nom très long' })]} />)
+
+    const cell = screen.getByText('Un fournisseur avec un nom très long', { selector: 'span' })
+    expect(cell.className).toContain('truncate')
+    expect(cell.className).not.toContain('whitespace-normal')
+  })
+})
+
+describe('LinxoTable — colonnes Libellé et Note interverties', () => {
+  it('la colonne Note précède désormais la colonne Fournisseur, et Libellé arrive après Locataire', () => {
+    render(<LinxoTable initialRows={[makeTx({})]} />)
+    const headers = screen.getAllByRole('columnheader').map(h => h.textContent)
+    const noteIdx = headers.findIndex(h => h?.includes('Note'))
+    const libelleIdx = headers.findIndex(h => h?.includes('Libellé'))
+    const fournisseurIdx = headers.findIndex(h => h?.includes('Fournisseur'))
+    const locataireIdx = headers.findIndex(h => h?.includes('Locataire'))
+    const sourceIdx = headers.findIndex(h => h?.includes('Source'))
+
+    expect(noteIdx).toBeLessThan(fournisseurIdx)
+    expect(libelleIdx).toBeGreaterThan(locataireIdx)
+    expect(libelleIdx).toBeLessThan(sourceIdx)
+  })
+
+  it('affiche bien la valeur libellé et la valeur note à leur nouvelle position', () => {
+    render(<LinxoTable initialRows={[makeTx({ libelle: 'VIR SEPA TEST', notes: 'note de test' })]} />)
+    expect(screen.getByText('VIR SEPA TEST')).toBeInTheDocument()
+    expect(screen.getByText('note de test')).toBeInTheDocument()
+  })
+})

@@ -30,13 +30,13 @@
 ## Page EDL /admin/apartments/num/edl/id-edl
 
 ## Page Paiements /admin/payments
-
+dans le tableau "transactions linxo" intervertis les colonnes Libellé et Note.
+N'affiche plus le tableau "Transactions"
 
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
-je veux modifier la facon dont l'indice de référence des loyers ou IRL est utilisé dans le bail. c'est un indice trimestriel qui est publié sur https://www.insee.fr/fr/statistiques/serie/001515333 ou https://www.service-public.gouv.fr/particuliers/vosdroits/F13723
-Actuellement il ne se met pas à jour lors de la génération du bail. Je voudrais que tu automatises au moins un message d'alerte permettant de vérifier si on a bien la dernière valeur à jour. Aujourdhui j'ai généré un bail et j'ai 2 trimestres de retard (4e trimestre 2025 au lieu de 2e trimestre 2026)
+
 
 ## Page Disponibilités visites /admin/disponibilites
 

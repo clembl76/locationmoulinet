@@ -27,12 +27,19 @@ describe('getApartmentStatus', () => {
   })
 
   it('date de sortie future : le jour affiché correspond exactement à la date de sortie + 1, sans décalage', () => {
-    // Cas concret du bug signalé : sortie le 2026-08-01 ne doit jamais afficher le 31/07
-    const { availableFrom } = getApartmentStatus([{ move_out_inspection_date: '2026-08-01' }])
+    // Cas concret du bug signalé : une date de sortie ne doit jamais afficher la veille (décalage timezone).
+    // Date calculée par rapport à aujourd'hui (plutôt que codée en dur) pour rester valable dans le temps.
+    const future = new Date()
+    future.setDate(future.getDate() + 10)
+    const iso = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}-${String(future.getDate()).padStart(2, '0')}`
+
+    const { availableFrom } = getApartmentStatus([{ move_out_inspection_date: iso }])
     expect(availableFrom).not.toBeNull()
-    expect(availableFrom!.getFullYear()).toBe(2026)
-    expect(availableFrom!.getMonth()).toBe(7) // août = index 7
-    expect(availableFrom!.getDate()).toBe(2)
+
+    const expectedNextDay = new Date(future.getFullYear(), future.getMonth(), future.getDate() + 1)
+    expect(availableFrom!.getFullYear()).toBe(expectedNextDay.getFullYear())
+    expect(availableFrom!.getMonth()).toBe(expectedNextDay.getMonth())
+    expect(availableFrom!.getDate()).toBe(expectedNextDay.getDate())
   })
 
   it('bail avec date de sortie passée (aucune date future) : disponible', () => {

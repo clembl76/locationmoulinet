@@ -721,40 +721,6 @@ export async function generateMonthlyRents(
   return { inserted, skipped: records.length - inserted, total: records.length }
 }
 
-// ─── All transactions (page Payments) ────────────────────────────────────────
-
-export type AllTransactionRow = {
-  id: string
-  date: string
-  amount: number
-  direction: 'CREDIT' | 'DEBIT'
-  supplier: string | null
-  type: string | null
-  description: string | null
-  apartment_num: string | null
-  has_active_tenant: boolean
-}
-
-export async function getAllTransactions(): Promise<AllTransactionRow[]> {
-  return runSql<AllTransactionRow>(`
-    SELECT
-      tx.id,
-      tx.date,
-      tx.amount,
-      tx.direction,
-      tx.supplier,
-      tx.type,
-      tx.description,
-      tx.apartment_num,
-      (l.id IS NOT NULL) AS has_active_tenant
-    FROM transactions tx
-    LEFT JOIN apartments a ON a.number = tx.apartment_num::text
-    LEFT JOIN leases l ON l.apartment_id = a.id
-      AND (l.move_out_inspection_date IS NULL OR l.move_out_inspection_date >= CURRENT_DATE)
-    ORDER BY tx.date DESC, tx.id DESC
-  `)
-}
-
 // ─── Garant ───────────────────────────────────────────────────────────────────
 
 export type AdminGuarantor = {

@@ -33,10 +33,12 @@ function EditableCell({
   value,
   onSave,
   placeholder,
+  wrap,
 }: {
   value: string | null
   onSave: (v: string) => void
   placeholder?: string
+  wrap?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value ?? '')
@@ -75,8 +77,10 @@ function EditableCell({
   return (
     <span
       onClick={startEdit}
-      className={`cursor-text block truncate min-h-[1.25rem] rounded px-1 hover:bg-gray-100 transition-colors text-xs ${!value ? 'text-gray-300' : 'text-gray-700'}`}
-      title={value ?? undefined}
+      className={`cursor-text block min-h-[1.25rem] rounded px-1 hover:bg-gray-100 transition-colors text-xs ${
+        wrap ? 'whitespace-normal break-words' : 'truncate'
+      } ${!value ? 'text-gray-300' : 'text-gray-700'}`}
+      title={wrap ? undefined : (value ?? undefined)}
     >
       {value || <span className="italic">{placeholder ?? '—'}</span>}
     </span>
@@ -405,17 +409,17 @@ export default function LinxoTable({
         <table className="text-sm" style={{ minWidth: 1000, width: '100%' }}>
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <th className="text-center px-3 py-3 whitespace-nowrap"><SortBtn col="validated" label="Validé" /></th>
               <th className="text-left px-3 py-3 whitespace-nowrap"><SortBtn col="date" label="Date" /></th>
               <th className="text-right px-3 py-3 whitespace-nowrap"><SortBtn col="montant" label="Montant" /></th>
-              <th className="text-left px-3 py-3 whitespace-nowrap"><SortBtn col="libelle" label="Libellé" /></th>
+              <th className="text-left px-3 py-3 whitespace-nowrap hidden md:table-cell"><SortBtn col="notes" label="Note" /></th>
               <th className="text-left px-3 py-3 whitespace-nowrap"><SortBtn col="supplier" label="Fournisseur" /></th>
               <th className="text-left px-3 py-3 whitespace-nowrap"><SortBtn col="type" label="Type" /></th>
-              <th className="text-left px-3 py-3 whitespace-nowrap hidden xl:table-cell"><SortBtn col="description" label="Description" /></th>
+              <th className="text-left px-3 py-3 hidden xl:table-cell"><SortBtn col="description" label="Description" /></th>
               <th className="text-left px-3 py-3 whitespace-nowrap hidden lg:table-cell"><SortBtn col="apartment_num" label="Appt" /></th>
               <th className="text-left px-3 py-3 whitespace-nowrap hidden lg:table-cell"><SortBtn col="tenant_name" label="Locataire" /></th>
-              <th className="text-left px-3 py-3 whitespace-nowrap hidden md:table-cell"><SortBtn col="notes" label="Note" /></th>
+              <th className="text-left px-3 py-3 whitespace-nowrap"><SortBtn col="libelle" label="Libellé" /></th>
               <th className="text-left px-3 py-3 whitespace-nowrap hidden xl:table-cell"><SortBtn col="source" label="Source" /></th>
-              <th className="text-center px-3 py-3 whitespace-nowrap"><SortBtn col="validated" label="Validé" /></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -433,6 +437,14 @@ export default function LinxoTable({
                   key={tx.id}
                   className={tx.validated ? 'bg-green-50/50' : 'hover:bg-gray-50 transition-colors'}
                 >
+                  <td className="px-3 py-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={tx.validated}
+                      onChange={e => patchRow(tx.id, { validated: e.target.checked })}
+                      className="accent-blue-primary w-4 h-4 cursor-pointer"
+                    />
+                  </td>
                   <td className="px-3 py-2 text-gray-700 whitespace-nowrap text-xs">
                     {tx.date ? new Date(tx.date + 'T12:00:00').toLocaleDateString('fr-FR') : '—'}
                   </td>
@@ -443,10 +455,8 @@ export default function LinxoTable({
                       ? `${tx.montant >= 0 ? '+' : ''}${Number(tx.montant).toLocaleString('fr-FR')} €`
                       : '—'}
                   </td>
-                  <td className="px-3 py-2 max-w-[160px]">
-                    <span className="block truncate text-xs text-gray-700" title={tx.libelle ?? undefined}>
-                      {tx.libelle ?? '—'}
-                    </span>
+                  <td className="px-3 py-2 text-gray-400 hidden md:table-cell max-w-[180px] whitespace-normal break-words text-xs">
+                    {tx.notes ?? '—'}
                   </td>
                   <td className="px-3 py-2 min-w-[110px]">
                     <EditableCell
@@ -463,11 +473,12 @@ export default function LinxoTable({
                       onSave={v => patchRow(tx.id, { type: v })}
                     />
                   </td>
-                  <td className="px-3 py-2 min-w-[150px] hidden xl:table-cell">
+                  <td className="px-3 py-2 min-w-[150px] max-w-[280px] hidden xl:table-cell">
                     <EditableCell
                       value={tx.description}
                       placeholder="description"
                       onSave={v => patchRow(tx.id, { description: v || null })}
+                      wrap
                     />
                   </td>
                   <td className="px-3 py-2 min-w-[55px] hidden lg:table-cell">
@@ -489,21 +500,15 @@ export default function LinxoTable({
                       }}
                     />
                   </td>
-                  <td className="px-3 py-2 text-gray-400 hidden md:table-cell max-w-[180px] whitespace-normal break-words text-xs">
-                    {tx.notes ?? '—'}
+                  <td className="px-3 py-2 max-w-[160px]">
+                    <span className="block truncate text-xs text-gray-700" title={tx.libelle ?? undefined}>
+                      {tx.libelle ?? '—'}
+                    </span>
                   </td>
                   <td className="px-3 py-2 hidden xl:table-cell">
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${SOURCE_COLORS[tx.source] ?? 'bg-gray-100 text-gray-600'}`}>
                       {SOURCE_LABELS[tx.source] ?? tx.source}
                     </span>
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    <input
-                      type="checkbox"
-                      checked={tx.validated}
-                      onChange={e => patchRow(tx.id, { validated: e.target.checked })}
-                      className="accent-blue-primary w-4 h-4 cursor-pointer"
-                    />
                   </td>
                 </tr>
               ))

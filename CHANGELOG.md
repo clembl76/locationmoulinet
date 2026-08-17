@@ -2,6 +2,17 @@
 
 ## [Non publié]
 
+### 2026-07-29 — Paiements : colonnes Libellé/Note interverties + retrait du tableau "Transactions"
+- `components/admin/LinxoTable.tsx` : colonnes "Libellé" et "Note" interverties (Note passe juste après Montant, Libellé juste avant Source) — chaque colonne garde son propre comportement (Libellé toujours visible, Note masquée en dessous de `md`)
+- Page `/admin/payments` : suppression du second tableau ("Transactions", table `transactions` distincte de `linxo_transactions`), devenu inutile — `components/admin/PaymentsClient.tsx` supprimé, `getAllTransactions`/`AllTransactionRow` retirés de `lib/adminData.ts` (plus aucun appelant)
+- Tests : `LinxoTable.test.tsx` (ordre Libellé/Note, valeurs affichées à la nouvelle position)
+
+### 2026-07-29 — Paiements : colonne Validé en 1ère position + Description sur plusieurs lignes
+- **Demande** : le tableau des transactions Linxo obligeait à scroller horizontalement jusqu'à la colonne Validé, tout à droite, pour valider chaque ligne pendant qu'on descend la liste
+- `components/admin/LinxoTable.tsx` : colonne "Validé" déplacée en 1ère position (en-tête + cellule, `<thead>` et `<tbody>`) ; colonne "Description" passe à la ligne (`whitespace-normal break-words`, largeur bornée `max-w-[280px]`) au lieu d'être tronquée avec ellipse — nouveau prop `wrap` sur `EditableCell`, activé uniquement pour cette colonne (Fournisseur reste tronqué)
+- Tests : `LinxoTable.test.tsx` (ordre des colonnes, retour à la ligne de Description, non-régression du troncage des autres colonnes éditables)
+- **Fix incidental** : `apartmentStatus.test.ts` utilisait une date codée en dur (`2026-08-01`) devenue passée avec l'avancée du temps, faisant échouer la suite — remplacée par une date calculée relativement à aujourd'hui
+
 ### 2026-07-29 — Fix : dossier Drive candidat→locataires jamais déplacé (autre erreur silencieuse)
 - **Signalé** : après "Bail signé" pour le candidat appt 12 (D'Almeida), le dossier n'apparaît pas dans Drive locataires
 - `lib/quittance.ts` (`moveCandidateFolderToTenants`) : deux `return` silencieux remplacés par des `throw` — env `GDRIVE_CANDIDATES_FOLDER_ID`/`GDRIVE_TENANTS_FOLDER_ID` manquant, et dossier source introuvable. Avant, ces cas ne remontaient absolument rien (ni erreur ni warning), même après le fix de découplage de la veille — le `catch` autour de l'appel ne capture que ce qui *throw*
