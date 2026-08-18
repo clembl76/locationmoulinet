@@ -25,6 +25,7 @@ import {
   updateEdlSentAction,
   updateListingPublishedAction,
   updateMoveInDateConfirmedAction,
+  updateMoveInDateAction,
   savePreavisAction,
 } from '@/app/admin/apartments/[number]/actions'
 
@@ -127,6 +128,31 @@ describe('updateMoveInDateConfirmedAction', () => {
     await updateMoveInDateConfirmedAction('lease-1', '31', false)
 
     expect(update).toHaveBeenCalledWith({ move_in_date_confirmed_at: null })
+  })
+})
+
+describe('updateMoveInDateAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('met à jour move_in_inspection_date et retourne ok:true', async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateMoveInDateAction('lease-1', '7', '2026-08-10')
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('leases')
+    expect(update).toHaveBeenCalledWith({ move_in_inspection_date: '2026-08-10' })
+    expect(eq).toHaveBeenCalledWith('id', 'lease-1')
+  })
+
+  it('retourne ok:false avec le message d\'erreur si la mise à jour échoue', async () => {
+    makeAdminMock({ message: 'Erreur DB' })
+
+    const result = await updateMoveInDateAction('lease-1', '7', '2026-08-10')
+
+    expect(result).toEqual({ ok: false, error: 'Erreur DB' })
   })
 })
 

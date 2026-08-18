@@ -153,6 +153,25 @@ export async function savePreavisAction(
   }
 }
 
+export async function updateMoveInDateAction(
+  leaseId: string,
+  aptNumber: string,
+  moveInDate: string
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('leases')
+      .update({ move_in_inspection_date: moveInDate })
+      .eq('id', leaseId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 export type QuittanceActionResult =
   | { ok: true; filename: string; draftId: string }
   | { ok: false; error: string }

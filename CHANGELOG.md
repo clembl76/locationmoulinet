@@ -2,6 +2,20 @@
 
 ## [Non publié]
 
+### 2026-08-17 — Fix : 404 sur /admin/apartments/1 (build de vérification en conflit avec le serveur actif)
+- **Signalé** : 404 sur `/admin/apartments/1` alors que l'appartement existe bien en base — confirmé via appel direct de `getAdminApartmentDetail('1')` (données valides) et via requête HTTP authentifiée (vraie 404 Next.js, pas un souci d'auth/données)
+- **Cause** : `npm run build` (exécuté à chaque livraison pour validation) écrit dans `.next`, le même dossier que le serveur `next dev`/`next start` de l'utilisateur en cours d'exécution — désynchronise son état en mémoire des fichiers sur disque, cassant certaines routes dynamiques
+- `next.config.ts` : `distDir` lit désormais `process.env.BUILD_DIST_DIR` (no-op si absent — aucun changement pour le dev/prod réels ni pour Vercel)
+- `.gitignore` : ajout de `/.next-verify/`
+- **Process à partir de maintenant** : les builds de vérification utilisent `BUILD_DIST_DIR=.next-verify npm run build` (jamais `npm run build` nu) pour ne plus jamais toucher au `.next` du serveur actif
+
+### 2026-07-29 — Fiche appartement : date d'entrée éditable au clic
+- `components/admin/EditableMoveInDate.tsx` (nouveau) : clic sur la date "Entrée" → input `type="date"` inline, sauvegarde au blur/Entrée, annulation avec Échap ou si la date est inchangée ; état optimiste avec retour en arrière + message d'erreur si l'action échoue
+- `app/admin/apartments/[number]/actions.ts` : nouvelle action `updateMoveInDateAction(leaseId, aptNumber, moveInDate)` — met à jour `leases.move_in_inspection_date`
+- `app/admin/apartments/[number]/page.tsx` : la date "Entrée" est éditable uniquement si le bail n'est pas archivé (cohérent avec le reste de la page — "consultation uniquement" une fois archivé) ; reste en lecture seule sinon
+- Tests : `EditableMoveInDate.test.tsx` (nouveau), cas ajoutés dans `actions.test.ts`
+- **Non traité** : la modification de cette date ne recalcule pas le loyer prorata (basé sur `signing_date`, une colonne distincte) ni aucun autre champ dérivé — pas mentionné dans la demande
+
 ### 2026-07-29 — Paiements : colonnes Libellé/Note interverties + retrait du tableau "Transactions"
 - `components/admin/LinxoTable.tsx` : colonnes "Libellé" et "Note" interverties (Note passe juste après Montant, Libellé juste avant Source) — chaque colonne garde son propre comportement (Libellé toujours visible, Note masquée en dessous de `md`)
 - Page `/admin/payments` : suppression du second tableau ("Transactions", table `transactions` distincte de `linxo_transactions`), devenu inutile — `components/admin/PaymentsClient.tsx` supprimé, `getAllTransactions`/`AllTransactionRow` retirés de `lib/adminData.ts` (plus aucun appelant)

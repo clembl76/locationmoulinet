@@ -21,17 +21,13 @@
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-
-
-
+Rend la date d'entrée éditable au clic.
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
 ## Page EDL /admin/apartments/num/edl/id-edl
 
 ## Page Paiements /admin/payments
-dans le tableau "transactions linxo" intervertis les colonnes Libellé et Note.
-N'affiche plus le tableau "Transactions"
 
 ## Page Mise en location /admin/mise-en-location
 

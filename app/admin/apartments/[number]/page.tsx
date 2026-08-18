@@ -13,6 +13,7 @@ import AttestationLoyerCafButton from '@/components/admin/AttestationLoyerCafBut
 import EdlSentCheckbox from '@/components/admin/EdlSentCheckbox'
 import ListingPublishedCheckbox from '@/components/admin/ListingPublishedCheckbox'
 import MoveInDateConfirmedCheckbox from '@/components/admin/MoveInDateConfirmedCheckbox'
+import EditableMoveInDate from '@/components/admin/EditableMoveInDate'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -120,7 +121,17 @@ export default async function AdminApartmentDetailPage({
                 <InfoRow label="Téléphone" value={apt.tenant_phone} />
                 <InfoRow
                   label="Entrée"
-                  value={apt.move_in_date ? new Date(apt.move_in_date + 'T12:00:00').toLocaleDateString('fr-FR') : null}
+                  value={
+                    !isArchived && apt.lease_id ? (
+                      <EditableMoveInDate
+                        leaseId={apt.lease_id}
+                        aptNumber={apt.number}
+                        initialValue={apt.move_in_date}
+                      />
+                    ) : (
+                      apt.move_in_date ? new Date(apt.move_in_date + 'T12:00:00').toLocaleDateString('fr-FR') : null
+                    )
+                  }
                 />
                 {!isArchived && apt.signing_date === apt.move_in_date && (
                   <MoveInDateConfirmedCheckbox
