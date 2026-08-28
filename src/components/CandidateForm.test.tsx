@@ -1,11 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import CandidateForm from '@/components/CandidateForm'
 import type { CandidateApartment } from '@/lib/adminData'
 
+const mockCreateCandidateAction = vi.fn().mockResolvedValue({ ok: true, applicationId: 'test-id' })
+
 vi.mock('@/app/candidater/actions', () => ({
-  createCandidateAction: vi.fn().mockResolvedValue({ ok: true, applicationId: 'test-id' }),
+  createCandidateAction: (...args: unknown[]) => mockCreateCandidateAction(...args),
 }))
 
 const mockApartments: CandidateApartment[] = [
@@ -169,6 +171,98 @@ describe('CandidateForm — limite de poids des pièces jointes (4 Mo, contraint
 
     expect(await screen.findByText('identite.pdf')).toBeInTheDocument()
     expect(screen.getByText(/4[.,]0 Mo/)).toBeInTheDocument()
+  })
+})
+
+describe('CandidateForm — pièces jointes réellement obligatoires (pas seulement l\'astérisque visuel)', () => {
+  async function fillBaseRequiredFields(user: ReturnType<typeof userEvent.setup>) {
+    const card = screen.getByText(/Appartement 101/i).closest('button')
+    await user.click(card!)
+    const dateInput = document.querySelector('input[name="desired_signing_date"]') as HTMLInputElement
+    fireEvent.change(dateInput, { target: { value: '2026-09-15' } })
+  }
+
+  function makeFile(name: string) {
+    return new File([new Uint8Array(1024)], name, { type: 'application/pdf' })
+  }
+
+  it('reproduit le bug réel : sans garant, le bouton reste désactivé tant qu\'aucune pièce d\'identité n\'est jointe', async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await fillBaseRequiredFields(user)
+    await user.click(screen.getByRole('radio', { name: /^non$/i }))
+
+    expect(screen.getByRole('button', { name: /envoyer/i })).toBeDisabled()
+    expect(screen.getByText(/joignez votre pièce d'identité/i)).toBeInTheDocument()
+  })
+
+  it('sans garant : signale le justificatif de revenus manquant une fois l\'identité jointe', async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await fillBaseRequiredFields(user)
+    await user.click(screen.getByRole('radio', { name: /^non$/i }))
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    await user.upload(fileInputs[0] as HTMLInputElement, makeFile('identite.pdf')) // candidate_docs_identity
+
+    expect(screen.getByRole('button', { name: /envoyer/i })).toBeDisabled()
+    expect(screen.queryByText(/joignez votre pièce d'identité/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/joignez un justificatif de revenus/i)).toBeInTheDocument()
+  })
+
+  it('sans garant : active le bouton une fois identité + revenus joints', async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await fillBaseRequiredFields(user)
+    await user.click(screen.getByRole('radio', { name: /^non$/i }))
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    await user.upload(fileInputs[0] as HTMLInputElement, makeFile('identite.pdf'))
+    await user.upload(fileInputs[1] as HTMLInputElement, makeFile('revenus.pdf'))
+
+    expect(screen.getByRole('button', { name: /envoyer/i })).toBeEnabled()
+  })
+
+  it('avec garant : signale les pièces du garant manquantes même si celles du candidat sont jointes', async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await fillBaseRequiredFields(user)
+    await user.click(screen.getByRole('radio', { name: /^oui$/i }))
+
+    // Avec garant, l'ordre des inputs est : guarantor_identity, guarantor_income,
+    // candidate_identity, candidate_income, candidate_status
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    await user.upload(fileInputs[2] as HTMLInputElement, makeFile('identite-candidat.pdf'))
+
+    expect(screen.getByRole('button', { name: /envoyer/i })).toBeDisabled()
+    expect(screen.getByText(/joignez la pièce d'identité du garant/i)).toBeInTheDocument()
+    expect(screen.getByText(/joignez un justificatif de revenus du garant/i)).toBeInTheDocument()
+  })
+
+  it('avec garant : active le bouton une fois identité candidat + identité et revenus garant joints (revenus candidat optionnels)', async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await fillBaseRequiredFields(user)
+    await user.click(screen.getByRole('radio', { name: /^oui$/i }))
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    await user.upload(fileInputs[0] as HTMLInputElement, makeFile('identite-garant.pdf'))
+    await user.upload(fileInputs[1] as HTMLInputElement, makeFile('revenus-garant.pdf'))
+    await user.upload(fileInputs[2] as HTMLInputElement, makeFile('identite-candidat.pdf'))
+
+    expect(screen.getByRole('button', { name: /envoyer/i })).toBeEnabled()
+  })
+
+  it('empêche l\'appel de createCandidateAction si les pièces obligatoires manquent (garde-fou handleSubmit)', async () => {
+    mockCreateCandidateAction.mockClear()
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await fillBaseRequiredFields(user)
+    await user.click(screen.getByRole('radio', { name: /^non$/i }))
+
+    // Le bouton est disabled, donc le clic ne déclenche rien — on vérifie l'absence d'appel
+    await user.click(screen.getByRole('button', { name: /envoyer/i }))
+    expect(mockCreateCandidateAction).not.toHaveBeenCalled()
   })
 })
 

@@ -401,7 +401,16 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
   }
 
   const hasErrors = !!(emailError || phoneError || (hasGuarantor && (gEmailError || gPhoneError)))
-  const canSubmit = !pending && !!selectedAptId && hasGuarantor !== null && !!desiredDate && !hasErrors
+
+  // Pièces obligatoires (cf. astérisques rouges sur les FileSection ci-dessous) : identité
+  // candidat toujours, revenus candidat si pas de garant, identité + revenus garant si garant.
+  const missingCandidateIdentity = fileSections.candidate_identity.length === 0
+  const missingCandidateIncome = hasGuarantor === false && fileSections.candidate_income.length === 0
+  const missingGuarantorIdentity = hasGuarantor === true && fileSections.guarantor_identity.length === 0
+  const missingGuarantorIncome = hasGuarantor === true && fileSections.guarantor_income.length === 0
+  const missingRequiredFiles = missingCandidateIdentity || missingCandidateIncome || missingGuarantorIdentity || missingGuarantorIncome
+
+  const canSubmit = !pending && !!selectedAptId && hasGuarantor !== null && !!desiredDate && !hasErrors && !missingRequiredFiles
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -423,6 +432,10 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
         ok: false,
         error: `Certains fichiers dépassent ${formatBytes(MAX_FILE_BYTES)} : ${oversized.map(f => f.name).join(', ')}. Veuillez les supprimer et les remplacer par des versions allégées.`,
       })
+      return
+    }
+    if (missingRequiredFiles) {
+      setResult({ ok: false, error: 'Merci de joindre toutes les pièces justificatives obligatoires (marquées d\'un *).' })
       return
     }
 
@@ -671,6 +684,10 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
           {!selectedAptId && <p>• Sélectionnez un appartement</p>}
           {hasGuarantor === null && <p>• Précisez si vous avez un garant (Oui / Non)</p>}
           {hasErrors && <p>• Corrigez les erreurs dans les champs email ou téléphone</p>}
+          {hasGuarantor !== null && missingCandidateIdentity && <p>• Joignez votre pièce d'identité</p>}
+          {missingCandidateIncome && <p>• Joignez un justificatif de revenus</p>}
+          {missingGuarantorIdentity && <p>• Joignez la pièce d'identité du garant</p>}
+          {missingGuarantorIncome && <p>• Joignez un justificatif de revenus du garant</p>}
         </div>
       )}
 

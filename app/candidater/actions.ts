@@ -42,15 +42,30 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
     }
 
     // ── Fichiers candidat ────────────────────────────────────────────────────
-    const candidateRawFiles = [
-      ...formData.getAll('candidate_docs_identity') as File[],
-      ...formData.getAll('candidate_docs_income') as File[],
-      ...formData.getAll('candidate_docs_status') as File[],
-    ]
-    const guarantorRawFiles = hasGuarantor ? [
-      ...formData.getAll('guarantor_docs_identity') as File[],
-      ...formData.getAll('guarantor_docs_income') as File[],
-    ] : []
+    // Catégories gardées séparées pour valider ce qui est réellement obligatoire (cf.
+    // CandidateForm.tsx) : identité candidat toujours, revenus candidat si pas de garant,
+    // identité + revenus garant si garant déclaré. Le statut candidat reste optionnel.
+    const candidateIdentityFiles = (formData.getAll('candidate_docs_identity') as File[]).filter(f => f.size > 0)
+    const candidateIncomeFiles   = (formData.getAll('candidate_docs_income')   as File[]).filter(f => f.size > 0)
+    const candidateStatusFiles   = (formData.getAll('candidate_docs_status')   as File[]).filter(f => f.size > 0)
+    const guarantorIdentityFiles = hasGuarantor ? (formData.getAll('guarantor_docs_identity') as File[]).filter(f => f.size > 0) : []
+    const guarantorIncomeFiles   = hasGuarantor ? (formData.getAll('guarantor_docs_income')   as File[]).filter(f => f.size > 0) : []
+
+    if (candidateIdentityFiles.length === 0) {
+      return { ok: false, error: 'Merci de joindre votre pièce d\'identité.' }
+    }
+    if (!hasGuarantor && candidateIncomeFiles.length === 0) {
+      return { ok: false, error: 'Merci de joindre un justificatif de revenus.' }
+    }
+    if (hasGuarantor && guarantorIdentityFiles.length === 0) {
+      return { ok: false, error: 'Merci de joindre la pièce d\'identité du garant.' }
+    }
+    if (hasGuarantor && guarantorIncomeFiles.length === 0) {
+      return { ok: false, error: 'Merci de joindre un justificatif de revenus du garant.' }
+    }
+
+    const candidateRawFiles = [...candidateIdentityFiles, ...candidateIncomeFiles, ...candidateStatusFiles]
+    const guarantorRawFiles = [...guarantorIdentityFiles, ...guarantorIncomeFiles]
 
     const toBuffer = async (f: File) => ({
       name: f.name,
@@ -58,8 +73,8 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
       buffer: Buffer.from(await f.arrayBuffer()),
     })
 
-    const candidateFiles = await Promise.all(candidateRawFiles.filter(f => f.size > 0).map(toBuffer))
-    const guarantorFiles = await Promise.all(guarantorRawFiles.filter(f => f.size > 0).map(toBuffer))
+    const candidateFiles = await Promise.all(candidateRawFiles.map(toBuffer))
+    const guarantorFiles = await Promise.all(guarantorRawFiles.map(toBuffer))
 
     // ── Insérer candidat ─────────────────────────────────────────────────────
     const { data: candidate, error: cErr } = await admin

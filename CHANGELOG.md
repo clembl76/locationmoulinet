@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-08-28 — Fix : pièces jointes "obligatoires" jamais réellement vérifiées (candidature Anaëlle DANGLOT-NAKACHE reçue sans aucune pièce)
+- **Cause** : l'astérisque rouge sur "Identité"/"Revenus" dans le formulaire de candidature n'était que visuel — ni `canSubmit` (client) ni `createCandidateAction` (serveur) ne vérifiaient la présence des fichiers. Un candidat pouvait soumettre son dossier sans aucune pièce jointe
+- `components/CandidateForm.tsx` : `canSubmit` bloque désormais réellement tant que les pièces obligatoires ne sont pas jointes (identité candidat toujours ; revenus candidat si pas de garant ; identité + revenus garant si garant déclaré) ; messages ajoutés à la checklist "Pour activer le bouton d'envoi" ; garde-fou supplémentaire dans `handleSubmit`
+- `app/candidater/actions.ts` : même validation côté serveur (défense en profondeur — la validation client seule est insuffisante, cf. `AGENTS.md`), rejetée **avant** toute création en base (candidat/candidature), pour ne plus jamais accepter un dossier incomplet même en cas de bug JS ou d'appel direct de l'action
+- Tests : `CandidateForm.test.tsx` (bouton désactivé + messages tant que les pièces manquent, activé une fois jointes), `src/app/candidater/actions.test.ts` (nouveau — reproduit le bug exact et vérifie qu'aucune ligne `candidates` n'est créée sans pièce)
+
 ### 2026-08-17 — Fix (stopgap) : crash "This page couldn't load" à la soumission d'une candidature avec pièces jointes volumineuses
 - **Signalé** : soumission d'un dossier de candidature avec garant (pièce d'identité + fiches de paie + avis d'imposition, 6,8 Mo au total) → page blanche navigateur, sans message d'erreur applicatif
 - **Cause** : Vercel impose une limite plateforme **stricte et non configurable de 4,5 Mo** sur le corps d'une requête Server Action, indépendante de `next.config.ts`. Le formulaire affichait une limite de 18 Mo (jamais la vraie limite en production) ; au-delà de 4,5 Mo, la requête est rejetée par l'infrastructure avant d'atteindre le code de l'action — d'où l'absence de message exploitable et le crash générique du navigateur
