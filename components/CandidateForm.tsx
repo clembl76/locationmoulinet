@@ -11,8 +11,12 @@ const PHONE_RE = /^(\+33|0033|0)[\s.-]?[1-9]([\s.-]?\d{2}){4}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DEFAULT_BIRTH_DATE = '2000-01-01'
 const MAX_FILES = 5
-const MAX_FILE_BYTES = 5 * 1024 * 1024   // 5 Mo par fichier
-const MAX_TOTAL_BYTES = 18 * 1024 * 1024  // 18 Mo total (limite serveur 20 Mo)
+// Vercel impose une limite stricte et non configurable de 4,5 Mo sur le corps d'une requête
+// vers une Server Action (indépendante de next.config.ts) — au-delà, la requête est rejetée
+// par la plateforme avant même d'atteindre le code de l'action (page blanche côté navigateur,
+// sans message d'erreur exploitable). On reste à 4 Mo pour garder une marge de sécurité.
+const MAX_FILE_BYTES = 4 * 1024 * 1024   // 4 Mo par fichier
+const MAX_TOTAL_BYTES = 4 * 1024 * 1024  // 4 Mo total (vraie limite plateforme ≈ 4,5 Mo)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -144,7 +148,7 @@ function FileSection({
     const oversized = compressed.filter(f => f.size > MAX_FILE_BYTES)
     if (oversized.length > 0) {
       setAddError(
-        `Fichier trop volumineux : ${oversized.map(f => `${f.name} (${formatBytes(f.size)})`).join(', ')}. Maximum 5 Mo par fichier. Compressez votre PDF ou réduisez sa qualité d'impression.`
+        `Fichier trop volumineux : ${oversized.map(f => `${f.name} (${formatBytes(f.size)})`).join(', ')}. Maximum ${formatBytes(MAX_FILE_BYTES)} par fichier. Compressez votre PDF ou réduisez sa qualité d'impression.`
       )
       return
     }
@@ -417,7 +421,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
     if (oversized.length > 0) {
       setResult({
         ok: false,
-        error: `Certains fichiers dépassent 5 Mo : ${oversized.map(f => f.name).join(', ')}. Veuillez les supprimer et les remplacer par des versions allégées.`,
+        error: `Certains fichiers dépassent ${formatBytes(MAX_FILE_BYTES)} : ${oversized.map(f => f.name).join(', ')}. Veuillez les supprimer et les remplacer par des versions allégées.`,
       })
       return
     }

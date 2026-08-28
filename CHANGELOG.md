@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### 2026-08-17 — Fix (stopgap) : crash "This page couldn't load" à la soumission d'une candidature avec pièces jointes volumineuses
+- **Signalé** : soumission d'un dossier de candidature avec garant (pièce d'identité + fiches de paie + avis d'imposition, 6,8 Mo au total) → page blanche navigateur, sans message d'erreur applicatif
+- **Cause** : Vercel impose une limite plateforme **stricte et non configurable de 4,5 Mo** sur le corps d'une requête Server Action, indépendante de `next.config.ts`. Le formulaire affichait une limite de 18 Mo (jamais la vraie limite en production) ; au-delà de 4,5 Mo, la requête est rejetée par l'infrastructure avant d'atteindre le code de l'action — d'où l'absence de message exploitable et le crash générique du navigateur
+- `components/CandidateForm.tsx` : `MAX_FILE_BYTES` et `MAX_TOTAL_BYTES` abaissés à 4 Mo (marge de sécurité sous la limite réelle ≈ 4,5 Mo) ; messages d'erreur corrigés pour référencer dynamiquement ces constantes (contenaient encore "5 Mo" en dur, désynchronisé)
+- `next.config.ts` : `serverActions.bodySizeLimit` aligné de `20mb` (trompeur, sans effet réel sur Vercel) à `4.5mb`
+- Tests : `CandidateForm.test.tsx` (rejet d'un fichier > 4 Mo avec le bon message, indicateur de poids affichant la vraie limite)
+- **Limite assumée de ce stopgap** : un dossier candidat légitime avec plusieurs documents volumineux (ex. celui qui a déclenché ce bug) peut encore dépasser 4 Mo au total et être refusé — proprement cette fois, avec message clair, mais refusé quand même. Le fix correct (upload direct navigateur → stockage, contournant la limite Vercel) reste à faire si le besoin se confirme
+
 ### 2026-08-17 — Fix : 404 sur /admin/apartments/1 (build de vérification en conflit avec le serveur actif)
 - **Signalé** : 404 sur `/admin/apartments/1` alors que l'appartement existe bien en base — confirmé via appel direct de `getAdminApartmentDetail('1')` (données valides) et via requête HTTP authentifiée (vraie 404 Next.js, pas un souci d'auth/données)
 - **Cause** : `npm run build` (exécuté à chaque livraison pour validation) écrit dans `.next`, le même dossier que le serveur `next dev`/`next start` de l'utilisateur en cours d'exécution — désynchronise son état en mémoire des fichiers sur disque, cassant certaines routes dynamiques

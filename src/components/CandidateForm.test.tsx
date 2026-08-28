@@ -144,6 +144,34 @@ describe('CandidateForm — validation email/téléphone', () => {
   })
 })
 
+describe('CandidateForm — limite de poids des pièces jointes (4 Mo, contrainte plateforme Vercel)', () => {
+  it("refuse un fichier de plus de 4 Mo avec un message mentionnant la vraie limite", async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await user.click(screen.getByRole('radio', { name: /^non$/i }))
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    const bigFile = new File([new Uint8Array(4.5 * 1024 * 1024)], 'gros-fichier.pdf', { type: 'application/pdf' })
+    await user.upload(fileInput, bigFile)
+
+    expect(await screen.findByText(/fichier trop volumineux/i)).toBeInTheDocument()
+    expect(screen.getByText(/maximum 4[.,]0 Mo par fichier/i)).toBeInTheDocument()
+  })
+
+  it('accepte un fichier de moins de 4 Mo et affiche l\'indicateur de poids avec la limite à 4.0 Mo', async () => {
+    const user = userEvent.setup()
+    render(<CandidateForm apartments={mockApartments} />)
+    await user.click(screen.getByRole('radio', { name: /^non$/i }))
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    const smallFile = new File([new Uint8Array(1024)], 'identite.pdf', { type: 'application/pdf' })
+    await user.upload(fileInput, smallFile)
+
+    expect(await screen.findByText('identite.pdf')).toBeInTheDocument()
+    expect(screen.getByText(/4[.,]0 Mo/)).toBeInTheDocument()
+  })
+})
+
 describe('CandidateForm — message aide bouton désactivé', () => {
   it("affiche le message d'aide quand le bouton est désactivé", () => {
     render(<CandidateForm apartments={mockApartments} />)
