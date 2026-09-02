@@ -25,7 +25,7 @@ import {
   updateEdlSentAction,
   updateListingPublishedAction,
   updateMoveInDateConfirmedAction,
-  updateMoveInDateAction,
+  updateLeaseDateAction,
   savePreavisAction,
 } from '@/app/admin/apartments/[number]/actions'
 
@@ -131,7 +131,7 @@ describe('updateMoveInDateConfirmedAction', () => {
   })
 })
 
-describe('updateMoveInDateAction', () => {
+describe('updateLeaseDateAction', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -139,7 +139,7 @@ describe('updateMoveInDateAction', () => {
   it('met à jour move_in_inspection_date et retourne ok:true', async () => {
     const { from, update, eq } = makeAdminMock()
 
-    const result = await updateMoveInDateAction('lease-1', '7', '2026-08-10')
+    const result = await updateLeaseDateAction('lease-1', '7', 'move_in_inspection_date', '2026-08-10')
 
     expect(result).toEqual({ ok: true })
     expect(from).toHaveBeenCalledWith('leases')
@@ -147,10 +147,26 @@ describe('updateMoveInDateAction', () => {
     expect(eq).toHaveBeenCalledWith('id', 'lease-1')
   })
 
+  it('met à jour signing_date selon le champ demandé', async () => {
+    const { update } = makeAdminMock()
+
+    await updateLeaseDateAction('lease-1', '7', 'signing_date', '2026-08-01')
+
+    expect(update).toHaveBeenCalledWith({ signing_date: '2026-08-01' })
+  })
+
+  it('met à jour end_date selon le champ demandé', async () => {
+    const { update } = makeAdminMock()
+
+    await updateLeaseDateAction('lease-1', '7', 'end_date', '2027-07-31')
+
+    expect(update).toHaveBeenCalledWith({ end_date: '2027-07-31' })
+  })
+
   it('retourne ok:false avec le message d\'erreur si la mise à jour échoue', async () => {
     makeAdminMock({ message: 'Erreur DB' })
 
-    const result = await updateMoveInDateAction('lease-1', '7', '2026-08-10')
+    const result = await updateLeaseDateAction('lease-1', '7', 'move_in_inspection_date', '2026-08-10')
 
     expect(result).toEqual({ ok: false, error: 'Erreur DB' })
   })

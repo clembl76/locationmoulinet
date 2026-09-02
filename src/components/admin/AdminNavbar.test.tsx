@@ -9,8 +9,12 @@ describe('AdminNavbar — rôle admin', () => {
     expect(screen.getAllByText('Appartements').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Mise en location').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Paiements').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Mois en cours').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Tableau de bord').length).toBeGreaterThan(0)
+  })
+
+  it("n'affiche plus le lien \"Mois en cours\" (page fusionnée dans Tableau de bord)", () => {
+    render(<AdminNavbar role="admin" />)
+    expect(screen.queryByText('Mois en cours')).not.toBeInTheDocument()
   })
 
   it("n'affiche pas le badge lecture seule", () => {
@@ -32,7 +36,6 @@ describe('AdminNavbar — rôle viewer', () => {
     expect(screen.getAllByText('Appartements').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Mise en location').length).toBeGreaterThan(0)
     expect(screen.queryByText('Paiements')).not.toBeInTheDocument()
-    expect(screen.queryByText('Mois en cours')).not.toBeInTheDocument()
     expect(screen.queryByText('Tableau de bord')).not.toBeInTheDocument()
   })
 

@@ -2,6 +2,35 @@
 
 ## [Non publié]
 
+### 2026-08-28 — Tableau de bord, fiche appartement (dates éditables), page Actions (tri)
+- **Tableau de bord** : titre "Tableau de bord annuel" déplacé juste avant "Indicateurs {année}" (n'est plus le titre de toute la page, seulement de la section KPIs annuels)
+- **Fiche appartement** :
+  - Bloc Locataire : "Départ prévu" renommé en "Sortie" (uniformisé avec le renommage précédent de "Départ")
+  - Bloc Bail : "Signature" renommé en "Début" ; "Début" et "Fin" (signing_date/end_date) sont désormais éditables au clic, comme "Entrée" (move_in_inspection_date)
+  - `components/admin/EditableMoveInDate.tsx` généralisé en `EditableLeaseDate.tsx` (prop `field`) plutôt que dupliqué trois fois — une seule action serveur `updateLeaseDateAction(leaseId, aptNumber, field, value)` avec liste blanche des champs autorisés, remplace `updateMoveInDateAction`
+- **Page Actions** : tri au clic sur chaque en-tête de colonne (Titre, Appartement — tri numérique et non alphabétique —, Locataire/candidat, Owner, Date limite), tri par défaut sur Date limite croissante ; liste déroulante "Owner (tous)" supprimée
+- Tests : `EditableLeaseDate.test.tsx` (remplace `EditableMoveInDate.test.tsx`, cas pour les 3 champs), `actions.test.ts` (`updateLeaseDateAction`), `AdminActionsTable.test.tsx` (tri, absence du filtre Owner)
+
+### 2026-08-28 — Page Actions : retrait de la colonne "Date de création"
+- **Note** : cet item est apparu dans `SPEC.md` en cours de session, après les deux précédents — traité dans la foulée
+- `components/admin/AdminActionsTable.tsx` : colonne "Date de création" retirée du tableau (en-tête + cellule) ; le champ `createdAt` reste dans le type `AdminAction`/la donnée, seul l'affichage change
+- Tests : `AdminActionsTable.test.tsx` (colonne absente, "Date limite" toujours présente)
+
+### 2026-08-28 — Fusion de "Mois en cours" dans le Tableau de bord
+- `app/admin/page.tsx` : contenu de `/admin/mois` (occupation, boutons de génération des loyers, loyers du mois, départs à 30 jours) déplacé en 1ère position, avant les KPIs annuels existants
+- `app/admin/mois/page.tsx` : page vidée de son contenu, ne fait plus que rediriger vers `/admin` (liens/favoris existants toujours fonctionnels)
+- `components/admin/AdminNavbar.tsx` : lien "Mois en cours" retiré du menu
+- Tests : `AdminNavbar.test.tsx` mis à jour (lien retiré des assertions + nouveau test confirmant son absence)
+
+### 2026-08-28 — Fiche appartement : réorganisation du bloc Bail et des colonnes
+- `lib/adminData.ts` (`getAdminApartmentDetail`) : ajout de `end_date` (absent jusqu'ici)
+- `app/admin/apartments/[number]/page.tsx` :
+  - Bloc "Bail" déplacé de la colonne de gauche vers la colonne de droite, juste avant "État des lieux" ; affiche désormais aussi la date de signature et la date de fin
+  - Bloc Locataire : libellé "Départ" renommé en "Sortie" (le libellé "Départ prévu", distinct, inchangé)
+  - Bouton "Saisir un préavis de départ" et case "Listing republié" déplacés du bloc "Actions" (supprimé, devenu vide) vers le bloc "Bail"
+  - Bouton "Générer mail arrivée" déplacé du bloc "Bail" vers le bloc "État des lieux"
+  - Case "Attestation d'assurance fournie" déplacée du bloc "Bail" vers le bloc "Documents", juste après "Caution payée ?"
+
 ### 2026-08-28 — Fix : pièces jointes "obligatoires" jamais réellement vérifiées (candidature Anaëlle DANGLOT-NAKACHE reçue sans aucune pièce)
 - **Cause** : l'astérisque rouge sur "Identité"/"Revenus" dans le formulaire de candidature n'était que visuel — ni `canSubmit` (client) ni `createCandidateAction` (serveur) ne vérifiaient la présence des fichiers. Un candidat pouvait soumettre son dossier sans aucune pièce jointe
 - `components/CandidateForm.tsx` : `canSubmit` bloque désormais réellement tant que les pièces obligatoires ne sont pas jointes (identité candidat toujours ; revenus candidat si pas de garant ; identité + revenus garant si garant déclaré) ; messages ajoutés à la checklist "Pour activer le bouton d'envoi" ; garde-fou supplémentaire dans `handleSubmit`

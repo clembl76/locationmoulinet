@@ -26,45 +26,72 @@ function todayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+type SortKey = 'title' | 'apartmentNumber' | 'tenantName' | 'owner' | 'dueDate'
+type SortDir = 'asc' | 'desc'
+
 export default function AdminActionsTable({ actions }: { actions: AdminAction[] }) {
-  const [filterOwner, setFilterOwner] = useState<'' | AdminActionOwner>('')
+  const [sortKey, setSortKey] = useState<SortKey>('dueDate')
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
   const today = todayStr()
 
-  const filtered = useMemo(
-    () => filterOwner ? actions.filter(a => a.owner === filterOwner) : actions,
-    [actions, filterOwner]
-  )
+  const sorted = useMemo(() => {
+    const rows = [...actions]
+    rows.sort((a, b) => {
+      let cmp: number
+      if (sortKey === 'apartmentNumber') {
+        cmp = Number(a.apartmentNumber) - Number(b.apartmentNumber)
+      } else if (sortKey === 'owner') {
+        cmp = OWNER_LABELS[a.owner].localeCompare(OWNER_LABELS[b.owner])
+      } else {
+        const av = a[sortKey] ?? ''
+        const bv = b[sortKey] ?? ''
+        cmp = av < bv ? -1 : av > bv ? 1 : 0
+      }
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+    return rows
+  }, [actions, sortKey, sortDir])
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  function SortBtn({ col, label }: { col: SortKey; label: string }) {
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSort(col)}
+        className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+      >
+        {label}
+        {sortKey === col ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+      </button>
+    )
+  }
 
   return (
     <div className="space-y-4">
-      <select
-        value={filterOwner}
-        onChange={e => setFilterOwner(e.target.value as '' | AdminActionOwner)}
-        className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
-      >
-        <option value="">Owner (tous)</option>
-        <option value="proprietaire">Propriétaire</option>
-        <option value="locataire">Locataire</option>
-        <option value="candidat">Candidat</option>
-      </select>
-
-      {filtered.length === 0 ? (
+      {sorted.length === 0 ? (
         <p className="text-sm text-gray-400">Aucune action en attente.</p>
       ) : (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full text-sm" style={{ minWidth: 720 }}>
             <thead>
               <tr className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-50">
-                <th className="text-left px-4 py-3">Titre</th>
-                <th className="text-left px-4 py-3">Appartement</th>
-                <th className="text-left px-4 py-3">Locataire / candidat</th>
-                <th className="text-left px-4 py-3">Owner</th>
-                <th className="text-left px-4 py-3">Date de création</th>
-                <th className="text-left px-4 py-3">Date limite</th>
+                <th className="text-left px-4 py-3"><SortBtn col="title" label="Titre" /></th>
+                <th className="text-left px-4 py-3"><SortBtn col="apartmentNumber" label="Appartement" /></th>
+                <th className="text-left px-4 py-3"><SortBtn col="tenantName" label="Locataire / candidat" /></th>
+                <th className="text-left px-4 py-3"><SortBtn col="owner" label="Owner" /></th>
+                <th className="text-left px-4 py-3"><SortBtn col="dueDate" label="Date limite" /></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.map((a, i) => {
+              {sorted.map((a, i) => {
                 const isOverdue = a.dueDate.slice(0, 10) < today
                 return (
                   <tr key={i}>
@@ -83,7 +110,6 @@ export default function AdminActionsTable({ actions }: { actions: AdminAction[] 
                         {OWNER_LABELS[a.owner]}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-gray-500">{fmtDate(a.createdAt)}</td>
                     <td className={`px-4 py-2.5 ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-700'}`}>
                       {fmtDate(a.dueDate)}
                     </td>

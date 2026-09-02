@@ -1,19 +1,21 @@
 'use client'
 
 import { useState, useTransition, useRef } from 'react'
-import { updateMoveInDateAction } from '@/app/admin/apartments/[number]/actions'
+import { updateLeaseDateAction, type EditableLeaseDateField } from '@/app/admin/apartments/[number]/actions'
 
 function fmtFr(iso: string): string {
   return new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR')
 }
 
-export default function EditableMoveInDate({
+export default function EditableLeaseDate({
   leaseId,
   aptNumber,
+  field,
   initialValue,
 }: {
   leaseId: string
   aptNumber: string
+  field: EditableLeaseDateField
   initialValue: string | null
 }) {
   const [value, setValue] = useState(initialValue)
@@ -39,7 +41,7 @@ export default function EditableMoveInDate({
     setValue(newDate)
     setEditing(false)
     startTransition(async () => {
-      const r = await updateMoveInDateAction(leaseId, aptNumber, newDate)
+      const r = await updateLeaseDateAction(leaseId, aptNumber, field, newDate)
       if (!r.ok) {
         setValue(prev)
         setError(r.error ?? 'Erreur')

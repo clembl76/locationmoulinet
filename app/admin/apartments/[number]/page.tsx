@@ -13,7 +13,7 @@ import AttestationLoyerCafButton from '@/components/admin/AttestationLoyerCafBut
 import EdlSentCheckbox from '@/components/admin/EdlSentCheckbox'
 import ListingPublishedCheckbox from '@/components/admin/ListingPublishedCheckbox'
 import MoveInDateConfirmedCheckbox from '@/components/admin/MoveInDateConfirmedCheckbox'
-import EditableMoveInDate from '@/components/admin/EditableMoveInDate'
+import EditableLeaseDate from '@/components/admin/EditableLeaseDate'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -123,9 +123,10 @@ export default async function AdminApartmentDetailPage({
                   label="Entrée"
                   value={
                     !isArchived && apt.lease_id ? (
-                      <EditableMoveInDate
+                      <EditableLeaseDate
                         leaseId={apt.lease_id}
                         aptNumber={apt.number}
+                        field="move_in_inspection_date"
                         initialValue={apt.move_in_date}
                       />
                     ) : (
@@ -142,7 +143,7 @@ export default async function AdminApartmentDetailPage({
                 )}
                 {apt.move_out_date && (
                   <InfoRow
-                    label={isArchived || isClosing ? 'Départ' : 'Départ prévu'}
+                    label="Sortie"
                     value={
                       <span className={isArchived ? 'text-gray-600' : 'text-amber-600'}>
                         {new Date(apt.move_out_date + 'T12:00:00').toLocaleDateString('fr-FR')}
@@ -180,53 +181,6 @@ export default async function AdminApartmentDetailPage({
                 </>
               ) : (
                 <p className="text-sm text-gray-400">Aucun garant enregistré pour ce bail.</p>
-              )}
-            </div>
-          )}
-
-          {/* Bail */}
-          {isOccupied && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Bail</h2>
-              <div className="space-y-2 mb-4">
-                {driveLeaseUrl && (
-                  <a
-                    href={driveLeaseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
-                  >
-                    Ouvrir le bail sur Google Drive →
-                  </a>
-                )}
-              </div>
-              {!isArchived && (
-                <>
-                  <DocusignUrls
-                    leaseId={apt.lease_id!}
-                    aptNumber={apt.number}
-                    initialLeaseUrl={apt.lease_docusign_lease_url}
-                    initialEdlUrl={apt.lease_docusign_edl_url}
-                  />
-                  <InsuranceCheckbox
-                    leaseId={apt.lease_id!}
-                    aptNumber={apt.number}
-                    initialValue={apt.lease_insurance_attestation}
-                  />
-                  <div className="mt-4">
-                    <EdlEntreeEmailButton tenantEmail={apt.tenant_email} />
-                  </div>
-                </>
-              )}
-              {isArchived && apt.lease_docusign_lease_url && (
-                <a
-                  href={apt.lease_docusign_lease_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
-                >
-                  Bail sur Docusign →
-                </a>
               )}
             </div>
           )}
@@ -353,25 +307,6 @@ export default async function AdminApartmentDetailPage({
             <InfoRow label="Total CC" value={<span className="font-bold text-blue-dark">{apt.rent_including_charges} €</span>} />
           </div>
 
-          {/* Actions bail actif */}
-          {isOccupied && !isArchived && !isClosing && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Actions</p>
-              <PreavisButton
-                leaseId={apt.lease_id!}
-                aptNumber={apt.number}
-                currentMoveOut={apt.move_out_date}
-              />
-              {apt.move_out_date && (
-                <ListingPublishedCheckbox
-                  leaseId={apt.lease_id!}
-                  aptNumber={apt.number}
-                  initialValue={apt.lease_listing_published}
-                />
-              )}
-            </div>
-          )}
-
           {/* Actions clôture */}
           {isClosing && apt.lease_id && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
@@ -382,6 +317,91 @@ export default async function AdminApartmentDetailPage({
                 initialEdlSigned={apt.lease_edl_signed}
                 initialDepositReturned={apt.lease_deposit_returned}
               />
+            </div>
+          )}
+
+          {/* Bail */}
+          {isOccupied && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Bail</h2>
+              <InfoRow
+                label="Début"
+                value={
+                  !isArchived && apt.lease_id ? (
+                    <EditableLeaseDate
+                      leaseId={apt.lease_id}
+                      aptNumber={apt.number}
+                      field="signing_date"
+                      initialValue={apt.signing_date}
+                    />
+                  ) : (
+                    apt.signing_date ? new Date(apt.signing_date + 'T12:00:00').toLocaleDateString('fr-FR') : null
+                  )
+                }
+              />
+              <InfoRow
+                label="Fin"
+                value={
+                  !isArchived && apt.lease_id ? (
+                    <EditableLeaseDate
+                      leaseId={apt.lease_id}
+                      aptNumber={apt.number}
+                      field="end_date"
+                      initialValue={apt.end_date}
+                    />
+                  ) : (
+                    apt.end_date ? new Date(apt.end_date + 'T12:00:00').toLocaleDateString('fr-FR') : null
+                  )
+                }
+              />
+              <div className="space-y-2 my-2">
+                {driveLeaseUrl && (
+                  <a
+                    href={driveLeaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                  >
+                    Ouvrir le bail sur Google Drive →
+                  </a>
+                )}
+              </div>
+              {!isArchived && (
+                <>
+                  <DocusignUrls
+                    leaseId={apt.lease_id!}
+                    aptNumber={apt.number}
+                    initialLeaseUrl={apt.lease_docusign_lease_url}
+                    initialEdlUrl={apt.lease_docusign_edl_url}
+                  />
+                  {!isClosing && (
+                    <div className="pt-2 space-y-2">
+                      <PreavisButton
+                        leaseId={apt.lease_id!}
+                        aptNumber={apt.number}
+                        currentMoveOut={apt.move_out_date}
+                      />
+                      {apt.move_out_date && (
+                        <ListingPublishedCheckbox
+                          leaseId={apt.lease_id!}
+                          aptNumber={apt.number}
+                          initialValue={apt.lease_listing_published}
+                        />
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+              {isArchived && apt.lease_docusign_lease_url && (
+                <a
+                  href={apt.lease_docusign_lease_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                >
+                  Bail sur Docusign →
+                </a>
+              )}
             </div>
           )}
 
@@ -400,6 +420,7 @@ export default async function AdminApartmentDetailPage({
                 aptNumber={apt.number}
                 initialValue={apt.lease_edl_sent}
               />
+              <EdlEntreeEmailButton tenantEmail={apt.tenant_email} />
               {driveEdlUrl && (
                 <a
                   href={driveEdlUrl}
@@ -432,6 +453,11 @@ export default async function AdminApartmentDetailPage({
                 aptNumber={apt.number}
                 depositAmount={apt.lease_deposit}
                 initialPaid={apt.lease_deposit_paid}
+              />
+              <InsuranceCheckbox
+                leaseId={apt.lease_id!}
+                aptNumber={apt.number}
+                initialValue={apt.lease_insurance_attestation}
               />
               <AttestationLocationButton
                 leaseId={apt.lease_id!}

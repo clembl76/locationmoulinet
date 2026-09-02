@@ -62,24 +62,86 @@ describe('AdminActionsTable', () => {
     expect(cell).not.toHaveClass('text-red-600')
   })
 
-  it('filtre par owner', async () => {
+  it("n'affiche plus la colonne \"Date de création\"", () => {
+    render(<AdminActionsTable actions={[makeAction({})]} />)
+    expect(screen.queryByText('Date de création')).not.toBeInTheDocument()
+    // La date limite (dérivée d'un autre champ que createdAt) reste affichée
+    expect(screen.getByRole('button', { name: /date limite/i })).toBeInTheDocument()
+  })
+
+  it("n'affiche plus la liste déroulante \"Owner (tous)\"", () => {
+    render(<AdminActionsTable actions={[makeAction({})]} />)
+    expect(screen.queryByText('Owner (tous)')).not.toBeInTheDocument()
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+  })
+})
+
+describe('AdminActionsTable — tri des colonnes', () => {
+  it('trie par date limite croissante par défaut', () => {
+    render(
+      <AdminActionsTable
+        actions={[
+          makeAction({ title: 'action tardive', dueDate: '2026-09-01' }),
+          makeAction({ title: 'action urgente', dueDate: '2026-07-15' }),
+        ]}
+      />
+    )
+    const rows = screen.getAllByRole('row').slice(1) // sans l'en-tête
+    expect(within(rows[0]).getByText('action urgente')).toBeInTheDocument()
+    expect(within(rows[1]).getByText('action tardive')).toBeInTheDocument()
+  })
+
+  it('inverse le tri au clic sur la colonne déjà active (Date limite, triée croissant par défaut)', async () => {
     const user = userEvent.setup()
     render(
       <AdminActionsTable
         actions={[
-          makeAction({ title: 'caution non reçue', owner: 'locataire' }),
-          makeAction({ title: 'candidatures à approuver ou refuser', owner: 'proprietaire' }),
+          makeAction({ title: 'action tardive', dueDate: '2026-09-01' }),
+          makeAction({ title: 'action urgente', dueDate: '2026-07-15' }),
         ]}
       />
     )
 
-    expect(screen.getByText('caution non reçue')).toBeInTheDocument()
-    expect(screen.getByText('candidatures à approuver ou refuser')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /date limite/i }))
 
-    const select = screen.getByDisplayValue('Owner (tous)')
-    await user.selectOptions(select, 'Propriétaire')
+    const rows = screen.getAllByRole('row').slice(1)
+    expect(within(rows[0]).getByText('action tardive')).toBeInTheDocument()
+    expect(within(rows[1]).getByText('action urgente')).toBeInTheDocument()
+  })
 
-    expect(screen.queryByText('caution non reçue')).not.toBeInTheDocument()
-    expect(screen.getByText('candidatures à approuver ou refuser')).toBeInTheDocument()
+  it('trie par titre au clic sur l\'en-tête "Titre"', async () => {
+    const user = userEvent.setup()
+    render(
+      <AdminActionsTable
+        actions={[
+          makeAction({ title: 'zebre' }),
+          makeAction({ title: 'alpha' }),
+        ]}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /^titre/i }))
+
+    const rows = screen.getAllByRole('row').slice(1)
+    expect(within(rows[0]).getByText('alpha')).toBeInTheDocument()
+    expect(within(rows[1]).getByText('zebre')).toBeInTheDocument()
+  })
+
+  it('trie numériquement par appartement (pas alphabétiquement : "2" avant "10")', async () => {
+    const user = userEvent.setup()
+    render(
+      <AdminActionsTable
+        actions={[
+          makeAction({ title: 'appt 10', apartmentNumber: '10' }),
+          makeAction({ title: 'appt 2', apartmentNumber: '2' }),
+        ]}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /appartement/i }))
+
+    const rows = screen.getAllByRole('row').slice(1)
+    expect(within(rows[0]).getByText('appt 2')).toBeInTheDocument()
+    expect(within(rows[1]).getByText('appt 10')).toBeInTheDocument()
   })
 })

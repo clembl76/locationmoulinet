@@ -8,7 +8,6 @@ const ALL_NAV_LINKS = [
   { href: '/admin/apartments', label: 'Appartements', adminOnly: false },
   { href: '/admin/inventory', label: 'Inventaire', adminOnly: true },
   { href: '/admin/payments', label: 'Paiements', adminOnly: true },
-  { href: '/admin/mois', label: 'Mois en cours', adminOnly: true },
   { href: '/admin/actions', label: 'Actions', adminOnly: true },
   { href: '/admin', label: 'Tableau de bord', adminOnly: true },
 ]

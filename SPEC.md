@@ -14,14 +14,10 @@
 
 ## Page Tableau de bord /admin
 
-## Page Mois en cours /admin/mois
-
-
 ## Page Appartments /admin/apartments
 
 
 ## Page Détail d'un appartment /admin/apartments/num
-Rend la date d'entrée éditable au clic.
 
 ## Page Nouveau bail /admin/apartments/num/nouveau-bail
 
@@ -40,3 +36,5 @@ Rend la date d'entrée éditable au clic.
 
 
 ## Page EDL /admin/inventory/edl-fige/
+
+## Page Actions /admin/actions

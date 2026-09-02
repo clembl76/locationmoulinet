@@ -153,16 +153,19 @@ export async function savePreavisAction(
   }
 }
 
-export async function updateMoveInDateAction(
+export type EditableLeaseDateField = 'move_in_inspection_date' | 'signing_date' | 'end_date'
+
+export async function updateLeaseDateAction(
   leaseId: string,
   aptNumber: string,
-  moveInDate: string
+  field: EditableLeaseDateField,
+  value: string
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const admin = createAdminClient()
     const { error } = await admin
       .from('leases')
-      .update({ move_in_inspection_date: moveInDate })
+      .update({ [field]: value })
       .eq('id', leaseId)
     if (error) throw new Error(error.message)
     revalidatePath(`/admin/apartments/${aptNumber}`)

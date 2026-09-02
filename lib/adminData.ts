@@ -271,6 +271,7 @@ export type AdminApartmentDetail = AdminApartment & {
   rent_excluding_charges: number | null
   charges: number | null
   signing_date: string | null
+  end_date: string | null
   tenant_id: string | null
   tenant_title: string | null
   lease_insurance_attestation: boolean
@@ -327,6 +328,7 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
       l.docusign_lease_url AS lease_docusign_lease_url,
       l.docusign_edl_url AS lease_docusign_edl_url,
       l.signing_date,
+      l.end_date,
       l.move_in_inspection_date AS move_in_date,
       l.move_out_inspection_date AS move_out_date,
       EXISTS (
