@@ -33,14 +33,18 @@ function PieChart({ paid, unpaid }: { paid: number; unpaid: number }) {
   if (total === 0) return <div className="w-28 h-28 rounded-full bg-gray-100" />
 
   const paidPct = paid / total
+  // Arrondi à une précision fixe : Math.cos/Math.sin peuvent renvoyer un dernier chiffre
+  // différent entre le rendu serveur et le rendu client (implémentations légèrement
+  // différentes selon le moteur JS), ce qui cassait l'hydratation React sur ce path SVG.
+  const r = (n: number) => Math.round(n * 10000) / 10000
   function arc(pct: number, offset: number) {
     if (pct >= 1) return `M 50 50 m 0 -40 a 40 40 0 1 1 -0.001 0 Z`
     const startAngle = (offset - 0.25) * 2 * Math.PI
     const endAngle = (offset + pct - 0.25) * 2 * Math.PI
-    const x1 = 50 + 40 * Math.cos(startAngle)
-    const y1 = 50 + 40 * Math.sin(startAngle)
-    const x2 = 50 + 40 * Math.cos(endAngle)
-    const y2 = 50 + 40 * Math.sin(endAngle)
+    const x1 = r(50 + 40 * Math.cos(startAngle))
+    const y1 = r(50 + 40 * Math.sin(startAngle))
+    const x2 = r(50 + 40 * Math.cos(endAngle))
+    const y2 = r(50 + 40 * Math.sin(endAngle))
     const large = pct > 0.5 ? 1 : 0
     return `M 50 50 L ${x1} ${y1} A 40 40 0 ${large} 1 ${x2} ${y2} Z`
   }

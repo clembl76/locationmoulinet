@@ -2,6 +2,40 @@
 
 ## [Non publié]
 
+### 2026-09-11 — Bar chart reconstruit en HTML/CSS (abandon du SVG, design étiré corrigé)
+- **Cause du fix précédent défaillant** : `viewBox` fixe (480×222) + `preserveAspectRatio="none"` pour rendre le graphique responsive déformait tout le rendu dès que la largeur réelle du conteneur différait du viewBox (étirement horizontal non uniforme — le cas quasi systématique, la largeur étant fluide) — 3e défaut de suite avec une approche SVG pour ce graphique (masquage, barres invisibles, puis étirement)
+- `CaBarChartClient.tsx` entièrement reconstruit en HTML/CSS (flexbox + pourcentages) : plus aucun SVG, `calc()` ni `viewBox`. Colonne d'échelle à largeur fixe (40px) + colonne graphique flexible (`flex-1`) contenant les barres positionnées en `left`/`width` en pourcentages simples — les pourcentages CSS sur des éléments HTML n'ont ni le problème de fiabilité de `calc()` en attribut SVG, ni de risque de déformation par scaling
+- Tests : `CaBarChartClient.test.tsx` réécrit pour la nouvelle structure DOM (absence de SVG, positions en % sans `calc()`, largeur fixe de la colonne d'échelle)
+
+### 2026-09-10 — Fix : régression du bar chart (barres invisibles, collées à gauche) causée par calc() en attribut SVG
+- **Cause du fix précédent défaillant** : `calc()` avec parenthèses imbriquées + multiplication (`calc(40px + (100% - 40px) * 0.5 + 2px)`) en attribut de présentation SVG (`x`, `width` sur `<rect>`) n'est pas fiable selon les navigateurs — contrairement à un `calc()` simple (%+px) qui fonctionnait déjà avant. Les barres retombaient toutes à une position invalide (~0), collées à gauche juste après l'échelle
+- `CaBarChartClient.tsx` réécrit sans aucun `calc()`/`%` dans les attributs SVG : coordonnées internes fixes (`viewBox="0 0 480 222"`, `preserveAspectRatio="none"`) exprimées en nombres simples (x, width, etc.), le SVG s'étirant ensuite en CSS pour remplir son conteneur — approche standard pour un graphique SVG responsive, qui élimine ce problème à la racine plutôt que de continuer à contourner les limites de `calc()` en attribut
+- Tests : `CaBarChartClient.test.tsx` mis à jour (coordonnées numériques réelles vérifiées, plus de `calc()`/`%` dans aucun attribut)
+
+### 2026-09-10 — Vraie marge pour l'échelle du bar chart + fix hydratation PieChart
+- **Retour utilisateur** : le fix précédent (réordonnancement z-index) ne convenait pas — l'échelle doit avoir sa propre place géométrique, le 1er mois démarrant à droite de celle-ci, pas seulement "peint par-dessus"
+- `CaBarChartClient.tsx` : nouvelle marge `LEFT_MARGIN` (40px) dédiée à l'échelle Y — les 12 barres, leurs libellés de mois et les lignes de grille sont désormais calculés sur l'aire `(100% - 40px)` à droite de cette marge (via `calc()`), au lieu de partir de x=0% et chevaucher la zone de l'échelle
+- **Fix hydratation** (erreur console signalée) : `MoisLoyersClient.tsx` (`PieChart`/`arc()`) — `Math.cos`/`Math.sin` produisaient un dernier chiffre de précision différent entre le rendu serveur et le rendu client sur le path SVG du camembert, cassant l'hydratation React. Coordonnées désormais arrondies à 4 décimales avant d'être insérées dans le path
+- Tests : `CaBarChartClient.test.tsx` (barres jamais dans la zone de l'échelle), `MoisLoyersClient.test.tsx` (nouveau — précision du path SVG, reproduit le cas réel signalé 8420/1325)
+- **Note** : la correction manuelle de la date de Renard (41 ans) a été faite directement par l'utilisateur via le champ "Entrée" éditable — rien à faire côté code
+
+### 2026-09-10 — Fix : échelle du CA masquée par la barre de janvier + anomalie 41 ans (Renard)
+- **Échelle masquée** : les libellés de l'axe Y (`CaBarChartClient.tsx`) étaient dessinés avant les barres dans le SVG — la barre de janvier, qui démarre exactement à leur emplacement (x≈2px, juste sous la zone x=0-36 réservée à l'échelle), les recouvrait visuellement dès qu'elle était assez haute. Libellés désormais dessinés après les barres (peints par-dessus, jamais masqués) ; les lignes de grille (repère discret) restent dessinées derrière
+- **Durée moyenne d'occupation absurde (41 ans, bâtiment Renard)** : donnée en base incorrecte, pas un bug de calcul — l'unique bail de Renard (appt 84, Isabelle Thaille) a `move_in_inspection_date = 1985-08-01` alors que `signing_date = 2015-08-01` (confirmé par lecture directe en base) : erreur de saisie de 30 ans. Correction de la donnée **bloquée par le mode automatique** (écriture directe en base refusée) — à corriger via le champ "Entrée" éditable sur `/admin/apartments/84`, ou en autorisant explicitement l'action
+- Tests : `CaBarChartClient.test.tsx` (ordre de dessin échelle/barres, échelle toujours visible avec une barre dominante)
+
+### 2026-09-10 — Tableau de bord : CA avant Indicateurs, filtres partagés, fix troncature du bar chart
+- **Ordre** : bloc "CA encaissé — {année}" déplacé avant le bloc "Indicateurs {année}"
+- **Filtres partagés** : les filtres "Affichage" (Loyers CC/HC) et "Bâtiment", auparavant internes au bar chart, sont remontés dans un nouveau composant `DashboardAnnualClient.tsx` qui pilote à la fois le graphique et les 3 indicateurs annuels :
+  - "CA encaissé YTD" suit le mode CC/HC et les bâtiments sélectionnés
+  - "Taux d'occupation moyen" et "Durée moy. d'occupation" suivent les bâtiments sélectionnés (le mode CC/HC ne les affecte pas, non monétaires)
+  - `lib/adminData.ts` : nouvelles fonctions `getOccupationRateByBuildingMonth()` et `getLeaseDurationsByBuilding()` (données par bâtiment nécessaires au filtrage) ; `getDashboardStats()` allégée de `caYtd`/`tauxOccupationMoyen`/`dureeMoyenneAns`, recalculés côté client à partir de ces nouvelles données (plus filtrables autrement)
+  - `lib/dashboardStats.ts` (nouveau, fonctions pures) : `computeCaYtd`, `computeOccupationRate` (moyenne des ratios mensuels, pas ratio de la somme — reproduit la logique SQL d'origine), `computeAverageDurationYears`
+  - `components/admin/StatCard.tsx` extrait (était dupliqué localement dans `page.tsx`)
+- **Fix troncature** : les valeurs affichées au-dessus des barres les plus hautes du bar chart (`CaBarChartClient.tsx`) étaient positionnées à y≈-3, hors du SVG donc invisibles. Ajout d'une marge de 14px en haut (contenu du graphique déplacé via `<g transform="translate(0,14)">`) — `CaBarChartClient` ne gère plus son propre état de filtres, piloté par props (`mode`, `selectedBuildings`) depuis `DashboardAnnualClient`
+- Tests : `dashboardStats.test.ts`, `CaBarChartClient.test.tsx`, `DashboardAnnualClient.test.tsx`
+- **Fix incidental** : `apartmentStatus.test.ts` avait une deuxième date codée en dur (`2026-09-10`) devenue passée avec le temps — même correction que la fois précédente (date calculée relativement à aujourd'hui)
+
 ### 2026-08-28 — Tableau de bord, fiche appartement (dates éditables), page Actions (tri)
 - **Tableau de bord** : titre "Tableau de bord annuel" déplacé juste avant "Indicateurs {année}" (n'est plus le titre de toute la page, seulement de la section KPIs annuels)
 - **Fiche appartement** :

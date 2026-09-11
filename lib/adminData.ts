@@ -80,10 +80,7 @@ export type DashboardStats = {
     amountPaid: number
     amountUnpaid: number
   }
-  caYtd: number
   caCurrentMonth: number
-  tauxOccupationMoyen: number
-  dureeMoyenneAns: number
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -150,51 +147,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     amountUnpaid: withRent.filter(r => !r.paid_this_month).reduce((s, r) => s + (r.amount_expected ?? 0), 0),
   }
 
-  // CA YTD + average occupation + average duration — one query each
-  const [[caRow], [tauxRow], [dureeRow]] = await Promise.all([
-    runSql<{ ca_ytd: number }>(`
-      SELECT COALESCE(SUM(amount_received), 0) AS ca_ytd
-      FROM rents
-      WHERE year = ${year} AND amount_received IS NOT NULL
-    `),
-    runSql<{ taux_moyen: number }>(`
-      WITH months AS (
-        SELECT generate_series(1, ${month}) AS m
-      ),
-      total_apts AS (
-        SELECT COUNT(DISTINCT a.id)::float AS n
-        FROM apartments a
-        WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
-          AND ${EXCLUDE_BUREAU}
-      ),
-      occ AS (
-        SELECT
-          m.m,
-          COUNT(DISTINCT l.apartment_id)::float AS occupied
-        FROM months m
-        LEFT JOIN leases l ON
-          l.move_in_inspection_date <= make_date(${year}::int, m.m::int, 28)
-          AND (l.move_out_inspection_date IS NULL
-               OR l.move_out_inspection_date >= make_date(${year}::int, m.m::int, 1))
-        JOIN apartments a ON a.id = l.apartment_id AND ${EXCLUDE_BUREAU}
-        GROUP BY m.m
-      )
-      SELECT ROUND(
-        (AVG(100.0 * occ.occupied / NULLIF((SELECT n FROM total_apts), 0)))::numeric, 0
-      ) AS taux_moyen
-      FROM occ
-    `),
-    runSql<{ duree_moy: number }>(`
-      SELECT ROUND(
-        AVG(
-          (COALESCE(move_out_inspection_date, CURRENT_DATE)::date - move_in_inspection_date::date)::float / 365.0
-        )::numeric, 1
-      ) AS duree_moy
-      FROM leases
-      WHERE move_in_inspection_date IS NOT NULL
-    `),
-  ])
-
   const caCurrentMonth = rows
     .filter(r => r.amount_received != null)
     .reduce((s, r) => s + Number(r.amount_received ?? 0), 0)
@@ -206,10 +158,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     soon,
     departures,
     paymentPie,
-    caYtd: Number(caRow?.ca_ytd ?? 0),
     caCurrentMonth,
-    tauxOccupationMoyen: Number(tauxRow?.taux_moyen ?? 0),
-    dureeMoyenneAns: Number(dureeRow?.duree_moy ?? 0),
   }
 }
 
@@ -1262,6 +1211,68 @@ export async function getCaByMonth(year: number): Promise<CaMonthRow[]> {
       AND r.amount_received IS NOT NULL
     GROUP BY r.month, b.short_name
     ORDER BY r.month, b.short_name
+  `)
+}
+
+// Occupation mensuelle par bâtiment (pour filtrer "Taux d'occupation moyen" par bâtiment
+// sur le tableau de bord, comme le CA mensuel).
+export type OccupationMonthRow = {
+  month: number
+  building: string
+  occupied: number
+  total: number
+}
+
+export async function getOccupationRateByBuildingMonth(year: number, month: number): Promise<OccupationMonthRow[]> {
+  return runSql<OccupationMonthRow>(`
+    WITH months AS (
+      SELECT generate_series(1, ${month}) AS m
+    ),
+    apt_buildings AS (
+      SELECT a.id, b.short_name AS building
+      FROM apartments a
+      JOIN buildings b ON b.id = a.building_id
+      WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+        AND ${EXCLUDE_BUREAU}
+    )
+    SELECT
+      m.m AS month,
+      ab.building,
+      COUNT(*) FILTER (
+        WHERE EXISTS (
+          SELECT 1 FROM leases l
+          WHERE l.apartment_id = ab.id
+            AND l.move_in_inspection_date <= make_date(${year}::int, m.m::int, 28)
+            AND (l.move_out_inspection_date IS NULL
+                 OR l.move_out_inspection_date >= make_date(${year}::int, m.m::int, 1))
+        )
+      )::float AS occupied,
+      COUNT(*)::float AS total
+    FROM months m
+    CROSS JOIN apt_buildings ab
+    GROUP BY m.m, ab.building
+    ORDER BY m.m, ab.building
+  `)
+}
+
+// Durée d'occupation par bail, avec bâtiment (pour filtrer "Durée moy. d'occupation" par
+// bâtiment sur le tableau de bord).
+export type LeaseDurationRow = {
+  building: string
+  move_in_date: string
+  move_out_date: string | null
+}
+
+export async function getLeaseDurationsByBuilding(): Promise<LeaseDurationRow[]> {
+  return runSql<LeaseDurationRow>(`
+    SELECT
+      b.short_name AS building,
+      l.move_in_inspection_date::date::text AS move_in_date,
+      l.move_out_inspection_date::date::text AS move_out_date
+    FROM leases l
+    JOIN apartments a ON a.id = l.apartment_id
+    JOIN buildings b ON b.id = a.building_id
+    WHERE l.move_in_inspection_date IS NOT NULL
   `)
 }
 

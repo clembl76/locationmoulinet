@@ -57,12 +57,25 @@ describe('getApartmentStatus', () => {
   })
 
   it('plusieurs baux avec sorties futures : retient la plus proche', () => {
+    // Dates calculées par rapport à aujourd'hui (plutôt que codées en dur) pour rester
+    // valables dans le temps — cf. bug réel où des dates figées en dur dans le passé
+    // faisaient échouer ce test une fois la date dépassée.
+    const near = new Date()
+    near.setDate(near.getDate() + 10)
+    const far = new Date()
+    far.setDate(far.getDate() + 90)
+
+    const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
     const { availableFrom } = getApartmentStatus([
-      { move_out_inspection_date: '2026-12-25' },
-      { move_out_inspection_date: '2026-09-10' },
+      { move_out_inspection_date: iso(far) },
+      { move_out_inspection_date: iso(near) },
     ])
-    expect(availableFrom!.getMonth()).toBe(8) // septembre = index 8
-    expect(availableFrom!.getDate()).toBe(11)
+
+    const expectedNextDay = new Date(near.getFullYear(), near.getMonth(), near.getDate() + 1)
+    expect(availableFrom!.getFullYear()).toBe(expectedNextDay.getFullYear())
+    expect(availableFrom!.getMonth()).toBe(expectedNextDay.getMonth())
+    expect(availableFrom!.getDate()).toBe(expectedNextDay.getDate())
   })
 })
 

@@ -1,29 +1,13 @@
-import { getDashboardStats, getCalendarLeases, getCaByMonth, getAdminApartments } from '@/lib/adminData'
+import { getDashboardStats, getCalendarLeases, getCaByMonth, getAdminApartments, getOccupationRateByBuildingMonth, getLeaseDurationsByBuilding } from '@/lib/adminData'
 import type { CalendarLease } from '@/lib/adminData'
 import ExportLeasesButton from '@/components/admin/ExportLeasesButton'
-import CaBarChartClient from '@/components/admin/CaBarChartClient'
+import DashboardAnnualClient from '@/components/admin/DashboardAnnualClient'
 import GenerateRentsButton from '@/components/admin/GenerateRentsButton'
 import MoisLoyersClient from '@/components/admin/MoisLoyersClient'
+import StatCard from '@/components/admin/StatCard'
 import { MONTHS_SHORT } from '@/lib/monthLabels'
 
 export const dynamic = 'force-dynamic'
-
-// ─── Stat cards ───────────────────────────────────────────────────────────────
-
-function StatCard({
-  label, value, sub, href,
-}: {
-  label: string; value: number | string; sub?: string; href?: string
-}) {
-  const inner = (
-    <div className={`bg-white rounded-xl border border-gray-100 shadow-sm p-5 h-full ${href ? 'hover:border-blue-primary/40 hover:shadow transition-all' : ''}`}>
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-3xl font-bold text-blue-dark">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-    </div>
-  )
-  return href ? <a href={href} className="block">{inner}</a> : <div>{inner}</div>
-}
 
 // ─── Calendrier occupation ────────────────────────────────────────────────────
 
@@ -193,15 +177,15 @@ export default async function AdminDashboard() {
   const nextYear = month === 12 ? year + 1 : year
   const nextMois = new Date(nextYear, nextMonth - 1, 1).toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
 
-  const [stats, rawCalendar, caByMonth, apartments] = await Promise.all([
+  const [stats, rawCalendar, caByMonth, apartments, occupationByMonth, leaseDurations] = await Promise.all([
     getDashboardStats(),
     getCalendarLeases(year),
     getCaByMonth(year),
     getAdminApartments(),
+    getOccupationRateByBuildingMonth(year, month),
+    getLeaseDurationsByBuilding(),
   ])
   const annee = year
-
-  const caFormatted = stats.caYtd.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
 
   return (
     <div className="space-y-8">
@@ -252,27 +236,15 @@ export default async function AdminDashboard() {
         </section>
       )}
 
-      {/* KPIs annuels */}
       <h1 className="text-2xl font-bold text-gray-900">Tableau de bord annuel</h1>
-      <section>
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Indicateurs {annee}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard label="CA encaissé YTD" value={caFormatted} />
-          <StatCard
-            label="Taux d'occupation moyen"
-            value={`${stats.tauxOccupationMoyen} %`}
-            sub="Moyenne mensuelle depuis janvier"
-          />
-          <StatCard
-            label="Durée moy. d'occupation"
-            value={`${stats.dureeMoyenneAns} ans`}
-            sub="Tous baux confondus"
-          />
-        </div>
-      </section>
 
-      {/* Bar chart CA mensuel */}
-      <CaBarChartClient data={caByMonth} year={year} />
+      {/* CA encaissé + Indicateurs annuels — filtres (bâtiment/CC-HC) partagés entre les deux */}
+      <DashboardAnnualClient
+        year={annee}
+        caByMonth={caByMonth}
+        occupationByMonth={occupationByMonth}
+        leaseDurations={leaseDurations}
+      />
 
       {/* Calendrier occupation */}
       <OccupationCalendar rows={buildCalendarRows(rawCalendar, year)} year={year} />
