@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(55% 0.22 25); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:white; font-family:'Work Sans', sans-serif; color:oklch(12% 0 0);">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:26px 64px; border-bottom:2px solid oklch(12% 0 0);">
+    <div style="font-family:'Archivo', sans-serif; font-size:21px; font-weight:800; letter-spacing:-0.01em; text-transform:uppercase;">Location Moulinet</div>
+    <div style="display:flex; align-items:center; gap:36px;">
+      <a href="#" style="font-size:13.5px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:oklch(12% 0 0);">Le quartier</a>
+      <a href="#" style="font-size:13.5px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:oklch(12% 0 0);">Contact</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; background:oklch(12% 0 0); color:white; padding:12px 22px;">Déposer un dossier</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div style="display:grid; grid-template-columns:1fr 340px; border-bottom:2px solid oklch(12% 0 0);">
+    <div style="padding:64px 64px 56px 64px; border-right:1px solid oklch(12% 0 0);">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.08em; color:oklch(55% 0.22 25); margin-bottom:20px;">N° 01 — ROUEN, CENTRE-VILLE</div>
+      <h1 style="font-family:'Archivo', sans-serif; font-weight:800; font-size:76px; line-height:0.98; letter-spacing:-0.02em; margin:0 0 32px 0; text-transform:uppercase;">Studios<br>meublés<br><span style="color:oklch(55% 0.22 25);">à louer.</span></h1>
+      <div style="display:flex; gap:16px;">
+        <a href="#" style="font-size:14.5px; font-weight:700; letter-spacing:0.02em; text-transform:uppercase; background:oklch(12% 0 0); color:white; padding:16px 30px;">Visiter</a>
+        <a href="#" style="font-size:14.5px; font-weight:700; letter-spacing:0.02em; text-transform:uppercase; border:2px solid oklch(12% 0 0); color:oklch(12% 0 0); padding:14px 28px;">Déposer un dossier</a>
+      </div>
+    </div>
+    <div style="padding:64px 32px; display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div style="font-family:'IBM Plex Mono', monospace; font-size:44px; font-weight:600; line-height:1;">20</div>
+        <div style="font-size:13.5px; color:oklch(40% 0 0); margin-top:8px;">appartements meublés dans le centre historique</div>
+      </div>
+      <div style="border-top:1px solid oklch(80% 0 0); padding-top:20px; margin-top:24px;">
+        <div style="font-size:13.5px; line-height:1.6; color:oklch(30% 0 0);">2 min à pied de la gare. Eau, électricité, chauffage et wifi inclus. Sans frais d'agence, éligible APL.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr));">
+    <div style="padding:40px 48px; border-right:1px solid oklch(12% 0 0); border-bottom:2px solid oklch(12% 0 0);">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0.22 25); margin-bottom:14px;">01</div>
+      <div style="font-size:16.5px; font-weight:700; margin-bottom:6px;">Meublé & équipé</div>
+      <div style="font-size:14px; line-height:1.55; color:oklch(42% 0 0);">Prêt à vivre dès l'arrivée, zéro déménagement.</div>
+    </div>
+    <div style="padding:40px 48px; border-right:1px solid oklch(12% 0 0); border-bottom:2px solid oklch(12% 0 0);">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0.22 25); margin-bottom:14px;">02</div>
+      <div style="font-size:16.5px; font-weight:700; margin-bottom:6px;">Idéalement situé</div>
+      <div style="font-size:14px; line-height:1.55; color:oklch(42% 0 0);">2 min de la gare, tram et campus, rue calme.</div>
+    </div>
+    <div style="padding:40px 48px; border-bottom:2px solid oklch(12% 0 0);">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0.22 25); margin-bottom:14px;">03</div>
+      <div style="font-size:16.5px; font-weight:700; margin-bottom:6px;">Tout inclus</div>
+      <div style="font-size:14px; line-height:1.55; color:oklch(42% 0 0);">Charges comprises, pas de frais d'agence.</div>
+    </div>
+  </div>
+
+  <!-- Listing header / filters -->
+  <div style="padding:44px 64px 0 64px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:24px;">
+      <h2 style="font-family:'Archivo', sans-serif; font-size:28px; font-weight:800; text-transform:uppercase; margin:0;">Nos appartements</h2>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(45% 0 0);">20 / 20</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:0; border:1px solid oklch(12% 0 0); margin-bottom:0;">
+      <div style="padding:14px 22px; font-size:13px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; background:oklch(12% 0 0); color:white;">Tous</div>
+      <div style="padding:14px 22px; font-size:13px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; border-left:1px solid oklch(12% 0 0);">Disponible</div>
+      <div style="padding:14px 22px; font-size:13px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; border-left:1px solid oklch(12% 0 0);">Prochainement</div>
+      <div style="padding:14px 22px; font-size:13px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; border-left:1px solid oklch(12% 0 0);">Loué</div>
+      <div style="padding:14px 22px; font-size:13px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; border-left:1px solid oklch(12% 0 0); margin-left:auto;">Surface max.</div>
+      <div style="padding:14px 22px; font-size:13px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; border-left:1px solid oklch(12% 0 0);">Prix CC max.</div>
+    </div>
+  </div>
+
+  <!-- Table listing -->
+  <div style="padding:0 64px 96px 64px;">
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; border-bottom:2px solid oklch(12% 0 0); padding:14px 0; font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.06em; color:oklch(45% 0 0); text-transform:uppercase;">
+      <div>N°</div><div>Appartement</div><div>Statut</div><div>Surface</div><div>Étage</div><div style="text-align:right;">Prix CC</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; align-items:center; border-bottom:1px solid oklch(85% 0 0); padding:22px 0;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0 0);">01</div>
+      <div style="font-size:16px; font-weight:700;">Appartement 30 — Studio</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600;"><span style="width:8px; height:8px; background:oklch(55% 0.16 150); display:inline-block;"></span>Disponible</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">22.7 m²</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">3e étage</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; text-align:right;">550 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; align-items:center; border-bottom:1px solid oklch(85% 0 0); padding:22px 0;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0 0);">02</div>
+      <div style="font-size:16px; font-weight:700;">Appartement 24 — Studio</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600;"><span style="width:8px; height:8px; background:oklch(70% 0.14 75); display:inline-block;"></span>Dispo. 4 oct.</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">24 m²</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">2e étage</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; text-align:right;">650 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; align-items:center; border-bottom:1px solid oklch(85% 0 0); padding:22px 0;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0 0);">03</div>
+      <div style="font-size:16px; font-weight:700;">Appartement 1 — Mezzanine</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:oklch(50% 0 0);"><span style="width:8px; height:8px; background:oklch(55% 0.22 25); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">21.1 m²</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">Rdc</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; text-align:right;">625 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; align-items:center; border-bottom:1px solid oklch(85% 0 0); padding:22px 0;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0 0);">04</div>
+      <div style="font-size:16px; font-weight:700;">Appartement 1000 — 2 pièces</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:oklch(50% 0 0);"><span style="width:8px; height:8px; background:oklch(55% 0.22 25); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">30 m²</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">Rdc</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; text-align:right;">630 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; align-items:center; border-bottom:1px solid oklch(85% 0 0); padding:22px 0;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0 0);">05</div>
+      <div style="font-size:16px; font-weight:700;">Appartement 84 — T4</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:oklch(50% 0 0);"><span style="width:8px; height:8px; background:oklch(55% 0.22 25); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">87 m²</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">4e étage</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; text-align:right;">820 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:60px 1.4fr 1fr 1fr 1fr 1fr; align-items:center; border-bottom:2px solid oklch(12% 0 0); padding:22px 0;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:oklch(55% 0 0);">06</div>
+      <div style="font-size:16px; font-weight:700;">Appartement 25 — Studio</div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:oklch(50% 0 0);"><span style="width:8px; height:8px; background:oklch(55% 0.22 25); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">24.8 m²</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:14px;">Rdc</div>
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; text-align:right;">550 €</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:2px solid oklch(12% 0 0); padding:32px 64px; display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:oklch(40% 0 0);">
+    <div>LOCATION MOULINET — ROUEN</div>
+    <div>CONTACT@LOCATIONMOULINET.FR</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

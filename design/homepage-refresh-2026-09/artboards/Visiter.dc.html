@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(99% 0.003 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <!-- Header -->
+  <div style="padding:26px 64px;">
+    <a href="#" style="font-size:15px; font-weight:700; display:inline-flex; align-items:center; gap:8px; color:oklch(18% 0.01 60);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      Location Moulinet
+    </a>
+  </div>
+
+  <!-- Centered form column -->
+  <div style="max-width:680px; margin:0 auto; padding:8px 24px 100px 24px;">
+
+    <h1 style="font-size:32px; font-weight:800; letter-spacing:-0.015em; margin:0 0 10px 0;">Demande de visite</h1>
+    <p style="font-size:15px; color:oklch(45% 0.01 60); margin:0 0 40px 0;">Remplissez ce formulaire pour planifier une visite. Nous vous contacterons rapidement pour confirmer votre rendez-vous.</p>
+
+    <!-- Vos informations -->
+    <div style="padding-bottom:28px; border-bottom:1px solid oklch(92% 0.005 60); margin-bottom:28px;">
+      <div style="font-size:17px; font-weight:700; margin-bottom:18px;">Vos informations</div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+        <div>
+          <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Prénom <span style="color:oklch(55% 0.15 25);">*</span></label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:11px 14px; color:oklch(62% 0.005 60); font-size:14px;">Paul</div>
+        </div>
+        <div>
+          <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Nom <span style="color:oklch(55% 0.15 25);">*</span></label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:11px 14px; color:oklch(62% 0.005 60); font-size:14px;">MARTIN</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Email <span style="color:oklch(55% 0.15 25);">*</span></label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:11px 14px; color:oklch(62% 0.005 60); font-size:14px;">paul@exemple.fr</div>
+        </div>
+        <div>
+          <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Téléphone <span style="color:oklch(55% 0.15 25);">*</span></label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:11px 14px; color:oklch(62% 0.005 60); font-size:14px;">06 12 34 56 78</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appartements à visiter -->
+    <div style="padding-bottom:28px; border-bottom:1px solid oklch(92% 0.005 60); margin-bottom:28px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
+        <div style="font-size:17px; font-weight:700;">Appartements à visiter <span style="color:oklch(55% 0.15 25);">*</span></div>
+        <a href="#" style="font-size:13px; font-weight:600;">Voir tous les appartements &#8594;</a>
+      </div>
+
+      <div style="font-size:11.5px; font-weight:700; letter-spacing:0.06em; color:oklch(55% 0.01 60); margin-bottom:8px;">9 RUE DU MOULINET, 76000 ROUEN</div>
+      <div style="border:1.5px solid oklch(87% 0.005 60); border-radius:14px; padding:16px 18px;">
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+          <div style="width:18px; height:18px; border-radius:5px; border:1.5px solid oklch(78% 0.005 60); flex-shrink:0; margin-top:2px;"></div>
+          <div>
+            <div style="font-size:14.5px;"><span style="font-weight:700;">Appartement n°30</span> · 3e étage</div>
+            <div style="font-size:13px; color:oklch(48% 0.01 60); margin-top:3px;">22.7 m² · 550 €/mois CC</div>
+          </div>
+        </div>
+        <a href="#" style="font-size:12.5px; font-weight:600; display:inline-block; margin-top:10px;">Voir la fiche &#8594;</a>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; margin-top:24px; margin-bottom:8px;">
+        <span style="font-size:11.5px; font-weight:700; letter-spacing:0.06em; color:oklch(55% 0.13 70);">PROCHAINEMENT DISPONIBLES</span>
+        <span style="font-size:11px; font-weight:700; background:oklch(93% 0.07 80); color:oklch(42% 0.1 75); padding:4px 10px; border-radius:100px;">Visite possible en anticipation</span>
+      </div>
+      <div style="font-size:11.5px; font-weight:700; letter-spacing:0.06em; color:oklch(55% 0.01 60); margin-bottom:8px;">9 RUE DU MOULINET, 76000 ROUEN</div>
+      <div style="border:1.5px solid oklch(90% 0.05 80); background:oklch(98% 0.015 85); border-radius:14px; padding:16px 18px;">
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+          <div style="width:18px; height:18px; border-radius:5px; border:1.5px solid oklch(78% 0.005 60); background:white; flex-shrink:0; margin-top:2px;"></div>
+          <div>
+            <div style="font-size:14.5px;"><span style="font-weight:700;">Appartement n°24</span> · 2e étage</div>
+            <div style="font-size:13px; color:oklch(48% 0.01 60); margin-top:3px;">24 m² · 650 €/mois CC</div>
+            <div style="font-size:12.5px; font-weight:600; color:oklch(48% 0.12 70); margin-top:4px;">Disponible à partir du 3 octobre 2026</div>
+          </div>
+        </div>
+        <a href="#" style="font-size:12.5px; font-weight:600; display:inline-block; margin-top:10px;">Voir la fiche &#8594;</a>
+      </div>
+    </div>
+
+    <!-- Date et heure -->
+    <div style="padding-bottom:28px; border-bottom:1px solid oklch(92% 0.005 60); margin-bottom:28px;">
+      <div style="font-size:17px; font-weight:700; margin-bottom:18px;">Date et heure souhaitées <span style="color:oklch(55% 0.15 25);">*</span></div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div style="border:1px solid oklch(90% 0.005 60); border-radius:14px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.01 60)" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg>
+            <div style="font-size:13.5px; font-weight:700;">Septembre 2026</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.01 60)" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px; text-align:center; font-size:10.5px; font-weight:700; color:oklch(55% 0.01 60); margin-bottom:6px;">
+            <div>LUN.</div><div>MAR.</div><div>MER.</div><div>JEU.</div><div>VEN.</div><div>SAM.</div><div>DIM.</div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px; text-align:center; font-size:12.5px;">
+            <div style="color:oklch(80% 0.005 60); padding:6px 0;">31</div><div style="padding:6px 0;">1</div><div style="padding:6px 0;">2</div><div style="padding:6px 0;">3</div><div style="padding:6px 0;">4</div><div style="padding:6px 0;">5</div><div style="padding:6px 0;">6</div>
+            <div style="padding:6px 0;">7</div><div style="padding:6px 0;">8</div><div style="padding:6px 0;">9</div><div style="padding:6px 0;">10</div><div style="border:1.5px solid oklch(40% 0.09 195); border-radius:100%; color:oklch(40% 0.09 195); font-weight:700; padding:5px 0;">11</div><div style="padding:6px 0;">12</div><div style="padding:6px 0;">13</div>
+            <div style="padding:6px 0;">14</div><div style="padding:6px 0;">15</div><div style="padding:6px 0;">16</div><div style="padding:6px 0;">17</div><div style="padding:6px 0;">18</div><div style="padding:6px 0;">19</div><div style="padding:6px 0;">20</div>
+            <div style="padding:6px 0;">21</div><div style="padding:6px 0;">22</div><div style="padding:6px 0;">23</div><div style="padding:6px 0;">24</div><div style="padding:6px 0;">25</div><div style="padding:6px 0;">26</div><div style="padding:6px 0;">27</div>
+            <div style="padding:6px 0;">28</div><div style="padding:6px 0;">29</div><div style="padding:6px 0;">30</div><div style="color:oklch(80% 0.005 60); padding:6px 0;">1</div><div style="color:oklch(80% 0.005 60); padding:6px 0;">2</div><div style="color:oklch(80% 0.005 60); padding:6px 0;">3</div><div style="color:oklch(80% 0.005 60); padding:6px 0;">4</div>
+          </div>
+        </div>
+        <div style="border:1px solid oklch(90% 0.005 60); border-radius:14px; display:flex; align-items:center; justify-content:center; text-align:center; padding:18px;">
+          <div style="font-size:13.5px; color:oklch(55% 0.01 60);">Sélectionnez<br>une date</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Votre profil -->
+    <div style="padding-bottom:28px; border-bottom:1px solid oklch(92% 0.005 60); margin-bottom:28px;">
+      <div style="font-size:17px; font-weight:700; margin-bottom:18px;">Votre profil</div>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:9px;">Situation <span style="color:oklch(55% 0.15 25);">*</span></label>
+        <div style="display:flex; gap:8px;">
+          <div style="font-size:14px; font-weight:700; border:1.5px solid oklch(87% 0.005 60); color:oklch(35% 0.01 60); padding:11px 22px; border-radius:100px;">Étudiant(e)</div>
+          <div style="font-size:14px; font-weight:700; border:1.5px solid oklch(87% 0.005 60); color:oklch(35% 0.01 60); padding:11px 22px; border-radius:100px;">Autre</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:9px;">Garant <span style="color:oklch(55% 0.15 25);">*</span></label>
+        <div style="display:flex; gap:8px;">
+          <div style="font-size:14px; font-weight:700; border:1.5px solid oklch(87% 0.005 60); color:oklch(35% 0.01 60); padding:11px 18px; border-radius:100px;">Pas de garant</div>
+          <div style="font-size:14px; font-weight:700; border:1.5px solid oklch(87% 0.005 60); color:oklch(35% 0.01 60); padding:11px 18px; border-radius:100px;">Garant physique</div>
+          <div style="font-size:14px; font-weight:700; border:1.5px solid oklch(87% 0.005 60); color:oklch(35% 0.01 60); padding:11px 18px; border-radius:100px;">Garantie Visale</div>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Revenus mensuels nets cumulés <span style="color:oklch(55% 0.15 25);">*</span></label>
+        <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:11px 14px; color:oklch(60% 0.005 60); font-size:14px; max-width:280px;">Non renseigné</div>
+      </div>
+    </div>
+
+    <!-- Votre projet -->
+    <div style="padding-bottom:28px;">
+      <div style="font-size:17px; font-weight:700; margin-bottom:18px;">Votre projet</div>
+
+      <div style="margin-bottom:18px; max-width:320px;">
+        <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Durée de location souhaitée <span style="color:oklch(55% 0.15 25);">*</span></label>
+        <div style="display:flex; align-items:center; justify-content:space-between; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:11px 14px; color:oklch(50% 0.01 60); font-size:14px;">
+          Choisir une durée <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-size:13.5px; font-weight:600; display:block; margin-bottom:7px;">Commentaires</label>
+        <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:12px 14px; height:88px;"></div>
+      </div>
+    </div>
+
+    <div style="width:100%; text-align:center; font-size:15px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:15px 0; border-radius:100px;">Envoyer ma demande de visite</div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

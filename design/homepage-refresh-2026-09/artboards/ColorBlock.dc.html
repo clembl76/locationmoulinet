@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(97% 0.012 92); font-family:'Work Sans', sans-serif; color:oklch(16% 0.01 260);">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:26px 64px;">
+    <div style="font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700;">Location Moulinet</div>
+    <div style="display:flex; align-items:center; gap:32px;">
+      <a href="#" style="font-size:15px; font-weight:500;">Le quartier</a>
+      <a href="#" style="font-size:15px; font-weight:500;">Contact</a>
+      <a href="#" style="font-size:15px; font-weight:700; background:oklch(55% 0.2 263); color:white; padding:12px 24px; border-radius:100px;">Déposer un dossier</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div style="display:grid; grid-template-columns:1.1fr 0.9fr; gap:0; margin:8px 64px 0 64px; border-radius:28px; overflow:hidden;">
+    <div style="background:oklch(93% 0.03 95); padding:76px 56px;">
+      <div style="display:inline-block; font-size:13px; font-weight:700; letter-spacing:0.05em; background:oklch(70% 0.17 42); color:white; padding:7px 16px; border-radius:100px; margin-bottom:26px;">ROUEN · CENTRE-VILLE</div>
+      <h1 style="font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:54px; line-height:1.08; letter-spacing:-0.01em; margin:0 0 24px 0;">Ton studio meublé, à 2 min de la gare.</h1>
+      <p style="font-size:17px; line-height:1.55; color:oklch(32% 0.01 260); margin:0 0 34px 0; max-width:440px;">20 studios équipés en plein centre historique. Sans frais d'agence, sans galère : tout inclus, éligible APL.</p>
+      <div style="display:flex; gap:16px;">
+        <a href="#" style="font-size:15.5px; font-weight:700; background:oklch(16% 0.01 260); color:white; padding:15px 28px; border-radius:100px;">Visiter un studio</a>
+        <a href="#" style="font-size:15.5px; font-weight:700; border:2px solid oklch(16% 0.01 260); padding:13px 26px; border-radius:100px;">Déposer mon dossier</a>
+      </div>
+    </div>
+    <div style="background:oklch(55% 0.2 263); padding:56px; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" style="align-self:flex-end;"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.4" opacity="0.5"/></svg>
+      <div>
+        <div style="font-family:'Space Grotesk', sans-serif; font-size:104px; font-weight:700; color:white; line-height:1;">20</div>
+        <div style="font-size:17px; font-weight:600; color:oklch(90% 0.03 263); margin-top:8px;">studios meublés · dès 300 € CC</div>
+      </div>
+      <div style="width:100%; height:1px; background:oklch(75% 0.05 263 / 0.4); margin:28px 0;"></div>
+      <div style="font-size:15px; color:oklch(92% 0.02 263); line-height:1.5;">Eau, électricité, chauffage, wifi — tout est compris dans le loyer.</div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:20px; padding:56px 64px 8px 64px;">
+    <div style="background:oklch(70% 0.17 42); border-radius:24px; padding:32px; color:white;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+      <div style="font-size:19px; font-weight:700; margin:18px 0 8px 0;">Meublé & équipé</div>
+      <div style="font-size:14.5px; line-height:1.5; opacity:0.92;">Prêt à vivre dès l'arrivée, zéro déménagement.</div>
+    </div>
+    <div style="background:oklch(55% 0.09 145); border-radius:24px; padding:32px; color:white;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
+      <div style="font-size:19px; font-weight:700; margin:18px 0 8px 0;">Ultra bien placé</div>
+      <div style="font-size:14.5px; line-height:1.5; opacity:0.92;">2 min de la gare, tram et campus à portée.</div>
+    </div>
+    <div style="background:oklch(16% 0.01 260); border-radius:24px; padding:32px; color:white;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6"><path d="M20 6L9 17l-5-5"/></svg>
+      <div style="font-size:19px; font-weight:700; margin:18px 0 8px 0;">Tout inclus</div>
+      <div style="font-size:14.5px; line-height:1.5; opacity:0.92;">Pas de frais d'agence, pas de mauvaise surprise.</div>
+    </div>
+  </div>
+
+  <!-- Listing header / filters -->
+  <div style="padding:56px 64px 24px 64px;">
+    <h2 style="font-family:'Space Grotesk', sans-serif; font-size:32px; font-weight:700; margin:0 0 22px 0;">Nos appartements</h2>
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <span style="font-size:14px; font-weight:700; background:oklch(16% 0.01 260); color:white; padding:10px 20px; border-radius:100px;">Tous</span>
+      <span style="font-size:14px; font-weight:600; border:1.5px solid oklch(80% 0.01 260); padding:9px 19px; border-radius:100px;">Disponible</span>
+      <span style="font-size:14px; font-weight:600; border:1.5px solid oklch(80% 0.01 260); padding:9px 19px; border-radius:100px;">Prochainement</span>
+      <span style="font-size:14px; font-weight:600; border:1.5px solid oklch(80% 0.01 260); padding:9px 19px; border-radius:100px;">Loué</span>
+      <span style="font-size:14px; font-weight:600; border:1.5px solid oklch(80% 0.01 260); padding:9px 19px; border-radius:100px; margin-left:auto;">Surface max.</span>
+      <span style="font-size:14px; font-weight:600; border:1.5px solid oklch(80% 0.01 260); padding:9px 19px; border-radius:100px;">Prix CC max.</span>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:28px; padding:0 64px 88px 64px;">
+
+    <div style="background:white; border-radius:24px; overflow:hidden;">
+      <div style="height:180px; background:linear-gradient(135deg, oklch(55% 0.2 263), oklch(45% 0.18 275)); position:relative;">
+        <span style="position:absolute; top:14px; left:14px; font-size:12.5px; font-weight:700; background:oklch(55% 0.13 150); color:white; padding:6px 14px; border-radius:100px;">DISPONIBLE</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:17px; font-weight:700;">Appartement 30</div>
+        <div style="font-size:13.5px; color:oklch(48% 0.01 260); margin-top:4px;">Studio · 22.7 m² · 3e étage</div>
+        <div style="font-size:19px; font-weight:700; margin-top:12px;">550 € <span style="font-weight:500; font-size:13px; color:oklch(48% 0.01 260);">CC/mois</span></div>
+      </div>
+    </div>
+
+    <div style="background:white; border-radius:24px; overflow:hidden;">
+      <div style="height:180px; background:linear-gradient(135deg, oklch(70% 0.17 42), oklch(62% 0.16 35)); position:relative;">
+        <span style="position:absolute; top:14px; left:14px; font-size:12.5px; font-weight:700; background:oklch(70% 0.14 75); color:white; padding:6px 14px; border-radius:100px;">DISPO. 4 OCT.</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:17px; font-weight:700;">Appartement 24</div>
+        <div style="font-size:13.5px; color:oklch(48% 0.01 260); margin-top:4px;">Studio · 24 m² · 2e étage</div>
+        <div style="font-size:19px; font-weight:700; margin-top:12px;">650 € <span style="font-weight:500; font-size:13px; color:oklch(48% 0.01 260);">CC/mois</span></div>
+      </div>
+    </div>
+
+    <div style="background:white; border-radius:24px; overflow:hidden;">
+      <div style="height:180px; background:linear-gradient(135deg, oklch(55% 0.09 145), oklch(45% 0.08 150)); position:relative;">
+        <span style="position:absolute; top:14px; left:14px; font-size:12.5px; font-weight:700; background:oklch(55% 0.01 260); color:white; padding:6px 14px; border-radius:100px;">LOUÉ</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:17px; font-weight:700;">Appartement 1</div>
+        <div style="font-size:13.5px; color:oklch(48% 0.01 260); margin-top:4px;">Avec mezzanine · 21.1 m² · Rdc</div>
+        <div style="font-size:19px; font-weight:700; margin-top:12px;">625 € <span style="font-weight:500; font-size:13px; color:oklch(48% 0.01 260);">CC/mois</span></div>
+      </div>
+    </div>
+
+    <div style="background:white; border-radius:24px; overflow:hidden;">
+      <div style="height:180px; background:linear-gradient(135deg, oklch(45% 0.18 275), oklch(55% 0.2 263)); position:relative;">
+        <span style="position:absolute; top:14px; left:14px; font-size:12.5px; font-weight:700; background:oklch(55% 0.01 260); color:white; padding:6px 14px; border-radius:100px;">LOUÉ</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:17px; font-weight:700;">Appartement 1000</div>
+        <div style="font-size:13.5px; color:oklch(48% 0.01 260); margin-top:4px;">2 pièces hyper-centre · 30 m² · Rdc</div>
+        <div style="font-size:19px; font-weight:700; margin-top:12px;">630 € <span style="font-weight:500; font-size:13px; color:oklch(48% 0.01 260);">CC/mois</span></div>
+      </div>
+    </div>
+
+    <div style="background:white; border-radius:24px; overflow:hidden;">
+      <div style="height:180px; background:linear-gradient(135deg, oklch(62% 0.16 35), oklch(70% 0.17 42)); position:relative;">
+        <span style="position:absolute; top:14px; left:14px; font-size:12.5px; font-weight:700; background:oklch(55% 0.01 260); color:white; padding:6px 14px; border-radius:100px;">LOUÉ</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:17px; font-weight:700;">Appartement 84</div>
+        <div style="font-size:13.5px; color:oklch(48% 0.01 260); margin-top:4px;">T4 · 87 m² · 4e étage</div>
+        <div style="font-size:19px; font-weight:700; margin-top:12px;">820 € <span style="font-weight:500; font-size:13px; color:oklch(48% 0.01 260);">CC/mois</span></div>
+      </div>
+    </div>
+
+    <div style="background:white; border-radius:24px; overflow:hidden;">
+      <div style="height:180px; background:linear-gradient(135deg, oklch(45% 0.08 150), oklch(55% 0.09 145)); position:relative;">
+        <span style="position:absolute; top:14px; left:14px; font-size:12.5px; font-weight:700; background:oklch(55% 0.01 260); color:white; padding:6px 14px; border-radius:100px;">LOUÉ</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:17px; font-weight:700;">Appartement 25</div>
+        <div style="font-size:13.5px; color:oklch(48% 0.01 260); margin-top:4px;">Studio · 24.8 m² · Rdc</div>
+        <div style="font-size:19px; font-weight:700; margin-top:12px;">550 € <span style="font-weight:500; font-size:13px; color:oklch(48% 0.01 260);">CC/mois</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer CTA -->
+  <div style="background:oklch(16% 0.01 260); margin:0 64px 64px 64px; border-radius:28px; padding:48px 56px; display:flex; justify-content:space-between; align-items:center;">
+    <div style="font-family:'Space Grotesk', sans-serif; font-size:26px; font-weight:700; color:white;">Prêt à visiter ton futur studio ?</div>
+    <a href="#" style="font-size:15.5px; font-weight:700; background:white; color:oklch(16% 0.01 260); padding:15px 30px; border-radius:100px;">Prendre rendez-vous</a>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

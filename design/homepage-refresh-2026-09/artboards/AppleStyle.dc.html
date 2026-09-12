@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(20% 0 0); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:white; font-family:'Outfit', sans-serif; color:oklch(14% 0 0);">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:22px 56px; position:sticky; top:0; background:oklch(100% 0 0 / 0.85); backdrop-filter:blur(10px);">
+    <div style="font-size:18px; font-weight:600; letter-spacing:-0.01em;">Location Moulinet</div>
+    <div style="display:flex; align-items:center; gap:44px;">
+      <a href="#" style="font-size:13.5px; color:oklch(40% 0 0);">Les studios</a>
+      <a href="#" style="font-size:13.5px; color:oklch(40% 0 0);">Le quartier</a>
+      <a href="#" style="font-size:13.5px; color:oklch(40% 0 0);">Contact</a>
+      <a href="#" style="font-size:13.5px; font-weight:600; background:oklch(14% 0 0); color:white; padding:10px 20px; border-radius:100px;">Dossier</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div style="text-align:center; padding:110px 56px 90px 56px;">
+    <h1 style="font-size:92px; font-weight:600; letter-spacing:-0.03em; line-height:1.03; margin:0 0 28px 0;">Un studio meublé.<br>Prêt en un jour.</h1>
+    <p style="font-size:21px; font-weight:300; color:oklch(45% 0 0); margin:0 0 40px 0;">20 adresses au cœur de Rouen, à deux minutes de la gare.</p>
+    <a href="#" style="display:inline-block; font-size:16px; font-weight:500; background:oklch(14% 0 0); color:white; padding:16px 36px; border-radius:100px;">Découvrir les studios</a>
+    <div style="font-size:14px; color:oklch(55% 0 0); margin-top:18px;">À partir de 300 € CC / mois</div>
+  </div>
+
+  <!-- Full bleed image block -->
+  <div style="margin:0 56px; border-radius:28px; overflow:hidden; height:520px; background:linear-gradient(160deg, oklch(28% 0.02 250), oklch(15% 0.01 250) 60%); position:relative; display:flex; align-items:flex-end;">
+    <div style="padding:64px; max-width:620px;">
+      <div style="font-size:38px; font-weight:600; color:white; line-height:1.15;">Tout inclus. Sans frais d'agence.</div>
+      <div style="font-size:16px; font-weight:300; color:oklch(78% 0.01 250); margin-top:16px;">Eau, électricité, chauffage, wifi — un seul loyer, aucune surprise.</div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:64px; padding:120px 96px;">
+    <div style="text-align:center;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="oklch(14% 0 0)" stroke-width="1.2" style="margin:0 auto 24px auto; display:block;"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+      <div style="font-size:19px; font-weight:500; margin-bottom:10px;">Meublé</div>
+      <div style="font-size:14.5px; font-weight:300; color:oklch(48% 0 0); line-height:1.6;">Chaque studio est prêt à vivre, sans rien à acheter.</div>
+    </div>
+    <div style="text-align:center;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="oklch(14% 0 0)" stroke-width="1.2" style="margin:0 auto 24px auto; display:block;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <div style="font-size:19px; font-weight:500; margin-bottom:10px;">Deux minutes</div>
+      <div style="font-size:14.5px; font-weight:300; color:oklch(48% 0 0); line-height:1.6;">De la gare, à pied, dans une rue calme.</div>
+    </div>
+    <div style="text-align:center;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="oklch(14% 0 0)" stroke-width="1.2" style="margin:0 auto 24px auto; display:block;"><path d="M20 6L9 17l-5-5"/></svg>
+      <div style="font-size:19px; font-weight:500; margin-bottom:10px;">Un seul loyer</div>
+      <div style="font-size:14.5px; font-weight:300; color:oklch(48% 0 0); line-height:1.6;">Charges comprises, éligible aux aides au logement.</div>
+    </div>
+  </div>
+
+  <!-- Product-style listing -->
+  <div style="padding:0 56px 40px 56px;">
+    <h2 style="text-align:center; font-size:38px; font-weight:600; letter-spacing:-0.015em; margin:0 0 56px 0;">Les studios disponibles</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px; padding:0 56px 130px 56px;">
+    <div>
+      <div style="aspect-ratio:3/4; border-radius:20px; background:linear-gradient(150deg, oklch(94% 0.005 250), oklch(88% 0.008 250));"></div>
+      <div style="text-align:center; margin-top:18px;">
+        <div style="font-size:16px; font-weight:500;">Appartement 30</div>
+        <div style="font-size:13.5px; color:oklch(50% 0 0); margin-top:4px;">22.7 m² · dès 550 €/mois</div>
+      </div>
+    </div>
+    <div>
+      <div style="aspect-ratio:3/4; border-radius:20px; background:linear-gradient(150deg, oklch(94% 0.005 250), oklch(88% 0.008 250));"></div>
+      <div style="text-align:center; margin-top:18px;">
+        <div style="font-size:16px; font-weight:500;">Appartement 24</div>
+        <div style="font-size:13.5px; color:oklch(50% 0 0); margin-top:4px;">24 m² · dès 650 €/mois</div>
+      </div>
+    </div>
+    <div>
+      <div style="aspect-ratio:3/4; border-radius:20px; background:linear-gradient(150deg, oklch(94% 0.005 250), oklch(88% 0.008 250));"></div>
+      <div style="text-align:center; margin-top:18px;">
+        <div style="font-size:16px; font-weight:500;">Appartement 1000</div>
+        <div style="font-size:13.5px; color:oklch(50% 0 0); margin-top:4px;">30 m² · dès 630 €/mois</div>
+      </div>
+    </div>
+    <div>
+      <div style="aspect-ratio:3/4; border-radius:20px; background:linear-gradient(150deg, oklch(94% 0.005 250), oklch(88% 0.008 250));"></div>
+      <div style="text-align:center; margin-top:18px;">
+        <div style="font-size:16px; font-weight:500;">Appartement 84</div>
+        <div style="font-size:13.5px; color:oklch(50% 0 0); margin-top:4px;">87 m² · dès 820 €/mois</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:1px solid oklch(92% 0 0); padding:28px 56px; display:flex; justify-content:space-between; font-size:12px; color:oklch(55% 0 0);">
+    <div>Location Moulinet — Rouen, France</div>
+    <div style="display:flex; gap:24px;"><a href="#" style="color:oklch(55% 0 0);">Le quartier</a><a href="#" style="color:oklch(55% 0 0);">Contact</a><a href="#" style="color:oklch(55% 0 0);">Mentions légales</a></div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

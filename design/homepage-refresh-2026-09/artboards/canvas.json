@@ -1,0 +1,84 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Round 1" },
+    { "id": "page-2", "name": "Round 2" },
+    { "id": "page-3", "name": "Round 3" },
+    { "id": "page-4", "name": "Round 4" },
+    { "id": "page-5", "name": "Piste retenue (n°17)" },
+    { "id": "page-6", "name": "Fiche appartement — refontes" },
+    { "id": "page-7", "name": "Autres pages" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1900 },
+    { "file": "ColorBlock.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 2000 },
+    { "file": "DarkPremium.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 2350 },
+    { "file": "WarmOrganic.dc.html", "x": 4680, "y": 0, "w": 1440, "h": 2200 },
+    { "file": "SwissGrid.dc.html", "x": 6240, "y": 0, "w": 1440, "h": 1650 },
+
+    { "file": "AirbnbStyle.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1150, "page": "page-2" },
+    { "file": "AppleStyle.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 2400, "page": "page-2" },
+    { "file": "MapSplit.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 1150, "page": "page-2" },
+    { "file": "MarketplaceDense.dc.html", "x": 4680, "y": 0, "w": 1440, "h": 800, "page": "page-2" },
+    { "file": "DarkRows.dc.html", "x": 6240, "y": 0, "w": 1440, "h": 1200, "page": "page-2" },
+
+    { "file": "QontoStat.dc.html", "x": 0, "y": 0, "w": 1440, "h": 2350, "page": "page-3" },
+    { "file": "PennylaneLine.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 2200, "page": "page-3" },
+    { "file": "GeminiSoft.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 2000, "page": "page-3" },
+    { "file": "FreeSpec.dc.html", "x": 4680, "y": 0, "w": 1440, "h": 2200, "page": "page-3" },
+    { "file": "LedgerLight.dc.html", "x": 6240, "y": 0, "w": 1440, "h": 1450, "page": "page-3" },
+
+    { "file": "AppleRows.dc.html", "x": 0, "y": 0, "w": 1440, "h": 3050, "page": "page-4" },
+    { "file": "AirbnbGradient.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 1500, "page": "page-4" },
+    { "file": "WarmOrganicRefined.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 1850, "page": "page-4" },
+    { "file": "PennylaneFixed.dc.html", "x": 4680, "y": 0, "w": 1440, "h": 2000, "page": "page-4" },
+
+    { "file": "Home.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1900, "page": "page-5" },
+    { "file": "ApartmentDetail.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 1820, "page": "page-5" },
+
+    { "file": "DetailA_Colonne.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1950, "page": "page-6" },
+    { "file": "DetailB_Chips.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 1650, "page": "page-6" },
+    { "file": "DetailC_Accordion.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 1650, "page": "page-6" },
+    { "file": "DetailD_Editorial.dc.html", "x": 4680, "y": 0, "w": 1440, "h": 1800, "page": "page-6" },
+    { "file": "DetailE_Minimal.dc.html", "x": 6240, "y": 0, "w": 1440, "h": 1850, "page": "page-6" },
+
+    { "file": "Candidater.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1750, "page": "page-7" },
+    { "file": "Visiter.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 1900, "page": "page-7" }
+  ],
+  "annotations": [
+    { "id": "note-1", "x": 0, "y": -90, "w": 460, "text": "1 — Minimal éditorial\nSerif Domine + hairlines, sobre et haut de gamme." },
+    { "id": "note-2", "x": 1560, "y": -90, "w": 460, "text": "2 — Bold color-block\nSpace Grotesk, aplats cobalt/corail, ton étudiant, énergique." },
+    { "id": "note-3", "x": 3120, "y": -90, "w": 460, "text": "3 — Dark premium\nFond sombre, filets or, Cormorant Garamond, agence haut de gamme." },
+    { "id": "note-4", "x": 4680, "y": -90, "w": 460, "text": "4 — Chaleureux / organique\nCrème & terracotta, formes organiques, accueillant." },
+    { "id": "note-5", "x": 6240, "y": -90, "w": 460, "text": "5 — Grille suisse\nNoir/blanc + rouge, Archivo, listing en tableau dense." },
+
+    { "id": "note-6", "x": 0, "y": -90, "w": 460, "text": "6 — Marketplace chaleureux (inspiration Airbnb)\nRecherche en pilule, grille de cartes rondes, badges de disponibilité.", "page": "page-2" },
+    { "id": "note-7", "x": 1560, "y": -90, "w": 460, "text": "7 — Minimal produit (inspiration Apple)\nTypographie géante, sections plein écran, très peu de contenu.", "page": "page-2" },
+    { "id": "note-8", "x": 3120, "y": -90, "w": 460, "text": "8 — Carte & liste (inspiration Zillow/Redfin)\nListe scindée avec carte interactive et prix en pins.", "page": "page-2" },
+    { "id": "note-9", "x": 4680, "y": -90, "w": 460, "text": "9 — Catalogue dense (inspiration Amazon)\nGrille dense, prix en gras, note de quartier, bandeau marine.", "page": "page-2" },
+    { "id": "note-10", "x": 6240, "y": -90, "w": 460, "text": "10 — Rows sombres (inspiration Netflix/Spotify)\nHero plein écran sombre, rangées de vignettes horizontales.", "page": "page-2" },
+
+    { "id": "note-11", "x": 0, "y": -90, "w": 460, "text": "11 — Cartes de stats (inspiration Qonto)\nBlanc, un seul accent violet, bordures fines, tuiles de chiffres clés.", "page": "page-3" },
+    { "id": "note-12", "x": 1560, "y": -90, "w": 460, "text": "12 — Ligne & illustration (inspiration Pennylane)\nCrème, encre verte, accent menthe, illustration au trait, surlignage à main levée.", "page": "page-3" },
+    { "id": "note-13", "x": 3120, "y": -90, "w": 460, "text": "13 — Dégradés doux (inspiration Gemini)\nQuasi blanc, halos dégradés très subtils, typographie ronde légère.", "page": "page-3" },
+    { "id": "note-14", "x": 4680, "y": -90, "w": 460, "text": "14 — Fiche technique (inspiration Free.fr)\nBlanc/noir, rouge en accent minimal, listing en tableau de specs à filets fins.", "page": "page-3" },
+    { "id": "note-15", "x": 6240, "y": -90, "w": 460, "text": "15 — Grand livre clair (esprit relevé Qonto)\nTrès aéré, filets ultra-fins, chiffres en mono, zéro image.", "page": "page-3" },
+
+    { "id": "note-16", "x": 0, "y": -90, "w": 460, "text": "16 — Apple clair + rangée (n°7 x n°10, en clair)\nTypographie géante, bloc plein écran clair, rangée de vignettes, puis grille classique.", "page": "page-4" },
+    { "id": "note-17", "x": 1560, "y": -90, "w": 460, "text": "17 — Airbnb x dégradés doux (n°6 x n°13)\nRecherche en pilule sur fond crème avec halos dégradés très légers derrière le hero.", "page": "page-4" },
+    { "id": "note-18", "x": 3120, "y": -90, "w": 460, "text": "18 — Chaleureux organique, version affinée (n°4)\nMêmes formes organiques, titre pleine largeur, un surlignage à main levée en plus.", "page": "page-4" },
+    { "id": "note-19", "x": 4680, "y": -90, "w": 460, "text": "19 — Pennylane corrigé (n°12)\nHeader simplifié, titre sur toute la largeur en grand, le pictogramme raté est supprimé.", "page": "page-4" },
+
+    { "id": "note-20", "x": 0, "y": -90, "w": 460, "text": "Page d'accueil\nVersion retenue (n°17), grille complétée à 6 appartements.", "page": "page-5" },
+    { "id": "note-21", "x": 1560, "y": -90, "w": 460, "text": "Fiche appartement — v2\nBasée sur la refonte A : Quartier & commodités déplacé en dernier et en accordéon ; le loyer est présenté dans le bloc prix + Nous contacter/Visiter (comme la refonte C).", "page": "page-5" },
+
+    { "id": "note-22", "x": 0, "y": -90, "w": 460, "text": "A — Colonne unique + barre prix flottante\nToutes les sections à plat, séparées par des filets fins ; le prix et les CTA restent visibles en bas dans une pilule.", "page": "page-6" },
+    { "id": "note-23", "x": 1560, "y": -90, "w": 460, "text": "B — Puces de specs + carte unique\nCaractéristiques en petites pastilles sous le titre ; loyer, inclus et conditions réunis dans une seule carte légère à droite.", "page": "page-6" },
+    { "id": "note-24", "x": 3120, "y": -90, "w": 460, "text": "C — Accordéon\nDescription / Quartier / Inclus / Conditions en sections repliables, avec un bandeau de prix compact juste sous le titre.", "page": "page-6" },
+    { "id": "note-25", "x": 4680, "y": -90, "w": 460, "text": "D — Éditorial asymétrique\nGrande photo verticale + fiche technique à droite, puis les textes en une colonne de lecture confortable en dessous.", "page": "page-6" },
+    { "id": "note-26", "x": 6240, "y": -90, "w": 460, "text": "E — Sans encadrés\nAucune carte ni ombre : uniquement des filets fins et le rythme vertical pour organiser l'info. La plus légère des 5.", "page": "page-6" },
+
+    { "id": "note-27", "x": 0, "y": -90, "w": 460, "text": "Déposer un dossier de candidature (/candidater)\nContenu réel du formulaire : informations, date de bail, choix de l'appartement, garant.", "page": "page-7" },
+    { "id": "note-28", "x": 1560, "y": -90, "w": 460, "text": "Demande de visite (/visiter)\nVisites réactivées : formulaire réel — infos, choix d'appartement (dont \"prochainement disponibles\"), calendrier, profil, projet.", "page": "page-7" }
+  ],
+  "launch": { "view": "canvas", "page": "page-7" }
+}

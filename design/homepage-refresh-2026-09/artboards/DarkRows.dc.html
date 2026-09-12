@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(80% 0.19 145); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(11% 0.008 260); font-family:'Sora', sans-serif; color:oklch(96% 0.004 260);">
+
+  <!-- Header over hero -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:28px 56px; position:relative; z-index:2;">
+    <div style="font-size:20px; font-weight:700;">Location Moulinet</div>
+    <div style="display:flex; align-items:center; gap:34px;">
+      <a href="#" style="font-size:14px; color:oklch(85% 0.006 260);">Les studios</a>
+      <a href="#" style="font-size:14px; color:oklch(85% 0.006 260);">Le quartier</a>
+      <a href="#" style="font-size:14px; color:oklch(85% 0.006 260);">Contact</a>
+      <a href="#" style="font-size:14px; font-weight:700; background:oklch(80% 0.19 145); color:oklch(12% 0.02 145); padding:11px 22px; border-radius:6px;">Déposer un dossier</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div style="position:relative; height:500px; margin-top:-84px; display:flex; align-items:flex-end;">
+    <div style="position:absolute; inset:0; background:radial-gradient(circle at 75% 20%, oklch(22% 0.03 230), oklch(11% 0.008 260) 65%);"></div>
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, oklch(11% 0.008 260) 100%);"></div>
+    <div style="position:relative; z-index:1; padding:0 56px 64px 56px; max-width:680px;">
+      <h1 style="font-size:58px; font-weight:800; line-height:1.06; letter-spacing:-0.015em; margin:0 0 20px 0;">Ton studio à Rouen t'attend.</h1>
+      <p style="font-size:17px; line-height:1.55; color:oklch(80% 0.006 260); margin:0 0 30px 0; max-width:520px;">20 studios meublés au centre historique, à deux minutes de la gare. Tout inclus, sans frais d'agence.</p>
+      <div style="display:flex; gap:14px;">
+        <a href="#" style="font-size:15px; font-weight:700; background:oklch(80% 0.19 145); color:oklch(12% 0.02 145); padding:14px 28px; border-radius:6px;">Voir les studios disponibles</a>
+        <a href="#" style="font-size:15px; font-weight:600; border:1.5px solid oklch(45% 0.01 260); color:white; padding:12.5px 26px; border-radius:6px;">Déposer mon dossier</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 1 -->
+  <div style="padding:8px 56px 0 56px;">
+    <div style="font-size:19px; font-weight:700; margin-bottom:18px;">Disponibles maintenant</div>
+    <div style="display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:14px;">
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; border:2px solid oklch(80% 0.19 145); background:linear-gradient(150deg, oklch(30% 0.04 200), oklch(15% 0.02 220));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 30</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">22.7 m² · 550 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(32% 0.05 80), oklch(16% 0.02 70));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 24</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">24 m² · 650 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 150), oklch(15% 0.02 145));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 1000</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">30 m² · 630 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 20), oklch(15% 0.02 15));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 25</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">24.8 m² · 550 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 280), oklch(15% 0.02 270)); display:flex; align-items:center; justify-content:center;">
+        <div style="font-size:13px; font-weight:600; color:oklch(80% 0.19 145);">Voir tout &#8594;</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Row 2 -->
+  <div style="padding:36px 56px 80px 56px;">
+    <div style="font-size:19px; font-weight:700; margin-bottom:18px;">Proche de la gare</div>
+    <div style="display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:14px;">
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 200), oklch(15% 0.02 220));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 1</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">21.1 m² · 625 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(32% 0.05 80), oklch(16% 0.02 70));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 84</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">87 m² · 820 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 150), oklch(15% 0.02 145));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 30</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">22.7 m² · 550 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 20), oklch(15% 0.02 15));">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, oklch(8% 0.01 260 / 0.92));"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:12px;">
+          <div style="font-size:13.5px; font-weight:700;">Appartement 24</div>
+          <div style="font-size:11.5px; color:oklch(78% 0.006 260); margin-top:2px;">24 m² · 650 €/mois</div>
+        </div>
+      </div>
+
+      <div style="border-radius:10px; overflow:hidden; position:relative; aspect-ratio:16/10; background:linear-gradient(150deg, oklch(30% 0.04 280), oklch(15% 0.02 270)); display:flex; align-items:center; justify-content:center;">
+        <div style="font-size:13px; font-weight:600; color:oklch(80% 0.19 145);">Voir tout &#8594;</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:1px solid oklch(24% 0.008 260); padding:28px 56px; display:flex; justify-content:space-between; font-size:12.5px; color:oklch(55% 0.006 260);">
+    <div>Location Moulinet — Rouen</div>
+    <div>contact@locationmoulinet.fr</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(99% 0.003 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:26px 64px;">
+    <div style="font-size:19px; font-weight:700;">Location Moulinet</div>
+    <div style="display:flex; align-items:center; gap:24px;">
+      <a href="#" style="font-size:14px; font-weight:500;">Visiter</a>
+      <a href="#" style="font-size:14px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:12px 24px; border-radius:100px;">Déposer mon dossier</a>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div style="max-width:860px; margin:0 auto; padding:8px 24px 20px 24px;">
+    <a href="#" style="font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      Tous les appartements
+    </a>
+  </div>
+
+  <div style="max-width:860px; margin:0 auto; padding:0 24px 120px 24px;">
+
+    <!-- Gallery -->
+    <div style="aspect-ratio:16/8; border-radius:20px; background:linear-gradient(150deg, oklch(88% 0.02 70), oklch(72% 0.04 55)); position:relative;">
+      <div style="position:absolute; bottom:14px; right:14px; font-size:12px; font-weight:700; background:oklch(15% 0.01 60 / 0.65); color:white; padding:5px 12px; border-radius:100px;">1 / 7</div>
+    </div>
+
+    <!-- Title + specs chips -->
+    <div style="margin-top:28px;">
+      <div style="font-size:12.5px; font-weight:700; letter-spacing:0.1em; color:oklch(45% 0.06 195);">APPARTEMENT 30</div>
+      <div style="display:flex; align-items:center; gap:14px; margin-top:8px;">
+        <h1 style="font-size:32px; font-weight:800; letter-spacing:-0.015em; margin:0;">Studio</h1>
+        <span style="font-size:12px; font-weight:700; background:oklch(90% 0.09 150); color:oklch(30% 0.09 150); padding:5px 13px; border-radius:100px;">Disponible</span>
+      </div>
+      <div style="font-size:14px; color:oklch(45% 0.01 60); margin-top:8px;">22.7 m² · 3e étage · Rue et Cour · 9 rue du Moulinet, 76000 Rouen</div>
+    </div>
+
+    <!-- Compact price row -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:24px; padding:18px 22px; border:1px solid oklch(90% 0.005 60); border-radius:16px;">
+      <div>
+        <span style="font-size:22px; font-weight:800;">550 €</span>
+        <span style="font-size:13px; color:oklch(48% 0.01 60);"> CC / mois · dont 450 € hors charges + 100 € charges</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="#" style="font-size:13px; font-weight:700; border:1.5px solid oklch(18% 0.01 60); color:oklch(18% 0.01 60); padding:10px 18px; border-radius:100px;">Nous contacter</a>
+        <a href="#" style="font-size:13px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:10px 18px; border-radius:100px;">Visiter</a>
+      </div>
+    </div>
+
+    <!-- Accordion sections -->
+    <div style="margin-top:12px;">
+
+      <div style="border-bottom:1px solid oklch(92% 0.005 60); padding:22px 4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:15.5px; font-weight:700;">Description</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(45% 0.01 60)" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <p style="font-size:14.5px; line-height:1.65; color:oklch(35% 0.01 60); margin:14px 0 0 0;">Une pièce de vie principale avec coin repas/salon, coin nuit et coin cuisine équipée, une salle de bains avec wc.</p>
+      </div>
+
+      <div style="border-bottom:1px solid oklch(92% 0.005 60); padding:22px 4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:15.5px; font-weight:700;">Quartier & commodités</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(45% 0.01 60)" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <p style="font-size:14.5px; line-height:1.65; color:oklch(35% 0.01 60); margin:14px 0 14px 0;">Quartier calme, très bien placé, proche centre-ville, gare et écoles/universités :</p>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13.5px;">
+          <div style="display:flex; justify-content:space-between;"><span>Gare, Centre-ville</span><span style="font-weight:700; color:oklch(40% 0.09 195);">2 min à pied</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Lycée Corneille, Lycée JB de La Salle</span><span style="font-weight:700; color:oklch(40% 0.09 195);">10 min à pied</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Lycée Jeanne d'Arc</span><span style="font-weight:700; color:oklch(40% 0.09 195);">15 min à pied</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Fac de médecine, Fac de droit (Préfecture)</span><span style="font-weight:700; color:oklch(40% 0.09 195);">20 min à pied</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Mont-Saint-Aignan (Université, Neoma)</span><span style="font-weight:700; color:oklch(40% 0.09 195);">20 min en bus</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Saint-Étienne-du-Rouvray (INSA, Université, Esigelec)</span><span style="font-weight:700; color:oklch(40% 0.09 195);">35 min en métro</span></div>
+        </div>
+      </div>
+
+      <div style="border-bottom:1px solid oklch(92% 0.005 60); padding:22px 4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:15.5px; font-weight:700;">Ce qui est inclus</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(45% 0.01 60)" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:14px;">
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>Direct propriétaire, pas de frais d'agence.</div>
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>Eau froide, eau chaude, électricité, chauffage, wifi inclus.</div>
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>1 mois de dépôt de garantie.</div>
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>Éligible aux aides au logement.</div>
+        </div>
+      </div>
+
+      <div style="padding:22px 4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:15.5px; font-weight:700;">Conditions de location</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(45% 0.01 60)" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:14px;">
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>Être étudiant.</div>
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>Gagner 3 fois le loyer, ou avoir un garant qui gagne 3 fois le loyer.</div>
+          <div style="display:flex; gap:9px; font-size:13.5px; line-height:1.5; color:oklch(35% 0.01 60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="2.4" style="flex-shrink:0; margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>Fournir des justificatifs d'identité et preuves de revenus.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

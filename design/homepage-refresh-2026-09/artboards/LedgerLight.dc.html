@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700&family=Red+Hat+Mono:wght@400;500;600&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(52% 0.08 250); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98.5% 0.002 260); font-family:'Red Hat Display', sans-serif; color:oklch(22% 0.005 260);">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:24px 72px; border-bottom:1px solid oklch(93% 0.002 260);">
+    <div style="font-size:17px; font-weight:700;">Location Moulinet</div>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:14px; font-weight:500; color:oklch(35% 0.005 260);">Visiter</a>
+      <a href="#" style="font-size:14px; font-weight:600; border:1px solid oklch(22% 0.005 260); color:oklch(22% 0.005 260); padding:10px 20px; border-radius:6px;">Déposer mon dossier</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div style="padding:72px 72px 0 72px;">
+    <div style="font-family:'Red Hat Mono', monospace; font-size:12px; letter-spacing:0.1em; color:oklch(52% 0.08 250); margin-bottom:22px;">ROUEN · CENTRE-VILLE</div>
+    <h1 style="font-size:56px; font-weight:700; letter-spacing:-0.015em; line-height:1.1; margin:0 0 40px 0; max-width:760px;">Studios meublés à louer</h1>
+  </div>
+
+  <!-- Section heading -->
+  <div style="padding:0 72px 56px 72px; border-bottom:1px solid oklch(93% 0.002 260);">
+    <h2 style="font-size:24px; font-weight:600; letter-spacing:-0.005em; line-height:1.45; margin:0; max-width:640px; color:oklch(32% 0.005 260);">Visitez nos studios meublés en plein centre du quartier historique.</h2>
+  </div>
+
+  <!-- Features -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:56px; padding:48px 72px; border-bottom:1px solid oklch(93% 0.002 260);">
+    <div>
+      <div style="font-size:15.5px; font-weight:700; margin-bottom:8px;">Meublé & tout équipé</div>
+      <div style="font-size:13.5px; line-height:1.6; color:oklch(48% 0.005 260);">Logements meublés et équipés, prêts à vivre dès l'arrivée. Pas de déménagement à prévoir.</div>
+    </div>
+    <div>
+      <div style="font-size:15.5px; font-weight:700; margin-bottom:8px;">Idéalement situé</div>
+      <div style="font-size:13.5px; line-height:1.6; color:oklch(48% 0.005 260);">Centre de Rouen, à 2 min à pied de la gare, bus et métro vers toutes les écoles et universités — dans une rue calme.</div>
+    </div>
+    <div>
+      <div style="font-size:15.5px; font-weight:700; margin-bottom:8px;">Tout inclus, sans surprise</div>
+      <div style="font-size:13.5px; line-height:1.6; color:oklch(48% 0.005 260);">Eau, électricité, chauffage, Wifi inclus. Pas de frais d'agence, pas d'abonnement. Éligible APL.</div>
+    </div>
+  </div>
+
+  <!-- Listing header / filters -->
+  <div style="padding:48px 72px 24px 72px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:24px;">
+      <h2 style="font-size:22px; font-weight:700; margin:0;">Nos appartements</h2>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:12.5px; color:oklch(48% 0.005 260);">20 / 20</div>
+    </div>
+    <div style="display:flex; align-items:flex-end; gap:40px;">
+      <div>
+        <div style="font-size:10.5px; font-weight:700; letter-spacing:0.08em; color:oklch(55% 0.005 260); margin-bottom:10px;">STATUT</div>
+        <div style="display:flex; gap:20px;">
+          <span style="font-size:13.5px; font-weight:600; border-bottom:1.5px solid oklch(22% 0.005 260); padding-bottom:5px;">Disponible</span>
+          <span style="font-size:13.5px; color:oklch(52% 0.005 260);">Prochainement</span>
+          <span style="font-size:13.5px; color:oklch(52% 0.005 260);">Loué</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10.5px; font-weight:700; letter-spacing:0.08em; color:oklch(55% 0.005 260); margin-bottom:10px;">SURFACE MAX.</div>
+        <div style="font-size:13.5px; font-weight:600;">Tous</div>
+      </div>
+      <div>
+        <div style="font-size:10.5px; font-weight:700; letter-spacing:0.08em; color:oklch(55% 0.005 260); margin-bottom:10px;">PRIX CC MAX.</div>
+        <div style="font-size:13.5px; font-weight:600;">Tous</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ledger table -->
+  <div style="padding:16px 72px 100px 72px;">
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; padding:12px 0; border-bottom:1px solid oklch(88% 0.002 260); font-family:'Red Hat Mono', monospace; font-size:10.5px; letter-spacing:0.06em; color:oklch(55% 0.005 260);">
+      <div>APPARTEMENT</div><div>STATUT</div><div>SURFACE</div><div>ÉTAGE</div><div style="text-align:right;">PRIX CC</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; align-items:center; padding:24px 0; border-bottom:1px solid oklch(93% 0.002 260);">
+      <div style="font-size:15px; font-weight:600;">Appartement 30 <span style="font-weight:400; color:oklch(50% 0.005 260);">· Studio</span></div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px;"><span style="width:6px; height:6px; border-radius:100%; background:oklch(58% 0.12 150); display:inline-block;"></span>Disponible</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">22.7 m²</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">3e étage</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:15.5px; font-weight:600; text-align:right;">550 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; align-items:center; padding:24px 0; border-bottom:1px solid oklch(93% 0.002 260);">
+      <div style="font-size:15px; font-weight:600;">Appartement 24 <span style="font-weight:400; color:oklch(50% 0.005 260);">· Studio</span></div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px;"><span style="width:6px; height:6px; border-radius:100%; background:oklch(65% 0.11 75); display:inline-block;"></span>Dispo. le 4 oct.</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">24 m²</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">2e étage</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:15.5px; font-weight:600; text-align:right;">650 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; align-items:center; padding:24px 0; border-bottom:1px solid oklch(93% 0.002 260);">
+      <div style="font-size:15px; font-weight:600;">Appartement 1 <span style="font-weight:400; color:oklch(50% 0.005 260);">· Avec mezzanine</span></div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px; color:oklch(52% 0.005 260);"><span style="width:6px; height:6px; border-radius:100%; background:oklch(78% 0.004 260); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">21.1 m²</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">Rdc</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:15.5px; font-weight:600; text-align:right;">625 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; align-items:center; padding:24px 0; border-bottom:1px solid oklch(93% 0.002 260);">
+      <div style="font-size:15px; font-weight:600;">Appartement 1000 <span style="font-weight:400; color:oklch(50% 0.005 260);">· 2 Pièces meublé hyper-centre</span></div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px; color:oklch(52% 0.005 260);"><span style="width:6px; height:6px; border-radius:100%; background:oklch(78% 0.004 260); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">30 m²</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">Rdc</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:15.5px; font-weight:600; text-align:right;">630 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; align-items:center; padding:24px 0; border-bottom:1px solid oklch(93% 0.002 260);">
+      <div style="font-size:15px; font-weight:600;">Appartement 84 <span style="font-weight:400; color:oklch(50% 0.005 260);">· T4</span></div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px; color:oklch(52% 0.005 260);"><span style="width:6px; height:6px; border-radius:100%; background:oklch(78% 0.004 260); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">87 m²</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">4e étage</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:15.5px; font-weight:600; text-align:right;">820 €</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr 0.8fr 0.8fr 0.8fr; align-items:center; padding:24px 0; border-bottom:1px solid oklch(93% 0.002 260);">
+      <div style="font-size:15px; font-weight:600;">Appartement 25 <span style="font-weight:400; color:oklch(50% 0.005 260);">· Studio</span></div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px; color:oklch(52% 0.005 260);"><span style="width:6px; height:6px; border-radius:100%; background:oklch(78% 0.004 260); display:inline-block;"></span>Loué</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">24.8 m²</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:13.5px;">Rdc</div>
+      <div style="font-family:'Red Hat Mono', monospace; font-size:15.5px; font-weight:600; text-align:right;">550 €</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:1px solid oklch(93% 0.002 260); padding:28px 72px; display:flex; justify-content:space-between; font-size:12.5px; color:oklch(52% 0.005 260);">
+    <div>Location Moulinet — Rouen</div>
+    <div>contact@locationmoulinet.fr</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

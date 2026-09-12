@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(99% 0.003 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <!-- Header with pill search -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:22px 48px; border-bottom:1px solid oklch(92% 0.005 60);">
+    <div style="font-size:21px; font-weight:800; color:oklch(40% 0.09 195);">moulinet</div>
+    <div style="display:flex; align-items:center; gap:0; border:1px solid oklch(88% 0.005 60); border-radius:100px; box-shadow:0 2px 8px -2px oklch(30% 0.01 60 / 0.15); overflow:hidden;">
+      <div style="padding:14px 26px; font-size:13.5px; font-weight:700;">Rouen · Centre-ville</div>
+      <div style="width:1px; height:22px; background:oklch(88% 0.005 60);"></div>
+      <div style="padding:14px 26px; font-size:13.5px; color:oklch(45% 0.01 60);">Studio ou +</div>
+      <div style="width:1px; height:22px; background:oklch(88% 0.005 60);"></div>
+      <div style="padding:14px 26px; font-size:13.5px; color:oklch(45% 0.01 60);">Budget</div>
+      <div style="padding:8px; padding-right:10px;">
+        <div style="width:34px; height:34px; border-radius:100px; background:oklch(40% 0.09 195); display:flex; align-items:center; justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:18px;">
+      <a href="#" style="font-size:14px; font-weight:600; color:oklch(18% 0.01 60);">Déposer un dossier</a>
+      <div style="width:38px; height:38px; border-radius:100px; border:1px solid oklch(85% 0.005 60); display:flex; align-items:center; justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.01 60)" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category pills -->
+  <div style="display:flex; gap:36px; padding:22px 48px; border-bottom:1px solid oklch(92% 0.005 60);">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; opacity:1; border-bottom:2px solid oklch(18% 0.01 60); padding-bottom:14px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(18% 0.01 60)" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <div style="font-size:12px; font-weight:700;">Tous</div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; color:oklch(50% 0.01 60); padding-bottom:14px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.01 60)" stroke-width="1.6"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>
+      <div style="font-size:12px; font-weight:600;">Centre-ville</div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; color:oklch(50% 0.01 60); padding-bottom:14px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.01 60)" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>
+      <div style="font-size:12px; font-weight:600;">Studios</div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; color:oklch(50% 0.01 60); padding-bottom:14px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.01 60)" stroke-width="1.6"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+      <div style="font-size:12px; font-weight:600;">Grands appart.</div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; color:oklch(50% 0.01 60); padding-bottom:14px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.01 60)" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <div style="font-size:12px; font-weight:600;">Dispo. maintenant</div>
+    </div>
+  </div>
+
+  <div style="padding:32px 48px 6px 48px;">
+    <h1 style="font-size:26px; font-weight:800; margin:0;">Studios meublés près de la gare de Rouen</h1>
+    <div style="font-size:14.5px; color:oklch(48% 0.01 60); margin-top:6px;">20 logements · charges comprises · sans frais d'agence</div>
+  </div>
+
+  <!-- Grid -->
+  <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:32px 24px; padding:20px 48px 90px 48px;">
+
+    <div>
+      <div style="aspect-ratio:1/1; border-radius:16px; background:linear-gradient(135deg, oklch(88% 0.03 195), oklch(78% 0.05 190)); position:relative;">
+        <div style="position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:100px; background:oklch(100% 0 0 / 0.85); display:flex; align-items:center; justify-content:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(30% 0.01 60)" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </div>
+        <div style="position:absolute; bottom:12px; left:12px; font-size:12px; font-weight:700; background:white; padding:5px 12px; border-radius:100px;">Disponible</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:12px;">
+        <div style="font-size:15px; font-weight:700;">Appartement 30</div>
+      </div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60); margin-top:2px;">Studio · 22.7 m² · 3e étage</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60);">2 min à pied de la gare</div>
+      <div style="font-size:15px; font-weight:700; margin-top:6px;">550 € <span style="font-weight:500; color:oklch(48% 0.01 60); font-size:13.5px;">/ mois CC</span></div>
+    </div>
+
+    <div>
+      <div style="aspect-ratio:1/1; border-radius:16px; background:linear-gradient(135deg, oklch(85% 0.04 90), oklch(76% 0.06 80)); position:relative;">
+        <div style="position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:100px; background:oklch(100% 0 0 / 0.85); display:flex; align-items:center; justify-content:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(30% 0.01 60)" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </div>
+        <div style="position:absolute; bottom:12px; left:12px; font-size:12px; font-weight:700; background:white; padding:5px 12px; border-radius:100px;">Dispo. 4 oct.</div>
+      </div>
+      <div style="font-size:15px; font-weight:700; margin-top:12px;">Appartement 24</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60); margin-top:2px;">Studio · 24 m² · 2e étage</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60);">Rue calme, hyper-centre</div>
+      <div style="font-size:15px; font-weight:700; margin-top:6px;">650 € <span style="font-weight:500; color:oklch(48% 0.01 60); font-size:13.5px;">/ mois CC</span></div>
+    </div>
+
+    <div>
+      <div style="aspect-ratio:1/1; border-radius:16px; background:linear-gradient(135deg, oklch(85% 0.03 260), oklch(75% 0.05 255)); position:relative;">
+        <div style="position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:100px; background:oklch(100% 0 0 / 0.85); display:flex; align-items:center; justify-content:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="oklch(55% 0.18 20)" stroke="oklch(55% 0.18 20)" stroke-width="1"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </div>
+        <div style="position:absolute; bottom:12px; left:12px; font-size:12px; font-weight:700; background:oklch(30% 0.01 60 / 0.8); color:white; padding:5px 12px; border-radius:100px;">Loué</div>
+      </div>
+      <div style="font-size:15px; font-weight:700; margin-top:12px;">Appartement 1</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60); margin-top:2px;">Mezzanine · 21.1 m² · Rdc</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60);">Quartier calme</div>
+      <div style="font-size:15px; font-weight:700; margin-top:6px;">625 € <span style="font-weight:500; color:oklch(48% 0.01 60); font-size:13.5px;">/ mois CC</span></div>
+    </div>
+
+    <div>
+      <div style="aspect-ratio:1/1; border-radius:16px; background:linear-gradient(135deg, oklch(84% 0.04 145), oklch(74% 0.06 140)); position:relative;">
+        <div style="position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:100px; background:oklch(100% 0 0 / 0.85); display:flex; align-items:center; justify-content:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="oklch(30% 0.01 60)" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </div>
+        <div style="position:absolute; bottom:12px; left:12px; font-size:12px; font-weight:700; background:oklch(30% 0.01 60 / 0.8); color:white; padding:5px 12px; border-radius:100px;">Loué</div>
+      </div>
+      <div style="font-size:15px; font-weight:700; margin-top:12px;">Appartement 1000</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60); margin-top:2px;">2 pièces · 30 m² · Rdc</div>
+      <div style="font-size:13.5px; color:oklch(48% 0.01 60);">Hyper-centre</div>
+      <div style="font-size:15px; font-weight:700; margin-top:6px;">630 € <span style="font-weight:500; color:oklch(48% 0.01 60); font-size:13.5px;">/ mois CC</span></div>
+    </div>
+
+  </div>
+
+  <!-- Trust strip -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:24px; padding:0 48px 80px 48px;">
+    <div style="border:1px solid oklch(90% 0.005 60); border-radius:20px; padding:28px;">
+      <div style="font-size:16.5px; font-weight:700; margin-bottom:8px;">Meublé & équipé</div>
+      <div style="font-size:14px; color:oklch(48% 0.01 60); line-height:1.5;">Prêt à vivre dès l'arrivée, sans déménagement.</div>
+    </div>
+    <div style="border:1px solid oklch(90% 0.005 60); border-radius:20px; padding:28px;">
+      <div style="font-size:16.5px; font-weight:700; margin-bottom:8px;">Idéalement situé</div>
+      <div style="font-size:14px; color:oklch(48% 0.01 60); line-height:1.5;">2 min de la gare, tram et campus à proximité.</div>
+    </div>
+    <div style="border:1px solid oklch(90% 0.005 60); border-radius:20px; padding:28px;">
+      <div style="font-size:16.5px; font-weight:700; margin-bottom:8px;">Tout inclus</div>
+      <div style="font-size:14px; color:oklch(48% 0.01 60); line-height:1.5;">Charges comprises, pas de frais d'agence.</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:1px solid oklch(92% 0.005 60); padding:28px 48px; display:flex; justify-content:space-between; font-size:13px; color:oklch(50% 0.01 60);">
+    <div>Location Moulinet — Rouen</div>
+    <div>contact@locationmoulinet.fr</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
