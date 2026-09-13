@@ -11,8 +11,8 @@ export default function LanguageSwitch() {
         onClick={() => setLang('fr')}
         className={`px-2 py-1 rounded transition-colors ${
           lang === 'fr'
-            ? 'text-blue-primary'
-            : 'text-gray-400 hover:text-blue-primary'
+            ? 'text-gray-900'
+            : 'text-gray-400 hover:text-gray-900'
         }`}
       >
         FR
@@ -22,8 +22,8 @@ export default function LanguageSwitch() {
         onClick={() => setLang('en')}
         className={`px-2 py-1 rounded transition-colors ${
           lang === 'en'
-            ? 'text-blue-primary'
-            : 'text-gray-400 hover:text-blue-primary'
+            ? 'text-gray-900'
+            : 'text-gray-400 hover:text-gray-900'
         }`}
       >
         EN

@@ -25,8 +25,8 @@ type Photo = { id: string; name: string; src: string; thumb: string }
 
 function PhotoPlaceholder() {
   return (
-    <div className="bg-blue-light h-48 flex items-center justify-center">
-      <svg className="w-16 h-16 text-blue-primary opacity-25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+      <svg className="w-14 h-14 text-teal opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 21V12h6v9" />
       </svg>
@@ -34,9 +34,8 @@ function PhotoPlaceholder() {
   )
 }
 
-function ApartmentGallery({ number }: { number: string }) {
+function ApartmentPhoto({ number }: { number: string }) {
   const [photos, setPhotos] = useState<Photo[] | null>(null)
-  const [active, setActive] = useState(0)
 
   useEffect(() => {
     fetch(`/api/photos/${encodeURIComponent(number)}`)
@@ -45,27 +44,13 @@ function ApartmentGallery({ number }: { number: string }) {
       .catch(() => setPhotos([]))
   }, [number])
 
-  if (photos === null) return <div className="bg-blue-light h-48 animate-pulse" />
+  if (photos === null) return <div className="w-full h-full bg-gray-50 animate-pulse" />
   if (photos.length === 0) return <PhotoPlaceholder />
 
-  const main = photos[active]
+  const cover = photos[0]
   return (
-    <div>
-      <div className="relative h-48 bg-blue-light overflow-hidden">
-        <Image src={main.src} alt={main.name} fill className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
-      </div>
-      {photos.length > 1 && (
-        <div className="flex gap-1 p-2 bg-gray-50 overflow-x-auto">
-          {photos.map((p, i) => (
-            <button key={p.id} onClick={e => { e.preventDefault(); setActive(i) }}
-              className={`relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border-2 transition-colors ${i === active ? 'border-blue-primary' : 'border-transparent'}`}>
-              <Image src={p.thumb} alt={p.name} fill className="object-cover" sizes="48px" unoptimized />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <Image src={cover.src} alt={cover.name} fill className="object-cover"
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
   )
 }
 
@@ -74,24 +59,21 @@ function StatusBadge({ status, availableFrom, lang }: {
   availableFrom: Date | null
   lang: 'fr' | 'en'
 }) {
-  if (status === 'available') {
+  if (status === 'rented') {
     return (
-      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 whitespace-nowrap">
-        {lang === 'fr' ? 'Disponible' : 'Available'}
+      <span className="absolute bottom-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900/75 text-white whitespace-nowrap">
+        {lang === 'fr' ? 'Loué' : 'Rented'}
       </span>
     )
   }
-  if (status === 'soon') {
-    const dateStr = availableFrom ? formatAvailableFrom(availableFrom, lang) : ''
-    return (
-      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap">
-        {lang === 'fr' ? `Dispo. le ${dateStr}` : `Avail. ${dateStr}`}
-      </span>
-    )
-  }
+  const label = status === 'available'
+    ? (lang === 'fr' ? 'Disponible' : 'Available')
+    : (lang === 'fr'
+        ? `Dispo. le ${availableFrom ? formatAvailableFrom(availableFrom, lang) : ''}`
+        : `Avail. ${availableFrom ? formatAvailableFrom(availableFrom, lang) : ''}`)
   return (
-    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-600 whitespace-nowrap">
-      {lang === 'fr' ? 'Loué' : 'Rented'}
+    <span className="absolute bottom-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full bg-white text-gray-900 whitespace-nowrap">
+      {label}
     </span>
   )
 }
@@ -109,26 +91,22 @@ export default function ApartmentCard({ apartment }: { apartment: Apartment }) {
   const typeLabel = TYPE_LABELS[apartment.type]?.[lang] ?? apartment.type
 
   return (
-    <Link href={`/apartments/${apartment.number}`}
-      className="block bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <ApartmentGallery number={apartment.number} />
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="min-w-0">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
-              {lang === 'fr' ? 'Appartement' : 'Apartment'} {apartment.number}
-            </p>
-            <h3 className="font-semibold text-gray-900">{typeLabel}</h3>
-          </div>
-          <StatusBadge status={status} availableFrom={availableFrom} lang={lang} />
-        </div>
-        <div className="text-sm text-gray-500 mb-4">
-          <p>{apartment.surface_area} m² &nbsp;·&nbsp; {floorLabel}</p>
-        </div>
-        <div className="flex items-baseline gap-1 pt-3 border-t border-gray-100">
-          <span className="text-xl font-bold text-blue-dark">{apartment.rent_including_charges} €</span>
-          <span className="text-sm text-gray-400">CC / {lang === 'fr' ? 'mois' : 'month'}</span>
-        </div>
+    <Link href={`/apartments/${apartment.number}`} className="block group">
+      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+        <ApartmentPhoto number={apartment.number} />
+        <StatusBadge status={status} availableFrom={availableFrom} lang={lang} />
+      </div>
+      <div className="pt-4">
+        <p className="font-bold text-gray-900 text-[15px]">
+          {lang === 'fr' ? 'Appartement' : 'Apartment'} {apartment.number}
+        </p>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {typeLabel} · {apartment.surface_area} m² · {floorLabel}
+        </p>
+        <p className="mt-2">
+          <span className="text-[15px] font-bold text-gray-900">{apartment.rent_including_charges} €</span>{' '}
+          <span className="font-medium text-gray-500 text-xs">CC / {lang === 'fr' ? 'mois' : 'month'}</span>
+        </p>
       </div>
     </Link>
   )

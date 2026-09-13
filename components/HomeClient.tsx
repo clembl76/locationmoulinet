@@ -48,16 +48,16 @@ function ServiceSection({ lang }: { lang: 'fr' | 'en' }) {
   ]
 
   return (
-    <section className="py-16 px-4 bg-white border-b border-gray-100">
+    <section className="py-16 px-4 bg-white">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-bold text-blue-dark text-center mb-12 max-w-2xl mx-auto leading-snug">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-12 max-w-2xl mx-auto leading-snug">
           {title}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {benefits.map(b => (
-            <div key={b.title} className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-light flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-blue-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div key={b.title} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-3">
+              <div className="w-11 h-11 rounded-full bg-teal/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={b.d} />
                 </svg>
               </div>
@@ -96,62 +96,50 @@ function FilterBar({
     onChange({ ...filters, statuses: next })
   }
 
-  const statusDefs: { key: ApartmentStatus; labelFr: string; labelEn: string; cls: string }[] = [
-    { key: 'available', labelFr: 'Disponible', labelEn: 'Available', cls: 'bg-green-100 text-green-700 border-green-200' },
-    { key: 'soon', labelFr: 'Prochainement', labelEn: 'Coming soon', cls: 'bg-amber-100 text-amber-700 border-amber-200' },
-    { key: 'rented', labelFr: 'Loué', labelEn: 'Rented', cls: 'bg-red-100 text-red-600 border-red-200' },
+  const statusDefs: { key: ApartmentStatus; labelFr: string; labelEn: string }[] = [
+    { key: 'available', labelFr: 'Disponible', labelEn: 'Available' },
+    { key: 'soon', labelFr: 'Prochainement', labelEn: 'Coming soon' },
+    { key: 'rented', labelFr: 'Loué', labelEn: 'Rented' },
   ]
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 mb-8 space-y-3">
-      {/* Ligne 1 : statuts */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mr-1">
-          {lang === 'fr' ? 'Statut' : 'Status'}
+    <div className="flex flex-wrap items-center gap-2 mb-8">
+      {statusDefs.map(({ key, labelFr, labelEn }) => {
+        const active = filters.statuses.has(key)
+        return (
+          <button key={key} onClick={() => toggleStatus(key)}
+            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
+              active ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+            }`}>
+            {lang === 'fr' ? labelFr : labelEn}
+          </button>
+        )
+      })}
+
+      <div className="flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-4 py-2 ml-auto">
+        <span className="text-xs text-gray-500 whitespace-nowrap">{lang === 'fr' ? 'Surface max.' : 'Max. area'}</span>
+        <input type="range" min={surfaceBounds[0]} max={surfaceBounds[1]} step={1}
+          value={filters.maxSurface}
+          onChange={e => onChange({ ...filters, maxSurface: Number(e.target.value) })}
+          className="w-16 accent-teal h-1" />
+        <span className="text-xs font-semibold text-teal whitespace-nowrap">
+          {filters.maxSurface === surfaceBounds[1]
+            ? lang === 'fr' ? 'Tous' : 'All'
+            : `≤ ${filters.maxSurface} m²`}
         </span>
-        {statusDefs.map(({ key, labelFr, labelEn, cls }) => {
-          const active = filters.statuses.has(key)
-          return (
-            <button key={key} onClick={() => toggleStatus(key)}
-              className={`text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
-                active ? cls : 'bg-gray-50 text-gray-400 border-gray-200'
-              }`}>
-              {lang === 'fr' ? labelFr : labelEn}
-            </button>
-          )
-        })}
       </div>
 
-      {/* Ligne 2 : réglettes côte à côte */}
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-gray-400">{lang === 'fr' ? 'Surface max.' : 'Max. area'}</span>
-            <span className="text-xs font-semibold text-blue-primary">
-              {filters.maxSurface === surfaceBounds[1]
-                ? lang === 'fr' ? 'Tous' : 'All'
-                : `≤ ${filters.maxSurface} m²`}
-            </span>
-          </div>
-          <input type="range" min={surfaceBounds[0]} max={surfaceBounds[1]} step={1}
-            value={filters.maxSurface}
-            onChange={e => onChange({ ...filters, maxSurface: Number(e.target.value) })}
-            className="w-full accent-blue-primary h-1" />
-        </div>
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-gray-400">{lang === 'fr' ? 'Prix CC max.' : 'Max. price'}</span>
-            <span className="text-xs font-semibold text-blue-primary">
-              {filters.maxPrice === priceBounds[1]
-                ? lang === 'fr' ? 'Tous' : 'All'
-                : `≤ ${filters.maxPrice} €`}
-            </span>
-          </div>
-          <input type="range" min={priceBounds[0]} max={priceBounds[1]} step={10}
-            value={filters.maxPrice}
-            onChange={e => onChange({ ...filters, maxPrice: Number(e.target.value) })}
-            className="w-full accent-blue-primary h-1" />
-        </div>
+      <div className="flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-4 py-2">
+        <span className="text-xs text-gray-500 whitespace-nowrap">{lang === 'fr' ? 'Prix CC max.' : 'Max. price'}</span>
+        <input type="range" min={priceBounds[0]} max={priceBounds[1]} step={10}
+          value={filters.maxPrice}
+          onChange={e => onChange({ ...filters, maxPrice: Number(e.target.value) })}
+          className="w-16 accent-teal h-1" />
+        <span className="text-xs font-semibold text-teal whitespace-nowrap">
+          {filters.maxPrice === priceBounds[1]
+            ? lang === 'fr' ? 'Tous' : 'All'
+            : `≤ ${filters.maxPrice} €`}
+        </span>
       </div>
     </div>
   )
@@ -197,13 +185,17 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-blue-light py-20 px-4 text-center">
-        <p className="text-xs font-semibold tracking-[0.3em] text-blue-primary uppercase mb-4">
-          Rouen &nbsp;·&nbsp; Centre-ville
-        </p>
-        <h1 className="text-4xl sm:text-5xl font-bold text-blue-dark leading-tight">
-          {lang === 'fr' ? 'Studios meublés à louer' : 'Furnished studios for rent'}
-        </h1>
+      <section className="relative overflow-hidden bg-white py-20 px-4 text-center">
+        <div className="absolute -top-40 left-16 w-[420px] h-[420px] rounded-full pointer-events-none bg-[radial-gradient(circle,oklch(88%_0.07_195_/_0.5),transparent_70%)]" />
+        <div className="absolute -top-36 -right-20 w-[360px] h-[360px] rounded-full pointer-events-none bg-[radial-gradient(circle,oklch(90%_0.08_40_/_0.45),transparent_70%)]" />
+        <div className="relative">
+          <p className="text-xs font-semibold tracking-[0.3em] text-teal uppercase mb-4">
+            Rouen &nbsp;·&nbsp; Centre-ville
+          </p>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
+            {lang === 'fr' ? 'Studios meublés à louer' : 'Furnished studios for rent'}
+          </h1>
+        </div>
       </section>
 
       {/* Service description */}
@@ -240,21 +232,21 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
       </main>
 
       {/* Footer */}
-      <footer id="contact" className="bg-blue-dark text-white py-12 px-4">
+      <footer id="contact" className="bg-white border-t border-gray-100 py-12 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div>
-            <p className="font-bold text-lg mb-2">Location Moulinet</p>
-            <p className="text-blue-light/70 text-sm">Rouen, Centre-ville</p>
+            <p className="font-bold text-lg mb-2 text-gray-900">Location Moulinet</p>
+            <p className="text-gray-400 text-sm">Rouen, Centre-ville</p>
           </div>
           <div>
-            <p className="text-sm font-semibold text-blue-light/80 uppercase tracking-wider mb-2">Contact</p>
+            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Contact</p>
             <a href="mailto:location.moulinet@gmail.com"
-              className="text-blue-light hover:text-white text-sm transition-colors">
+              className="text-teal hover:text-gray-900 text-sm transition-colors">
               location.moulinet@gmail.com
             </a>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-white/10 text-center text-xs text-white/40">
+        <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-300">
           © {new Date().getFullYear()} Location Moulinet
         </div>
       </footer>

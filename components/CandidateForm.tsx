@@ -107,7 +107,7 @@ function Field({
   )
 }
 
-const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary'
+const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal'
 const inputErrCls = 'w-full border border-red-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300/30 focus:border-red-400'
 
 function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
@@ -175,7 +175,7 @@ function FileSection({
       {files.length > 0 && (
         <ul className="space-y-1">
           {files.map((f, i) => (
-            <li key={i} className={`flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${f.size > MAX_FILE_BYTES ? 'bg-red-50 border border-red-200' : 'bg-blue-light'}`}>
+            <li key={i} className={`flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${f.size > MAX_FILE_BYTES ? 'bg-red-50 border border-red-200' : 'bg-teal/10'}`}>
               <span className="text-gray-700 truncate max-w-[70%]">{f.name}</span>
               <span className={`ml-2 flex-shrink-0 ${f.size > MAX_FILE_BYTES ? 'text-red-500 font-semibold' : 'text-gray-400'}`}>{formatBytes(f.size)}</span>
               <button
@@ -208,7 +208,7 @@ function FileSection({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-sm text-blue-primary hover:text-blue-dark font-medium underline underline-offset-2"
+            className="text-sm text-teal hover:text-gray-900 font-medium underline underline-offset-2"
           >
             + Ajouter un fichier {files.length > 0 ? `(${files.length}/${MAX_FILES})` : ''}
           </button>
@@ -246,10 +246,10 @@ function AptCard({
       className={[
         'w-full text-left p-4 rounded-xl border transition-all',
         isSelected
-          ? 'border-blue-primary bg-blue-light'
+          ? 'border-teal bg-teal/10'
           : blocked
             ? 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'
-            : 'border-gray-200 bg-white hover:border-blue-primary/40',
+            : 'border-gray-200 bg-white hover:border-teal/40',
       ].join(' ')}
     >
       <div className="flex justify-between items-start">
@@ -257,7 +257,7 @@ function AptCard({
           <p className="font-semibold text-gray-900 text-sm">Appartement {apt.number}</p>
           <p className="text-xs text-gray-500 mt-0.5">{apt.building_address} · {apt.surface_area} m²</p>
         </div>
-        <p className="text-sm font-semibold text-blue-dark">{apt.rent_including_charges} €/mois CC</p>
+        <p className="text-sm font-semibold text-gray-900">{apt.rent_including_charges} €/mois CC</p>
       </div>
       <p className={`text-xs mt-2 ${apt.status === 'coming_soon' ? 'text-amber-600' : 'text-green-600'}`}>
         {blocked
@@ -658,7 +658,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1.5">
               <div
-                className={`h-1.5 rounded-full transition-all ${overLimit ? 'bg-red-500' : pct > 80 ? 'bg-amber-400' : 'bg-blue-primary'}`}
+                className={`h-1.5 rounded-full transition-all ${overLimit ? 'bg-red-500' : pct > 80 ? 'bg-amber-400' : 'bg-teal'}`}
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -695,7 +695,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
       <button
         type="submit"
         disabled={!canSubmit}
-        className="w-full py-3 rounded-xl bg-blue-primary text-white font-semibold text-sm hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-3.5 rounded-full bg-gray-900 text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {pending ? 'Envoi en cours…' : 'Envoyer ma candidature'}
       </button>

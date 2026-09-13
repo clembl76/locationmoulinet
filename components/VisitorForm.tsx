@@ -64,7 +64,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary transition-colors ${props.className ?? ''}`}
+      className={`w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal transition-colors ${props.className ?? ''}`}
     />
   )
 }
@@ -73,7 +73,7 @@ function SelectEl(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary bg-white transition-colors ${props.className ?? ''}`}
+      className={`w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal bg-white transition-colors ${props.className ?? ''}`}
     />
   )
 }
@@ -104,9 +104,9 @@ function RadioGroup<T extends string>({
       {options.map(opt => (
         <label
           key={opt.value}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors text-sm select-none ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-full border cursor-pointer transition-colors text-sm select-none ${
             value === opt.value
-              ? 'border-blue-primary bg-blue-light font-medium text-blue-primary'
+              ? 'border-teal bg-teal/10 font-medium text-teal'
               : 'border-gray-200 hover:border-gray-300 text-gray-700'
           }`}
         >
@@ -262,8 +262,8 @@ function CalendarPicker({
                 onClick={() => { onDateChange(cell.dateStr); onTimeChange('') }}
                 className={`h-9 flex items-center justify-center text-sm rounded-lg transition-colors mx-0.5
                   ${isDisabled  ? 'text-gray-300 cursor-not-allowed' :
-                    isSelected  ? 'bg-gray-700 text-white font-semibold' :
-                    isToday     ? 'ring-1 ring-blue-primary text-blue-primary font-semibold hover:bg-blue-light' :
+                    isSelected  ? 'bg-gray-900 text-white font-semibold' :
+                    isToday     ? 'ring-1 ring-teal text-teal font-semibold hover:bg-teal/10' :
                                   'text-gray-700 hover:bg-white hover:shadow-sm cursor-pointer'
                   }`}
               >
@@ -294,7 +294,7 @@ function CalendarPicker({
                     onClick={() => onTimeChange(t)}
                     className={`w-full text-sm py-2 rounded-lg border transition-colors ${
                       selectedTime === t
-                        ? 'bg-blue-primary text-white border-blue-primary font-medium'
+                        ? 'bg-gray-900 text-white border-gray-900 font-medium'
                         : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -332,7 +332,7 @@ function AptCard({
       <label
         className={`flex items-start gap-3 p-3 rounded-t-xl border cursor-pointer transition-colors ${
           isSelected
-            ? 'border-blue-primary bg-blue-light'
+            ? 'border-teal bg-teal/10'
             : 'border-gray-200 hover:border-gray-300'
         }`}
       >
@@ -340,7 +340,7 @@ function AptCard({
           type="checkbox"
           checked={isSelected}
           onChange={onToggle}
-          className="mt-0.5 accent-blue-primary"
+          className="mt-0.5 accent-teal"
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900">
@@ -361,8 +361,8 @@ function AptCard({
         href={`/apartments/${apt.number}`}
         target="_blank"
         rel="noopener noreferrer"
-        className={`text-xs text-blue-primary hover:underline px-3 py-1.5 rounded-b-xl border-x border-b transition-colors ${
-          isSelected ? 'border-blue-primary bg-blue-light/60' : 'border-gray-200 hover:border-gray-300 bg-gray-50'
+        className={`text-xs text-teal hover:underline px-3 py-1.5 rounded-b-xl border-x border-b transition-colors ${
+          isSelected ? 'border-teal bg-teal/10' : 'border-gray-200 hover:border-gray-300 bg-gray-50'
         }`}
       >
         Voir la fiche →
@@ -556,7 +556,7 @@ export default function VisitorForm({
             setResult(null); setSelectedApts([]); setDate(''); setTime('')
             setSlots([]); setIncome(0); setSituation(''); setGuarantorType('')
           }}
-          className="text-sm text-blue-primary underline hover:text-blue-dark"
+          className="text-sm text-teal underline hover:text-gray-900"
         >
           Faire une nouvelle demande
         </button>
@@ -619,7 +619,7 @@ export default function VisitorForm({
           <h2 className="text-base font-semibold text-gray-900">
             Appartements à visiter <span className="text-red-400">*</span>
           </h2>
-          <a href="/" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-primary hover:underline">
+          <a href="/" target="_blank" rel="noopener noreferrer" className="text-xs text-teal hover:underline">
             Voir tous les appartements →
           </a>
         </div>
@@ -701,7 +701,7 @@ export default function VisitorForm({
           <p className="text-xs text-amber-600">Veuillez sélectionner un créneau horaire.</p>
         )}
         {date && time && (
-          <p className="text-xs text-blue-primary font-medium">
+          <p className="text-xs text-teal font-medium">
             Créneau sélectionné : {fmtDate(date)} à {time}
           </p>
         )}
@@ -771,7 +771,7 @@ export default function VisitorForm({
                 step={INCOME_STEP}
                 value={income}
                 onChange={e => setIncome(Number(e.target.value))}
-                className="flex-1 accent-blue-primary"
+                className="flex-1 accent-teal"
               />
               <span className="text-sm font-semibold text-gray-800 w-28 text-right shrink-0">
                 {income === 0 ? 'Non renseigné' : `${income.toLocaleString('fr-FR')} €/mois`}
@@ -819,7 +819,7 @@ export default function VisitorForm({
             onChange={e => setComments(e.target.value)}
             rows={3}
             placeholder="Questions, situation actuelle, date d'emménagement souhaitée…"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary resize-none"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal resize-none"
           />
         </div>
       </section>
@@ -833,7 +833,7 @@ export default function VisitorForm({
       <button
         type="submit"
         disabled={!canSubmit || !!phoneError || !!emailError || apartments.length === 0}
-        className="w-full font-semibold bg-blue-primary text-white px-6 py-3 rounded-xl hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        className="w-full font-semibold bg-gray-900 text-white px-6 py-3.5 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
       >
         {pending ? 'Envoi en cours…' : 'Envoyer ma demande de visite'}
       </button>

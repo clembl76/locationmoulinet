@@ -1,6 +1,7 @@
 import { runSqlAdmin } from '@/lib/adminData'
 import ApartmentDetail, { ApartmentDetailData } from '@/components/ApartmentDetail'
 import { notFound } from 'next/navigation'
+import { publicFontClassName } from '@/lib/fonts'
 
 export default async function Page({
   params,
@@ -42,5 +43,9 @@ export default async function Page({
   const apartment = rows[0]
   if (!apartment) notFound()
 
-  return <ApartmentDetail apartment={apartment} />
+  return (
+    <div className={publicFontClassName}>
+      <ApartmentDetail apartment={apartment} />
+    </div>
+  )
 }

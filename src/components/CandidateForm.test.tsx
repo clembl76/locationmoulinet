@@ -74,8 +74,8 @@ describe('CandidateForm — sélection appartement', () => {
     render(<CandidateForm apartments={mockApartments} />)
     const card = screen.getByText(/Appartement 101/i).closest('button')
     await user.click(card!)
-    // La carte sélectionnée a la classe border-blue-primary
-    expect(card?.className).toContain('border-blue-primary')
+    // La carte sélectionnée a la classe border-teal
+    expect(card?.className).toContain('border-teal')
   })
 })
 

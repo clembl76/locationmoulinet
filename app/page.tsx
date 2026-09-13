@@ -1,6 +1,7 @@
 import HomeClient from '@/components/HomeClient'
 import { Apartment } from '@/components/ApartmentCard'
 import { runSqlAdmin, EXCLUDE_BUREAU } from '@/lib/adminData'
+import { publicFontClassName } from '@/lib/fonts'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,5 +73,9 @@ export default async function Page() {
     }
   })
 
-  return <HomeClient apartments={apartments} />
+  return (
+    <div className={publicFontClassName}>
+      <HomeClient apartments={apartments} />
+    </div>
+  )
 }

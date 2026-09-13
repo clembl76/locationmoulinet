@@ -11,7 +11,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <span className="text-blue-primary font-bold text-lg sm:text-xl tracking-tight whitespace-nowrap">
+        <span className="text-gray-900 font-bold text-lg sm:text-xl tracking-tight whitespace-nowrap">
           Location Moulinet
         </span>
 
@@ -19,13 +19,13 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-2 sm:gap-4">
           <a
             href="/visiter"
-            className="bg-blue-primary text-white text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors whitespace-nowrap"
+            className="bg-gray-900 text-white text-sm font-semibold px-4 sm:px-5 py-2.5 rounded-full hover:bg-black transition-colors whitespace-nowrap"
           >
             {lang === 'fr' ? 'Visiter' : 'Book a visit'}
           </a>
           <a
             href="/candidater"
-            className="bg-white text-blue-primary text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg border border-blue-primary hover:bg-blue-light transition-colors whitespace-nowrap"
+            className="bg-white text-gray-900 text-sm font-semibold px-4 sm:px-5 py-2.5 rounded-full border border-gray-200 hover:border-gray-300 transition-colors whitespace-nowrap"
           >
             {lang === 'fr' ? 'Déposer mon dossier' : 'Apply'}
           </a>
@@ -50,14 +50,14 @@ export default function Navbar() {
           <a
             href="/visiter"
             onClick={() => setOpen(false)}
-            className="block w-full text-center bg-blue-primary text-white text-sm font-semibold px-4 py-3 rounded-lg hover:bg-blue-dark transition-colors"
+            className="block w-full text-center bg-gray-900 text-white text-sm font-semibold px-4 py-3 rounded-full hover:bg-black transition-colors"
           >
             {lang === 'fr' ? 'Visiter' : 'Book a visit'}
           </a>
           <a
             href="/candidater"
             onClick={() => setOpen(false)}
-            className="block w-full text-center bg-white text-blue-primary text-sm font-semibold px-4 py-3 rounded-lg border border-blue-primary hover:bg-blue-light transition-colors"
+            className="block w-full text-center bg-white text-gray-900 text-sm font-semibold px-4 py-3 rounded-full border border-gray-200 hover:border-gray-300 transition-colors"
           >
             {lang === 'fr' ? 'Déposer mon dossier' : 'Apply'}
           </a>
