@@ -6,14 +6,7 @@ import { computeCaYtd, computeOccupationRate, computeAverageDurationYears } from
 import CaBarChartClient from './CaBarChartClient'
 import StatCard from './StatCard'
 
-const BUILDING_TOGGLE_COLORS = [
-  'bg-blue-50 text-blue-700 border-blue-200',
-  'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'bg-amber-50 text-amber-700 border-amber-200',
-  'bg-violet-50 text-violet-700 border-violet-200',
-  'bg-rose-50 text-rose-700 border-rose-200',
-  'bg-teal-50 text-teal-700 border-teal-200',
-]
+const TOGGLE_ACTIVE_CLS = 'bg-gray-900 text-white border-gray-900'
 
 function Toggle({
   active, onClick, children, colorCls,
@@ -26,7 +19,7 @@ function Toggle({
       onClick={onClick}
       className={`text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
         active
-          ? (colorCls ?? 'bg-blue-50 text-blue-700 border-blue-200')
+          ? (colorCls ?? TOGGLE_ACTIVE_CLS)
           : 'bg-gray-50 text-gray-400 border-gray-200'
       }`}
     >
@@ -79,23 +72,22 @@ export default function DashboardAnnualClient({
 
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 space-y-3 mb-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Affichage</span>
-            <Toggle active={mode === 'cc'} onClick={() => setMode('cc')} colorCls="bg-blue-50 text-blue-700 border-blue-200">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-28 shrink-0">Affichage</span>
+            <Toggle active={mode === 'cc'} onClick={() => setMode('cc')}>
               Loyers CC
             </Toggle>
-            <Toggle active={mode === 'hc'} onClick={() => setMode('hc')} colorCls="bg-indigo-50 text-indigo-700 border-indigo-200">
+            <Toggle active={mode === 'hc'} onClick={() => setMode('hc')}>
               Loyers HC
             </Toggle>
           </div>
           {buildings.length > 1 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Bâtiment</span>
-              {buildings.map((b, i) => (
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-28 shrink-0">Bâtiment</span>
+              {buildings.map(b => (
                 <Toggle
                   key={b}
                   active={selectedBuildings.has(b)}
                   onClick={() => toggleBuilding(b)}
-                  colorCls={BUILDING_TOGGLE_COLORS[i % BUILDING_TOGGLE_COLORS.length]}
                 >
                   {b}
                 </Toggle>

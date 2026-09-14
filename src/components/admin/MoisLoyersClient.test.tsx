@@ -61,28 +61,27 @@ describe('MoisLoyersClient — rendu de base', () => {
   })
 })
 
-describe('MoisLoyersClient — PieChart (fix mismatch d\'hydratation)', () => {
-  it('arrondit les coordonnées du path SVG à une précision fixe (au plus 4 décimales)', () => {
-    // Répartition qui produit des angles non triviaux (pas de multiples de 90°), là où
-    // Math.cos/Math.sin peuvent renvoyer un dernier chiffre différent entre serveur et
-    // client — la valeur reportée dans SPEC.md (8420 payés / 1325 impayés) reproduit
-    // exactement le cas réel qui cassait l'hydratation.
+describe('MoisLoyersClient — DonutChart', () => {
+  it('affiche un anneau (2 cercles SVG) avec un stroke-dasharray borné à une décimale', () => {
+    // Ancien composant (fix mismatch d'hydratation) : la répartition 8420 payés / 1325
+    // impayés reproduisait un cas réel où Math.cos/Math.sin renvoyaient un dernier chiffre
+    // différent entre serveur et client. Le nouvel anneau n'utilise aucune trigonométrie
+    // (stroke-dasharray en pourcentage), donc cette classe de bug ne peut plus se produire —
+    // on garde une répartition non triviale pour vérifier que les pourcentages restent bornés.
     const { container } = render(<MoisLoyersClient apartments={[
       makeApt({ id: 'a', rent_including_charges: 8420, paid_this_month: true }),
       makeApt({ id: 'b', rent_including_charges: 1325, paid_this_month: false }),
     ]} mois="septembre 2026" />)
 
-    const paths = container.querySelectorAll('svg path')
-    expect(paths.length).toBe(2)
+    const circles = container.querySelectorAll('svg circle')
+    expect(circles.length).toBe(2)
 
-    for (const path of paths) {
-      const d = path.getAttribute('d')!
-      const numbers = d.match(/-?\d+\.\d+/g) ?? []
-      expect(numbers.length).toBeGreaterThan(0)
-      for (const n of numbers) {
-        const decimals = n.split('.')[1]?.length ?? 0
-        expect(decimals).toBeLessThanOrEqual(4)
-      }
+    const dasharray = circles[1].getAttribute('stroke-dasharray')!
+    const [paidPct, restPct] = dasharray.split(' ').map(Number)
+    expect(paidPct + restPct).toBeCloseTo(100, 5)
+    const decimals = dasharray.match(/\.\d+/g) ?? []
+    for (const d of decimals) {
+      expect(d.length - 1).toBeLessThanOrEqual(1)
     }
   })
 

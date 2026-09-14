@@ -2,7 +2,6 @@ import { getDashboardStats, getCalendarLeases, getCaByMonth, getAdminApartments,
 import type { CalendarLease } from '@/lib/adminData'
 import ExportLeasesButton from '@/components/admin/ExportLeasesButton'
 import DashboardAnnualClient from '@/components/admin/DashboardAnnualClient'
-import GenerateRentsButton from '@/components/admin/GenerateRentsButton'
 import MoisLoyersClient from '@/components/admin/MoisLoyersClient'
 import StatCard from '@/components/admin/StatCard'
 import { MONTHS_SHORT } from '@/lib/monthLabels'
@@ -11,11 +10,18 @@ export const dynamic = 'force-dynamic'
 
 // ─── Calendrier occupation ────────────────────────────────────────────────────
 
-const APT_COLORS = [
-  '#10b981', '#3b82f6', '#8b5cf6', '#f43f5e',
-  '#f59e0b', '#14b8a6', '#6366f1', '#ec4899',
-  '#06b6d4', '#f97316', '#84cc16', '#a855f7',
-]
+// Même principe de teinte tournante (hue variable, luminosité/chroma fixes) que
+// BUILDING_COLORS dans CaBarChartClient — cohérent avec le reste de la palette du site.
+const APT_HUES = [195, 40, 145, 300, 90, 350, 250, 15]
+
+function aptColors(aptNumber: string) {
+  const hue = APT_HUES[parseInt(aptNumber) % APT_HUES.length]
+  return {
+    bg: `oklch(78% 0.08 ${hue})`,
+    text: `oklch(24% 0.07 ${hue})`,
+    dashedText: `oklch(45% 0.08 ${hue})`,
+  }
+}
 
 type AptSegment = {
   tenantName: string | null
@@ -119,7 +125,7 @@ function OccupationCalendar({ rows, year }: { rows: AptGroup[]; year: number }) 
           </div>
 
           {rows.map((apt) => {
-            const color = APT_COLORS[parseInt(apt.number) % APT_COLORS.length]
+            const { bg, text, dashedText } = aptColors(apt.number)
             return (
               <div key={apt.number} className="flex items-center h-8 border-b border-gray-50 last:border-0">
                 <div className="w-12 shrink-0 text-xs font-bold text-gray-500 text-right pr-3">
@@ -137,6 +143,14 @@ function OccupationCalendar({ rows, year }: { rows: AptGroup[]; year: number }) 
                       }}
                     />
                   ))}
+                  {apt.segments.length === 0 && (
+                    <div
+                      className="absolute inset-0 flex items-center px-1.5 rounded"
+                      style={{ background: 'oklch(93% 0.02 90)' }}
+                    >
+                      <span className="truncate text-xs text-gray-500">vacant</span>
+                    </div>
+                  )}
                   {apt.segments.map((seg, i) => (
                     <a
                       key={i}
@@ -145,12 +159,12 @@ function OccupationCalendar({ rows, year }: { rows: AptGroup[]; year: number }) 
                       style={{
                         left: `${seg.startPct}%`,
                         width: `${seg.widthPct}%`,
-                        background: seg.dashed ? 'transparent' : color,
-                        border: seg.dashed ? `2px dashed ${color}` : 'none',
+                        background: seg.dashed ? 'transparent' : bg,
+                        border: seg.dashed ? `2px dashed ${bg}` : 'none',
                       }}
                       title={`Appt ${apt.number} — ${seg.tenantName?.toUpperCase() ?? ''}${seg.dashed ? ' (prévisionnel)' : ''}`}
                     >
-                      <span className="truncate text-xs font-medium" style={{ color: seg.dashed ? color : '#fff' }}>
+                      <span className="truncate text-xs font-medium" style={{ color: seg.dashed ? dashedText : text }}>
                         {seg.tenantName?.toUpperCase() ?? ''}
                       </span>
                     </a>
@@ -173,10 +187,6 @@ export default async function AdminDashboard() {
   const month = now.getMonth() + 1
   const mois = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
 
-  const nextMonth = month === 12 ? 1 : month + 1
-  const nextYear = month === 12 ? year + 1 : year
-  const nextMois = new Date(nextYear, nextMonth - 1, 1).toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
-
   const [stats, rawCalendar, caByMonth, apartments, occupationByMonth, leaseDurations] = await Promise.all([
     getDashboardStats(),
     getCalendarLeases(year),
@@ -190,25 +200,17 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Mois en cours (fusionné depuis /admin/mois) */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h2 className="text-lg font-bold text-gray-900">Mois en cours</h2>
-        <div className="flex flex-wrap gap-3">
-          <GenerateRentsButton year={year} month={month} mois={mois} />
-          <GenerateRentsButton year={nextYear} month={nextMonth} mois={nextMois} />
-        </div>
-      </div>
+      <h2 className="text-lg font-bold text-gray-900">Mois en cours</h2>
 
       <section>
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Occupation</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="Total" value={stats.total} href="/admin/apartments" />
-          <StatCard label="Loués" value={stats.occupied} href="/admin/apartments?status=loue" />
-          <StatCard label="Disponibles" value={stats.available} href="/admin/apartments?status=available" />
-          <StatCard label="Départ prévu" value={stats.soon} href="/admin/apartments?status=depart" />
+          <StatCard label="Loués" value={stats.occupied} href="/admin/apartments?status=loue" valueColor="text-green-700" />
+          <StatCard label="Disponibles" value={stats.available} href="/admin/apartments?status=available" valueColor="text-teal" />
+          <StatCard label="Départ prévu" value={stats.soon} href="/admin/apartments?status=depart" valueColor="text-amber-600" />
         </div>
       </section>
-
-      <MoisLoyersClient apartments={apartments} mois={mois} />
 
       {stats.departures.length > 0 && (
         <section>
@@ -235,6 +237,8 @@ export default async function AdminDashboard() {
           </div>
         </section>
       )}
+
+      <MoisLoyersClient apartments={apartments} mois={mois} />
 
       <h1 className="text-2xl font-bold text-gray-900">Tableau de bord annuel</h1>
 

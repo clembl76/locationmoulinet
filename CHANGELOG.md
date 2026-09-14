@@ -2,6 +2,29 @@
 
 ## [Non publié]
 
+### 2026-09-14 — Ajustements tableau de bord/paiements : cohérence légende, marges, réorganisation
+- `components/admin/MoisLoyersClient.tsx` : la pastille de légende « Non encaissé » (rouge) ne correspondait pas à la piste neutre du donut — passée en gris (`bg-gray-300`) pour rester cohérente avec le graphique ; marge insuffisante entre les libellés « Occupation »/« Bâtiment » et leurs pastilles de filtre (`w-20` → `w-28 shrink-0`, même correctif que sur la page Appartements)
+- `components/admin/DashboardAnnualClient.tsx` : même correctif de marge sur les libellés « Affichage »/« Bâtiment »
+- `app/admin/page.tsx` : bloc « Départs dans les 30 jours » remonté juste au-dessus de « Loyers — {mois} » (au lieu d'après) ; boutons « Générer les loyers — {mois} » déplacés vers `app/admin/payments/page.tsx`, juste au-dessus de « Transactions Linxo » (retirés du bloc « Mois en cours » qui ne garde que son titre)
+- `npm run test:coverage` (659 tests, 67 fichiers, tous verts) puis `npm run build` exécutés avant livraison
+
+### 2026-09-14 — Fix (suite) : timeline d'occupation, donut CA encaissé et bar chart annuel hors charte
+- **Cause** : même défaut que le fix précédent (implémentation faite sans relire la maquette source) — trois éléments supplémentaires du tableau de bord utilisaient encore des couleurs ou une forme héritées de l'ancien design
+- `app/admin/page.tsx` — timeline « Occupation {année} » : le tableau `APT_COLORS` (12 couleurs hex saturées, arc-en-ciel) remplacé par une palette de teintes douces en oklch (même luminosité/chroma, teinte variable), cohérente avec le reste du site ; ajout d'une pastille « vacant » (fond beige, comme la maquette) pour les appartements sans aucun bail sur l'année, qui ne s'affichait pas du tout auparavant
+- `components/admin/MoisLoyersClient.tsx` — le donut « CA encaissé » était un camembert plein (deux parts triangulaires vert/rouge calculées via `Math.cos/Math.sin`) ; reconstruit en anneau fin (`stroke-dasharray` sur un cercle SVG, comme la maquette) — vert pour la part encaissée sur une piste neutre, sans trigonométrie donc sans le risque de mismatch d'hydratation que l'ancien composant devait contourner
+- `components/admin/CaBarChartClient.tsx` : `BUILDING_COLORS` (mélange de hex saturés + un premier ton teal isolé depuis le fix précédent) uniformisé sur la même palette douce en oklch que la timeline d'occupation, teal en premier (valeur exacte de la maquette)
+- Tests : `MoisLoyersClient.test.tsx` — tests du donut réécrits pour la nouvelle structure (cercles SVG au lieu de paths)
+- `npm run test:coverage` (659 tests, 67 fichiers, tous verts) puis `npm run build` exécutés avant livraison
+
+### 2026-09-14 — Fix : le tableau de bord admin ne respectait pas le code couleur de la maquette
+- **Cause** : la maquette approuvée (`AdminDashboard.dc.html`) n'avait pas été relue avant l'implémentation de la phase 2 — plusieurs couleurs de l'ancien code (pré-refonte) avaient été conservées par erreur en les prenant pour des « couleurs de données » à ne pas toucher, alors que la maquette les avait redessinées en monochrome/teal
+- `components/admin/StatCard.tsx` : nouvelle prop optionnelle `valueColor` pour permettre une couleur de valeur par carte (défaut inchangé : `text-gray-900`)
+- `app/admin/page.tsx` : cartes KPI « Mois en cours » recolorées conformément à la maquette — Loués en vert (`text-green-700`), Disponibles en teal (`text-teal`), Départ prévu en ambre (`text-amber-600`), Total inchangé
+- `components/admin/MoisLoyersClient.tsx`, `components/admin/DashboardAnnualClient.tsx` : les pastilles de filtre (Loué/Disponible/Départ prévu, bâtiments, Loyers CC/HC) affichaient encore les couleurs pastel de l'ancien design (bleu/vert/ambre/violet) à l'état actif — remplacées par le noir plein (`bg-gray-900`) de la maquette, cohérent avec tous les autres boutons/pilules actifs du site ; suppression du tableau `BUILDING_TOGGLE_COLORS` devenu inutile (toutes les entrées résolvaient à la même couleur)
+- `components/admin/CaBarChartClient.tsx` : première couleur de `BUILDING_COLORS` (utilisée par défaut pour le graphique à un seul bâtiment) passée de bleu (`#3b82f6`, résidu de l'ancienne palette) à teal (`oklch(40% 0.09 195)`, le token de marque du site)
+- Tests : `StatCard.test.tsx` — 2 tests ajoutés pour la prop `valueColor`
+- `npm run test:coverage` (659 tests, 67 fichiers, tous verts) puis `npm run build` exécutés avant livraison
+
 ### 2026-09-13 — Refonte visuelle de l'espace /admin (phase 2)
 - **Contexte** : suite de la refonte visuelle démarrée sur les pages publiques (voir entrées du 2026-09-12) — 12 maquettes validées pour l'intégralité de `/admin*`. Contrairement au public, l'admin partageait déjà le même vocabulaire de carte (`bg-white rounded-xl border border-gray-100 shadow-sm`, badges en pilule) : travail de **recoloration + ajustements de forme uniquement**, sans changement de structure DOM, de balises, d'ordre des champs/colonnes ni de logique métier, sur l'ensemble des ~245 occurrences des tokens `blue-primary`/`blue-dark`/`blue-light` répartis dans une quarantaine de fichiers
 - Recette appliquée partout : boutons pleins d'action `bg-blue-primary…hover:bg-blue-dark` → `bg-gray-900…hover:bg-black` (forme `rounded-lg/xl` → `rounded-full`) ; liens/accents `text-blue-primary(+hover:blue-dark)` → `text-teal(+hover:gray-900)` ; fonds doux `bg-blue-light+text-blue-primary` → `bg-teal/10+text-teal` ; emphase forte `text-blue-dark` → `text-gray-900` ; bordures/focus `border/ring-blue-primary` → `border/ring-teal` ; case à cocher `accent-blue-primary` → `accent-teal`

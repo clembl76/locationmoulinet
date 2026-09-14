@@ -20,6 +20,20 @@ describe('StatCard — affichage', () => {
   })
 })
 
+describe('StatCard — couleur de la valeur', () => {
+  it('applique text-gray-900 par défaut', () => {
+    render(<StatCard label="Total" value={20} />)
+    expect(screen.getByText('20')).toHaveClass('text-gray-900')
+  })
+
+  it('applique la classe valueColor fournie à la place de la couleur par défaut', () => {
+    render(<StatCard label="Loués" value={18} valueColor="text-green-700" />)
+    const value = screen.getByText('18')
+    expect(value).toHaveClass('text-green-700')
+    expect(value).not.toHaveClass('text-gray-900')
+  })
+})
+
 describe('StatCard — lien optionnel', () => {
   it('rend un lien cliquable quand href est fourni', () => {
     render(<StatCard label="Loués" value={18} href="/admin/apartments?status=loue" />)

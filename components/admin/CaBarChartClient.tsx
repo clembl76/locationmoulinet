@@ -4,14 +4,12 @@ import { useMemo } from 'react'
 import type { CaMonthRow } from '@/lib/adminData'
 import { MONTHS_SHORT } from '@/lib/monthLabels'
 
-export const BUILDING_COLORS = [
-  '#3b82f6',
-  '#10b981',
-  '#f59e0b',
-  '#8b5cf6',
-  '#f43f5e',
-  '#14b8a6',
-]
+// Teinte tournante (hue variable, luminosité/chroma fixes) — même principe que la
+// palette de la timeline d'occupation (app/admin/page.tsx). Le premier ton reprend
+// exactement le teal de la maquette (oklch(70% 0.1 195)).
+const BUILDING_HUES = [195, 40, 145, 300, 90, 350, 250, 15]
+
+export const BUILDING_COLORS = BUILDING_HUES.map(hue => `oklch(70% 0.1 ${hue})`)
 
 function fmtEur(v: number): string {
   return `${Math.round(v).toLocaleString('fr-FR')} €`

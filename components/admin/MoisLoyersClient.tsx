@@ -28,31 +28,26 @@ function Toggle({
   )
 }
 
-function PieChart({ paid, unpaid }: { paid: number; unpaid: number }) {
+function DonutChart({ paid, unpaid }: { paid: number; unpaid: number }) {
   const total = paid + unpaid
   if (total === 0) return <div className="w-28 h-28 rounded-full bg-gray-100" />
 
-  const paidPct = paid / total
-  // Arrondi à une précision fixe : Math.cos/Math.sin peuvent renvoyer un dernier chiffre
-  // différent entre le rendu serveur et le rendu client (implémentations légèrement
-  // différentes selon le moteur JS), ce qui cassait l'hydratation React sur ce path SVG.
-  const r = (n: number) => Math.round(n * 10000) / 10000
-  function arc(pct: number, offset: number) {
-    if (pct >= 1) return `M 50 50 m 0 -40 a 40 40 0 1 1 -0.001 0 Z`
-    const startAngle = (offset - 0.25) * 2 * Math.PI
-    const endAngle = (offset + pct - 0.25) * 2 * Math.PI
-    const x1 = r(50 + 40 * Math.cos(startAngle))
-    const y1 = r(50 + 40 * Math.sin(startAngle))
-    const x2 = r(50 + 40 * Math.cos(endAngle))
-    const y2 = r(50 + 40 * Math.sin(endAngle))
-    const large = pct > 0.5 ? 1 : 0
-    return `M 50 50 L ${x1} ${y1} A 40 40 0 ${large} 1 ${x2} ${y2} Z`
-  }
+  // Le cercle de rayon 15.9 a une circonférence ≈ 100, donc son stroke-dasharray
+  // s'exprime directement en pourcentage — pas de trigonométrie, donc aucun risque
+  // de dernier chiffre différent entre le rendu serveur et le rendu client.
+  const paidPct = Math.round((paid / total) * 1000) / 10
+  const restPct = Math.round((1000 - paidPct * 10)) / 10
 
   return (
-    <svg viewBox="0 0 100 100" className="w-28 h-28">
-      <path d={arc(paidPct, 0)} fill="#16a34a" />
-      <path d={arc(1 - paidPct, paidPct)} fill="#dc2626" />
+    <svg viewBox="0 0 36 36" className="w-28 h-28">
+      <circle cx="18" cy="18" r="15.9" fill="none" stroke="oklch(92% 0.01 150)" strokeWidth="4" />
+      <circle
+        cx="18" cy="18" r="15.9" fill="none"
+        stroke="oklch(55% 0.13 150)" strokeWidth="4"
+        strokeDasharray={`${paidPct} ${restPct}`}
+        strokeDashoffset="25"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
@@ -127,19 +122,19 @@ export default function MoisLoyersClient({
       {/* Filtres */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 space-y-3 mb-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Occupation</span>
-          <Toggle active={occupation.has('loue')} onClick={() => toggleOcc('loue')} colorCls="bg-blue-50 text-blue-700 border-blue-200">Loué</Toggle>
-          <Toggle active={occupation.has('disponible')} onClick={() => toggleOcc('disponible')} colorCls="bg-green-50 text-green-700 border-green-200">Disponible</Toggle>
-          <Toggle active={occupation.has('depart')} onClick={() => toggleOcc('depart')} colorCls="bg-amber-50 text-amber-700 border-amber-200">Départ prévu</Toggle>
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-28 shrink-0">Occupation</span>
+          <Toggle active={occupation.has('loue')} onClick={() => toggleOcc('loue')} colorCls="bg-gray-900 text-white border-gray-900">Loué</Toggle>
+          <Toggle active={occupation.has('disponible')} onClick={() => toggleOcc('disponible')} colorCls="bg-gray-900 text-white border-gray-900">Disponible</Toggle>
+          <Toggle active={occupation.has('depart')} onClick={() => toggleOcc('depart')} colorCls="bg-gray-900 text-white border-gray-900">Départ prévu</Toggle>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Bâtiment</span>
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-28 shrink-0">Bâtiment</span>
           {buildings.map(b => (
             <Toggle
               key={b}
               active={selectedBuildings.has(b)}
               onClick={() => toggleBuilding(b)}
-              colorCls="bg-violet-50 text-violet-700 border-violet-200"
+              colorCls="bg-gray-900 text-white border-gray-900"
             >
               {b}
             </Toggle>
@@ -160,10 +155,10 @@ export default function MoisLoyersClient({
         {/* Pie */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center gap-8 flex-wrap">
-            <PieChart paid={pie.amountPaid} unpaid={pie.amountUnpaid} />
+            <DonutChart paid={pie.amountPaid} unpaid={pie.amountUnpaid} />
             <div className="space-y-3 flex-1 min-w-[180px]">
               <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-green-600 flex-shrink-0" />
+                <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: 'oklch(55% 0.13 150)' }} />
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
                     Encaissé — {pie.amountPaid.toLocaleString('fr-FR')} €
@@ -174,7 +169,7 @@ export default function MoisLoyersClient({
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-red-600 flex-shrink-0" />
+                <span className="w-3 h-3 rounded-full bg-gray-300 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
                     Non encaissé — {pie.amountUnpaid.toLocaleString('fr-FR')} €
