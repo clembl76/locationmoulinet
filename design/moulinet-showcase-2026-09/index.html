@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fonctionnalités — Location Moulinet</title>
+<title>Location Moulinet — Fonctionnalités &amp; Analytics</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,91 +14,430 @@
 <div class="sheet">
 
     <div class="page-nav">
-      <a class="active" href="index.html">Fonctionnalités</a>
-      <a href="analytics.html">Analytics</a>
+      <button type="button" class="active" data-view="fonctionnalites">Fonctionnalités</button>
+      <button type="button" data-view="analytics">Analytics</button>
     </div>
 
-    <div class="eyebrow">Back-office — Location Moulinet</div>
-    <h1>Toute la gestion locative, digitalisée de bout en bout</h1>
-    <p class="masthead-lead">
-      Système de gestion locative complet, conçu et développé pour un portefeuille de <strong>20 logements répartis sur 4 immeubles</strong> à Rouen — du premier contact visiteur jusqu'à la sortie du locataire.
-    </p>
-    <div class="stack-row">
-      <span class="stack-label">Stack</span>
-      <span class="chip">Claude AI / Claude Code</span>
-      <span class="chip">Supabase</span>
-      <span class="chip">Next.js</span>
-      <span class="chip">Vercel</span>
-    </div>
+    <!-- ══════════════════════════ VUE : FONCTIONNALITÉS ══════════════════════════ -->
+    <div id="view-fonctionnalites" class="view">
 
-    <div class="feature-section">
-      <p class="section-label">Fonctionnalités clés</p>
-      <div class="feature-grid">
-
-        <div class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></div>
-          <div class="feature-title">Site vitrine &amp; mise en location</div>
-          <div class="feature-text">Annonces publiées automatiquement, prise de rendez-vous de visite en ligne et formulaire de candidature avec pièces justificatives.</div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 22 22"><circle cx="8.6" cy="7.6" r="3.1"/><path d="M2.8 18.4c0-3.7 2.6-6.3 5.8-6.3s5.8 2.6 5.8 6.3"/><circle cx="16.2" cy="7" r="2.3"/><path d="M14.7 12.1c2.5.5 4.3 2.8 4.7 5.6"/></svg></div>
-          <div class="feature-title">CRM visiteurs, candidats &amp; locataires</div>
-          <div class="feature-text">Chaque profil est suivi dans une fiche unique, du premier rendez-vous jusqu'à la fin du bail.</div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M6.2 3.2h7l4 4v11.6a1 1 0 0 1-1 1H6.2a1 1 0 0 1-1-1V4.2a1 1 0 0 1 1-1z"/><path d="M13.2 3.2v4h4"/><path d="M8 11.6h6M8 14.8h4.4"/></svg></div>
-          <div class="feature-title">Génération automatique et signature électronique</div>
-          <div class="feature-text">Baux et état des lieux générés et pré-remplis pour la signature électronique.</div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="8.2"/><path d="M13.6 7.7a4 4 0 1 0 0 6.6"/><path d="M7.3 9.9h5M7.3 12.3h4"/></svg></div>
-          <div class="feature-title">Collecte des loyers automatisée</div>
-          <div class="feature-text">Quittances mensuelles, suivi des encaissements en temps réel, relances automatiques en cas d'impayé.</div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M6.2 3.2h7l4 4v11.6a1 1 0 0 1-1 1H6.2a1 1 0 0 1-1-1V4.2a1 1 0 0 1 1-1z"/><path d="M13.2 3.2v4h4"/><path d="M8.3 13.2l2 2 4-4.2"/></svg></div>
-          <div class="feature-title">Documents justificatifs en un clic</div>
-          <div class="feature-text">Attestations de loyer, quittances de caution, dossiers d'aide au logement générées à la demande.</div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M8.3 3.2h5.4a1 1 0 0 1 1 1V6H7.3V4.2a1 1 0 0 1 1-1z"/><rect x="4.8" y="5" width="12.4" height="14.8" rx="2"/><path d="M7.7 10.6h6.6M7.7 13.5h6.6M7.7 16.4h4.2"/></svg></div>
-          <div class="feature-title">États des lieux et inventaires</div>
-          <div class="feature-text">Inventaires entièrement digitalisés avec un catalogue, gestion des quantités, des états et des coûts de remplacement.</div>
-        </div>
-
+      <div class="eyebrow">Back-office — Location Moulinet</div>
+      <h1>Toute la gestion locative, digitalisée de bout en bout</h1>
+      <p class="masthead-lead">
+        Système de gestion locative complet, conçu et développé pour un portefeuille de <strong>20 logements répartis sur 4 immeubles</strong> à Rouen — du premier contact visiteur jusqu'à la sortie du locataire.
+      </p>
+      <div class="stack-row">
+        <span class="stack-label">Stack</span>
+        <span class="chip">Claude AI / Claude Code</span>
+        <span class="chip">Supabase</span>
+        <span class="chip">Next.js</span>
+        <span class="chip">Vercel</span>
       </div>
-    </div>
 
-    <div class="feature-section">
-      <p class="section-label">Aperçu</p>
-      <div class="screenshot-grid">
-        <figure class="screenshot">
-          <img src="captures/home.webp" alt="Page d'accueil du site vitrine Location Moulinet" loading="lazy">
-          <figcaption>Site vitrine — page d'accueil</figcaption>
-        </figure>
-        <figure class="screenshot">
-          <img src="captures/tableaudebord.png" alt="Tableau de bord du back-office Location Moulinet" loading="lazy">
-          <figcaption>Back-office — tableau de bord</figcaption>
-        </figure>
+      <div class="feature-section">
+        <p class="section-label">Fonctionnalités clés</p>
+        <div class="feature-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></div>
+            <div class="feature-title">Site vitrine &amp; mise en location</div>
+            <div class="feature-text">Annonces publiées automatiquement, prise de rendez-vous de visite en ligne et formulaire de candidature avec pièces justificatives.</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 22 22"><circle cx="8.6" cy="7.6" r="3.1"/><path d="M2.8 18.4c0-3.7 2.6-6.3 5.8-6.3s5.8 2.6 5.8 6.3"/><circle cx="16.2" cy="7" r="2.3"/><path d="M14.7 12.1c2.5.5 4.3 2.8 4.7 5.6"/></svg></div>
+            <div class="feature-title">CRM visiteurs, candidats &amp; locataires</div>
+            <div class="feature-text">Chaque profil est suivi dans une fiche unique, du premier rendez-vous jusqu'à la fin du bail.</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M6.2 3.2h7l4 4v11.6a1 1 0 0 1-1 1H6.2a1 1 0 0 1-1-1V4.2a1 1 0 0 1 1-1z"/><path d="M13.2 3.2v4h4"/><path d="M8 11.6h6M8 14.8h4.4"/></svg></div>
+            <div class="feature-title">Génération automatique et signature électronique</div>
+            <div class="feature-text">Baux et état des lieux générés et pré-remplis pour la signature électronique.</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="8.2"/><path d="M13.6 7.7a4 4 0 1 0 0 6.6"/><path d="M7.3 9.9h5M7.3 12.3h4"/></svg></div>
+            <div class="feature-title">Collecte des loyers automatisée</div>
+            <div class="feature-text">Quittances mensuelles, suivi des encaissements en temps réel, relances automatiques en cas d'impayé.</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M6.2 3.2h7l4 4v11.6a1 1 0 0 1-1 1H6.2a1 1 0 0 1-1-1V4.2a1 1 0 0 1 1-1z"/><path d="M13.2 3.2v4h4"/><path d="M8.3 13.2l2 2 4-4.2"/></svg></div>
+            <div class="feature-title">Documents justificatifs en un clic</div>
+            <div class="feature-text">Attestations de loyer, quittances de caution, dossiers d'aide au logement générées à la demande.</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 22 22"><path d="M8.3 3.2h5.4a1 1 0 0 1 1 1V6H7.3V4.2a1 1 0 0 1 1-1z"/><rect x="4.8" y="5" width="12.4" height="14.8" rx="2"/><path d="M7.7 10.6h6.6M7.7 13.5h6.6M7.7 16.4h4.2"/></svg></div>
+            <div class="feature-title">États des lieux et inventaires</div>
+            <div class="feature-text">Inventaires entièrement digitalisés avec un catalogue, gestion des quantités, des états et des coûts de remplacement.</div>
+          </div>
+
+        </div>
       </div>
-    </div>
 
-    <div class="feature-section">
-      <p class="section-label">Résultat</p>
-      <div class="proof-card">
-        <div class="proof-text">La digitalisation de la gestion locative a fortement réduit le temps consacré aux tâches administratives et a permis de se concentrer sur la valorisation du bien et sa rentabilité. <a href="analytics.html">La preuve en chiffres dans les Analytics →</a></div>
+      <div class="feature-section">
+        <p class="section-label">Aperçu</p>
+        <div class="screenshot-grid">
+          <figure class="screenshot">
+            <img src="captures/home.webp" alt="Page d'accueil du site vitrine Location Moulinet" loading="lazy">
+            <figcaption>Site vitrine — page d'accueil</figcaption>
+          </figure>
+          <figure class="screenshot">
+            <img src="captures/tableaudebord.png" alt="Tableau de bord du back-office Location Moulinet" loading="lazy">
+            <figcaption>Back-office — tableau de bord</figcaption>
+          </figure>
+        </div>
       </div>
+
+      <div class="feature-section">
+        <p class="section-label">Résultat</p>
+        <div class="proof-card">
+          <div class="proof-text">La digitalisation de la gestion locative a fortement réduit le temps consacré aux tâches administratives et a permis de se concentrer sur la valorisation du bien et sa rentabilité. <a href="#" class="view-link" data-view="analytics">La preuve en chiffres dans les Analytics →</a></div>
+        </div>
+      </div>
+
+      <footer class="page-foot">
+        <span>Location Moulinet · Rouen — voir les <a href="#" class="view-link" data-view="analytics">Analytics →</a></span>
+      </footer>
+
     </div>
 
-    <footer class="page-foot">
-      <span>Location Moulinet · Rouen — voir les <a href="analytics.html">Analytics →</a></span>
-    </footer>
+    <!-- ══════════════════════════ VUE : ANALYTICS ══════════════════════════ -->
+    <div id="view-analytics" class="view" hidden>
+
+      <div class="eyebrow">Fiche patrimoine — immeuble Moulinet</div>
+      <h1>9 rue du Moulinet <span class="address-en">— Rouen</span></h1>
+      <div class="masthead-meta">
+        <span>18 studios meublés · location étudiante</span>
+        <span>Propriétaire-bailleur indépendant depuis <strong>juin 2017</strong></span>
+      </div>
+
+      <div class="kpi-section">
+        <p class="section-label">Depuis l'acquisition — juin 2017 → sept. 2026</p>
+        <div class="kpi-grid">
+
+          <div class="kpi">
+            <div class="kpi-value num">803 521 <span class="unit">€</span></div>
+            <div class="kpi-label">CA TCC encaissé</div>
+            <div class="kpi-caption">loyers toutes charges comprises — réalisé 2017-2025 + estimation 2026</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-value num">129</div>
+            <div class="kpi-label">Locataires accueillis</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-value num">372 900 <span class="unit">€</span></div>
+            <div class="kpi-label">Travaux &amp; entretien</div>
+            <div class="kpi-caption">travaux structurels + rénovations intérieures + maintenance courante</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-value num">14 <span class="unit">mois</span></div>
+            <div class="kpi-label">Durée moyenne d'occupation</div>
+            <div class="kpi-caption">public étudiant, en cours inclus</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-value num">66 <span class="unit">%</span></div>
+            <div class="kpi-label">Turnover annuel moyen</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-value num">21,9 <span class="unit">ans</span></div>
+            <div class="kpi-label">Âge médian des locataires</div>
+            <div class="kpi-caption">à l'entrée dans les lieux — donnée renseignée pour 125 locataires</div>
+          </div>
+
+          <div class="kpi wide">
+            <div class="kpi-value num">2 921</div>
+            <div class="kpi-label">Documents/Mails générés</div>
+            <div class="kpi-caption">(baux, états des lieux, quittances...)</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <p class="section-label">Recettes, occupation et travaux par année</p>
+        <div class="chart-card">
+          <div class="chart-head">
+            <span class="chart-title">Trajectoire de l'immeuble — 2017 → 2026</span>
+            <span class="chart-total">cumul loyers : <span class="num">803 521 €</span></span>
+          </div>
+          <div id="chart-wrap">
+            <svg id="chart" viewBox="0 0 860 545" role="img" aria-label="Taux d'occupation, turnover, et loyers charges comprises contre travaux par année, de 2017 à 2026"></svg>
+            <div id="tooltip"></div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-swatch-bar" style="background:var(--accent)"></span>loyers encaissés (CA)</span>
+            <span class="legend-item"><span class="legend-swatch-bar" style="background:var(--amber)"></span>travaux &amp; entretien</span>
+            <span class="legend-item"><span class="legend-swatch-line" style="background:var(--accent)"></span>taux d'occupation</span>
+            <span class="legend-item"><span class="legend-swatch-line" style="background:var(--amber)"></span>turnover annuel</span>
+            <span class="legend-item"><span class="legend-swatch-dash"></span>donnée partielle ou estimée</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bio-section">
+        <p class="section-label">Analyse</p>
+        <div class="bio-card">
+          <p class="bio-lead">Synthèse de l'évolution de l'immeuble Moulinet - 2017-2026</p>
+          <p class="bio-text">Le temps de gestion administrative et de syndic a fortement diminué depuis l'acquisition grâce à :</p>
+          <ul class="bio-list">
+            <li>la digitalisation complète des processus de gestion locative</li>
+            <li>des investissements stratégiques les 4 premières années qui ont réduit les charges de syndic et amélioré la satisfaction des locataires</li>
+            <li>le dégagement d'un budget alloué à la maintenance préventive et à l'embellissement pour attirer un public plus fidèle et avec moins d'impayés</li>
+          </ul>
+          <p class="bio-text">Le résultat est un taux d'occupation ainsi qu'un chiffre d'affaires stable, en parallèle d'une diminution progressive du turnover.</p>
+        </div>
+      </div>
+
+      <footer class="page-foot">
+        <span>Location Moulinet · Rouen — voir aussi les <a href="#" class="view-link" data-view="fonctionnalites">Fonctionnalités du logiciel →</a></span>
+        <span>Données arrêtées au 11/09/2026 - Immeuble Moulinet uniquement</span>
+      </footer>
+
+    </div>
 
 </div>
+
+<script>
+(function(){
+  // ── View switcher ──────────────────────────────────────────
+  var navButtons = document.querySelectorAll('.page-nav button');
+  var viewLinks = document.querySelectorAll('.view-link');
+  var views = { fonctionnalites: document.getElementById('view-fonctionnalites'), analytics: document.getElementById('view-analytics') };
+
+  function showView(name){
+    Object.keys(views).forEach(function(key){
+      views[key].hidden = (key !== name);
+    });
+    navButtons.forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-view') === name);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  navButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){ showView(btn.getAttribute('data-view')); });
+  });
+  viewLinks.forEach(function(link){
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      showView(link.getAttribute('data-view'));
+    });
+  });
+
+  var requestedView = new URLSearchParams(window.location.search).get('view');
+  if (requestedView === 'analytics') showView('analytics');
+
+  // ── Chart (Analytics view) ─────────────────────────────────
+  var revenue = [
+    {year:'2017', value:33875,  partial:true,  note:'achat en juin — ~6 mois'},
+    {year:'2018', value:74070,  partial:false},
+    {year:'2019', value:65405,  partial:false},
+    {year:'2020', value:65394,  partial:false},
+    {year:'2021', value:92842,  partial:false},
+    {year:'2022', value:112132, partial:false},
+    {year:'2023', value:94505,  partial:false},
+    {year:'2024', value:91482,  partial:false},
+    {year:'2025', value:82419,  partial:false},
+    {year:'2026', value:91397,  partial:true,  note:'estimation annuelle'}
+  ];
+  var occupancy = [
+    {year:'2017', value:80.0, partial:true,  note:'achat en juin — ~6 mois'},
+    {year:'2018', value:89.0, partial:false},
+    {year:'2019', value:61.0, partial:false},
+    {year:'2020', value:66.0, partial:false},
+    {year:'2021', value:85.0, partial:false},
+    {year:'2022', value:88.0, partial:false},
+    {year:'2023', value:82.0, partial:false},
+    {year:'2024', value:80.0, partial:false},
+    {year:'2025', value:75.0, partial:false},
+    {year:'2026', value:77.8, partial:true,  note:'estimation : 1 studio vacant, aucun départ oct.–déc.'}
+  ];
+  var turnover = [
+    {year:'2017', value:45.0, partial:true,  note:'départs ÷ studios — achat en juin, ~6 mois'},
+    {year:'2018', value:89.5, partial:false, note:'départs ÷ studios'},
+    {year:'2019', value:94.1, partial:false, note:'départs ÷ studios'},
+    {year:'2020', value:60.0, partial:false, note:'départs ÷ studios'},
+    {year:'2021', value:50.0, partial:false, note:'départs ÷ studios'},
+    {year:'2022', value:55.0, partial:false, note:'départs ÷ studios'},
+    {year:'2023', value:63.2, partial:false, note:'départs ÷ studios'},
+    {year:'2024', value:52.6, partial:false, note:'départs ÷ studios'},
+    {year:'2025', value:61.1, partial:false, note:'départs ÷ studios'},
+    {year:'2026', value:38.9, partial:true,  note:'départs ÷ studios — estimation : aucun départ supplémentaire oct.–déc.'}
+  ];
+  var travaux = [
+    {year:'2017', value:51833, partial:false},
+    {year:'2018', value:93753, partial:false},
+    {year:'2019', value:90095, partial:false},
+    {year:'2020', value:96206, partial:false},
+    {year:'2021', value:10741, partial:false},
+    {year:'2022', value:7217,  partial:false},
+    {year:'2023', value:5379,  partial:true, note:'entretien réel 379 € + travaux estimés 5 000 € (donnée manquante)'},
+    {year:'2024', value:5226,  partial:true, note:'entretien réel 226 € + travaux estimés 5 000 € (donnée manquante)'},
+    {year:'2025', value:7446,  partial:true, note:'entretien réel 2 446 € + travaux estimés 5 000 € (donnée manquante)'},
+    {year:'2026', value:5000,  partial:true, note:'travaux estimés 5 000 € (donnée manquante)'}
+  ];
+
+  var svg = document.getElementById('chart');
+  var tooltip = document.getElementById('tooltip');
+  var wrap = document.getElementById('chart-wrap');
+  var ns = 'http://www.w3.org/2000/svg';
+
+  var W = 860;
+  var padL = 34, padR = 12;
+  var chartW = W - padL - padR;
+  var n = revenue.length;
+  var slot = chartW / n;
+  var barW = Math.min(46, slot * 0.62);
+
+  function fmtEUR(v){ return Math.round(v).toLocaleString('fr-FR') + ' €'; }
+  function fmtPct(v){ return v.toLocaleString('fr-FR', {maximumFractionDigits:1}) + ' %'; }
+  function el(tag, attrs){
+    var e = document.createElementNS(ns, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function xCenter(i){ return padL + i * slot + slot / 2; }
+  function xBar(i){ return padL + i * slot + (slot - barW) / 2; }
+
+  function topRoundedBar(x, y, w, h, r){
+    r = Math.min(r, w / 2, h);
+    return 'M' + x + ',' + (y + h) +
+      ' L' + x + ',' + (y + r) +
+      ' Q' + x + ',' + y + ' ' + (x + r) + ',' + y +
+      ' L' + (x + w - r) + ',' + y +
+      ' Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) +
+      ' L' + (x + w) + ',' + (y + h) + ' Z';
+  }
+  function bottomRoundedBar(x, y, w, h, r){
+    r = Math.min(r, w / 2, h);
+    return 'M' + x + ',' + y +
+      ' L' + (x + w) + ',' + y +
+      ' L' + (x + w) + ',' + (y + h - r) +
+      ' Q' + (x + w) + ',' + (y + h) + ' ' + (x + w - r) + ',' + (y + h) +
+      ' L' + (x + r) + ',' + (y + h) +
+      ' Q' + x + ',' + (y + h) + ' ' + x + ',' + (y + h - r) +
+      ' Z';
+  }
+
+  function attachTooltip(g, x, y, label){
+    g.style.cursor = 'default';
+    g.addEventListener('mouseenter', function(){
+      tooltip.innerHTML = label;
+      tooltip.style.opacity = '1';
+    });
+    g.addEventListener('mousemove', function(){
+      var box = wrap.getBoundingClientRect();
+      var scale = box.width / W;
+      tooltip.style.left = (x * scale) + 'px';
+      tooltip.style.top = (y * scale - 10) + 'px';
+    });
+    g.addEventListener('mouseleave', function(){ tooltip.style.opacity = '0'; });
+  }
+
+  function panelTitle(text, y){
+    svg.appendChild(el('text', {x:padL, y:y, class:'panel-title'})).textContent = text;
+  }
+
+  // ── Panel A — Taux d'occupation / Turnover (line, échelle resserrée) ─
+  panelTitle("Taux d'occupation (%) / Turnover annuel (%)", 10);
+  var topOcc = 22, baseOcc = 152;
+  var occValues = occupancy.map(function(d){ return d.value; }).concat(turnover.map(function(d){ return d.value; }));
+  var domainMin = Math.floor(Math.min.apply(null, occValues) / 5) * 5 - 5;
+  var domainMax = Math.ceil(Math.max.apply(null, occValues) / 5) * 5 + 5;
+  var domainSpan = domainMax - domainMin;
+
+  [domainMin, (domainMin + domainMax) / 2, domainMax].forEach(function(v){
+    var y = baseOcc - ((v - domainMin) / domainSpan) * (baseOcc - topOcc);
+    svg.appendChild(el('line', {x1:padL, x2:W-padR, y1:y, y2:y, class:'gridline'}));
+    var t = el('text', {x:padL - 6, y:y + 3, 'text-anchor':'end', class:'tick-label'});
+    t.textContent = Math.round(v) + '%';
+    svg.appendChild(t);
+  });
+
+  var pts = occupancy.map(function(d, i){
+    return { x: xCenter(i), y: baseOcc - ((d.value - domainMin) / domainSpan) * (baseOcc - topOcc), d: d };
+  });
+  for (var i = 0; i < pts.length - 1; i++){
+    svg.appendChild(el('line', {
+      x1:pts[i].x, y1:pts[i].y, x2:pts[i+1].x, y2:pts[i+1].y,
+      class:'occ-line' + ((pts[i].d.partial || pts[i+1].d.partial) ? ' partial-seg' : '')
+    }));
+  }
+  pts.forEach(function(p){
+    var g = el('g', {});
+    g.appendChild(el('circle', {cx:p.x, cy:p.y, r:4, class:'occ-point' + (p.d.partial ? ' partial' : '')}));
+    var lbl = el('text', {x:p.x, y:p.y - 10, 'text-anchor':'middle', class:'bar-label' + (p.d.partial ? ' partial' : '')});
+    lbl.textContent = p.d.value.toLocaleString('fr-FR', {maximumFractionDigits:1}) + '%';
+    g.appendChild(lbl);
+    attachTooltip(g, p.x, p.y, '<strong>' + p.d.year + ' — occupation</strong> ' + fmtPct(p.d.value) + (p.d.note ? '<div class="sub">' + p.d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  var turnPts = turnover.map(function(d, i){
+    return { x: xCenter(i), y: baseOcc - ((d.value - domainMin) / domainSpan) * (baseOcc - topOcc), d: d };
+  });
+  for (var i = 0; i < turnPts.length - 1; i++){
+    svg.appendChild(el('line', {
+      x1:turnPts[i].x, y1:turnPts[i].y, x2:turnPts[i+1].x, y2:turnPts[i+1].y,
+      class:'turn-line' + ((turnPts[i].d.partial || turnPts[i+1].d.partial) ? ' partial-seg' : '')
+    }));
+  }
+  turnPts.forEach(function(p){
+    var g = el('g', {});
+    g.appendChild(el('circle', {cx:p.x, cy:p.y, r:4, class:'turn-point' + (p.d.partial ? ' partial' : '')}));
+    attachTooltip(g, p.x, p.y, '<strong>' + p.d.year + ' — turnover</strong> ' + fmtPct(p.d.value) + (p.d.note ? '<div class="sub">' + p.d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  // ── Panel B — Loyers (haut) vs Travaux (bas), échelle commune ─
+  panelTitle('Loyers encaissés ▲ / Travaux & entretien ▼ (€)', 176);
+  var zeroY = 340, half = 150;
+  var maxAbs = Math.max(
+    Math.max.apply(null, revenue.map(function(d){ return d.value; })),
+    Math.max.apply(null, travaux.map(function(d){ return d.value; }))
+  );
+  var pxPerEuro = half / maxAbs;
+
+  svg.appendChild(el('line', {x1:padL, x2:W-padR, y1:zeroY, y2:zeroY, class:'axis-line'}));
+
+  revenue.forEach(function(d, i){
+    var h = d.value * pxPerEuro;
+    var x = xBar(i), y = zeroY - h;
+    var g = el('g', {});
+    g.appendChild(el('path', {d:topRoundedBar(x, y, barW, h, 6), class:'bar' + (d.partial ? ' partial' : '')}));
+    var lbl = el('text', {x:x + barW/2, y:y - 8, 'text-anchor':'middle', class:'bar-label' + (d.partial ? ' partial' : '')});
+    lbl.textContent = Math.round(d.value/1000) + 'k';
+    g.appendChild(lbl);
+    attachTooltip(g, x + barW/2, y, '<strong>' + d.year + ' — loyers</strong> ' + fmtEUR(d.value) + (d.note ? '<div class="sub">' + d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  travaux.forEach(function(d, i){
+    var h = d.value * pxPerEuro;
+    var x = xBar(i), y = zeroY;
+    var g = el('g', {});
+    g.appendChild(el('path', {d:bottomRoundedBar(x, y, barW, h, 6), class:'bar-travaux' + (d.partial ? ' partial' : '')}));
+    var lbl = el('text', {x:x + barW/2, y:y + h + 15, 'text-anchor':'middle', class:'bar-label' + (d.partial ? ' partial' : '')});
+    lbl.textContent = Math.round(d.value/1000) + 'k';
+    g.appendChild(lbl);
+    attachTooltip(g, x + barW/2, y + h, '<strong>' + d.year + ' — travaux</strong> ' + fmtEUR(d.value) + (d.note ? '<div class="sub">' + d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  // ── Shared x-axis (years) ─────────────────────────────────
+  revenue.forEach(function(d, i){
+    svg.appendChild(el('text', {x:xCenter(i), y:zeroY + half + 34, 'text-anchor':'middle', class:'tick-label'})).textContent = d.year;
+  });
+})();
+</script>
+
 </body>
 </html>

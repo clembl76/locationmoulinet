@@ -6,15 +6,17 @@ Fiche patrimoine en 2 pages, conçue comme complément visuel au CV : bilan loca
 
 ## Pages
 
+Les deux vues (Fonctionnalités et Analytics) vivent dans un **unique fichier** `index.html` : la navigation bascule entre elles en JS (affichage/masquage), sans rechargement de page — l'artefact Claude ne supporte pas de manière fiable la navigation entre plusieurs documents HTML séparés dans un même artefact.
+
 | Fichier | Contenu |
 |---|---|
-| `index.html` | Fonctionnalités — plaquette du back-office (features, captures d'écran, stack) |
-| `analytics.html` | Analytics — KPI et trajectoire financière de l'immeuble Moulinet depuis l'achat (juin 2017) |
-| `styles.css` | Design system partagé entre les deux pages (tokens clair/sombre, composants) |
+| `index.html` | Page unique — bascule Fonctionnalités / Analytics via les boutons de nav en haut de page (ou `?view=analytics` dans l'URL) |
+| `styles.css` | Design system partagé (tokens clair/sombre, composants) |
 | `captures/` | Captures d'écran du site vitrine et du tableau de bord admin, intégrées comme fichiers ordinaires (pas de capacité `assets`, pour rester partageable publiquement hors organisation) |
+| `Fonctionnalites.pdf`, `Analytics.pdf` | Exports PDF paysage des deux vues, générés à partir de `index.html` (avec `?view=analytics` pour la seconde) |
 
 ## Notes
 
 - Toutes les données chiffrées viennent de la base Supabase de production (locataires, loyers, occupation) croisées avec l'historique 2017-2025 saisi dans un Google Sheet ; le détail des hypothèses (estimations 2026, travaux manquants 2023-2026, etc.) est documenté dans les légendes/tooltips du graphique lui-même.
-- CSS d'impression (`@media print`) ajouté pour une sortie PDF en paysage, sans ombres portées.
-- Ouvrir `index.html` ou `analytics.html` directement dans un navigateur pour prévisualiser hors ligne (liens relatifs, aucune dépendance serveur hormis Google Fonts).
+- CSS d'impression (`@media print`) ajouté pour une sortie PDF en paysage, sans ombres portées — seule la vue active à l'écran est imprimée.
+- Ouvrir `index.html` directement dans un navigateur pour prévisualiser hors ligne (liens relatifs, aucune dépendance serveur hormis Google Fonts).
