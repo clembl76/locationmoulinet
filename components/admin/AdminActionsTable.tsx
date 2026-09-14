@@ -98,7 +98,7 @@ export default function AdminActionsTable({ actions }: { actions: AdminAction[] 
                     <td className="px-4 py-2.5 font-medium">
                       <a
                         href={a.linkUrl}
-                        className="text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                        className="text-teal hover:text-gray-900 underline underline-offset-2"
                       >
                         {a.title}
                       </a>

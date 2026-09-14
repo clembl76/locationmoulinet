@@ -13,7 +13,7 @@ import { SURFACE_TYPES, SURFACE_MATERIALS, ROOM_TYPES } from '@/lib/surfacesCons
 
 const CONDITIONS = ['Neuf', 'Bon état', "État d'usage", 'Mauvais état']
 
-const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30'
+const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30'
 
 // ─── Ligne surface existante ──────────────────────────────────────────────────
 
@@ -72,7 +72,7 @@ function SurfaceRow({
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
         {dirty && (
           <button onClick={handleSave} disabled={saving}
-            className="text-xs font-semibold bg-blue-primary text-white px-2.5 py-1 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50 mr-2">
+            className="text-xs font-semibold bg-gray-900 text-white px-2.5 py-1 rounded-full hover:bg-black transition-colors disabled:opacity-50 mr-2">
             {saving ? '…' : 'Enregistrer'}
           </button>
         )}
@@ -179,7 +179,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
       <div className={`px-6 py-4 flex items-center justify-between ${open ? 'border-b border-gray-100' : ''}`}>
         <button
           onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-blue-primary transition-colors"
+          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-teal transition-colors"
         >
           <span className="text-xs text-gray-400">{open ? '▼' : '▶'}</span>
           État des lieux — Surfaces & équipements
@@ -189,7 +189,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
         </button>
         {open && (
           <button onClick={handleToggleAdd}
-            className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors">
+            className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors">
             + Ajouter
           </button>
         )}
@@ -236,7 +236,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                         <button
                           type="button"
                           onClick={() => { setShowCreate(v => !v); setCustomName('') }}
-                          className="mt-1.5 text-xs text-blue-primary hover:underline"
+                          className="mt-1.5 text-xs text-teal hover:underline"
                         >
                           {showCreate ? '▲ Annuler la création' : '+ Créer un nouvel item dans la bibliothèque'}
                         </button>
@@ -274,7 +274,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                     {addError && <p className="text-xs text-red-500 mt-2">{addError}</p>}
                     <div className="flex gap-2 mt-3">
                       <button onClick={handleAdd} disabled={adding}
-                        className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50">
+                        className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50">
                         {adding ? 'Ajout…' : '+ Ajouter'}
                       </button>
                       <button onClick={handleToggleAdd}

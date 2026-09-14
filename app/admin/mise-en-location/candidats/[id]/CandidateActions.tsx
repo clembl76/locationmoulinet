@@ -113,7 +113,7 @@ export default function CandidateActions({
         {warningsBanner}
         <a
           href={`/admin/apartments/${aptNumber}`}
-          className="block text-center text-xs text-blue-primary hover:underline"
+          className="block text-center text-xs text-teal hover:underline"
         >
           Voir la fiche appartement →
         </a>
@@ -133,8 +133,8 @@ export default function CandidateActions({
         <button
           onClick={handleSign}
           disabled={pending}
-          className="w-full text-sm font-semibold py-2.5 rounded-xl border transition-colors
-            bg-blue-primary text-white hover:bg-blue-dark
+          className="w-full text-sm font-semibold py-2.5 rounded-full border transition-colors
+            bg-gray-900 text-white hover:bg-black
             disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {pending ? 'Création en cours…' : 'Bail signé'}

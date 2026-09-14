@@ -30,7 +30,7 @@ export default function ArchivesSection({
             <select
               value={selectedLeaseId}
               onChange={e => setSelectedLeaseId(e.target.value)}
-              className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-primary"
+              className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal"
             >
               <option value="">Sélectionner un bail...</option>
               {archivedLeases.map(l => {
@@ -48,7 +48,7 @@ export default function ArchivesSection({
             <button
               onClick={handleOk}
               disabled={!selectedLeaseId}
-              className="bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               OK
             </button>

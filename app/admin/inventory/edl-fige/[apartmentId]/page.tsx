@@ -34,7 +34,7 @@ export default async function EdlFigePage({
       <div className="print:hidden">
         <Link
           href="/admin/inventory"
-          className="text-sm text-blue-primary hover:underline"
+          className="text-sm text-teal hover:underline"
         >
           ← Retour à l'inventaire
         </Link>

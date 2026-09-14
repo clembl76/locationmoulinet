@@ -8,9 +8,9 @@ export default async function LoginPage({
   const { error } = await searchParams
 
   return (
-    <div className="min-h-screen bg-blue-light flex items-center justify-center px-4">
+    <div className="min-h-screen bg-teal/10 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-sm p-8">
-        <h1 className="text-xl font-bold text-blue-dark mb-2">Location Moulinet</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">Location Moulinet</h1>
         <p className="text-sm text-gray-400 mb-8">Espace gestionnaire</p>
 
         <form action={loginAction} className="space-y-4">
@@ -24,7 +24,7 @@ export default async function LoginPage({
               type="email"
               autoComplete="email"
               placeholder="Laisser vide pour connexion admin"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary text-gray-700 placeholder:text-gray-300"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal text-gray-700 placeholder:text-gray-300"
             />
           </div>
 
@@ -38,7 +38,7 @@ export default async function LoginPage({
               type="password"
               required
               autoFocus
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal"
             />
           </div>
 
@@ -48,7 +48,7 @@ export default async function LoginPage({
 
           <button
             type="submit"
-            className="w-full bg-blue-primary text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-dark transition-colors"
+            className="w-full bg-gray-900 text-white rounded-full py-2 text-sm font-semibold hover:bg-black transition-colors"
           >
             Connexion
           </button>

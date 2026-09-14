@@ -36,7 +36,7 @@ export default function MoveInDateConfirmedCheckbox({
         id="move-in-date-confirmed"
         checked={checked}
         onChange={e => handleChange(e.target.checked)}
-        className="accent-blue-primary w-4 h-4 cursor-pointer"
+        className="accent-teal w-4 h-4 cursor-pointer"
       />
       <label htmlFor="move-in-date-confirmed" className="text-sm text-gray-700 cursor-pointer select-none">
         Date d&apos;emménagement confirmée

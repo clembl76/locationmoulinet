@@ -12,7 +12,7 @@ const SOURCE_LABELS: Record<string, string> = {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  moulinet:    'bg-blue-100 text-blue-700',
+  moulinet:    'bg-teal/10 text-teal',
   bonsenfants: 'bg-emerald-100 text-emerald-700',
   vieuxpalais: 'bg-amber-100 text-amber-700',
   renard:      'bg-violet-100 text-violet-700',
@@ -68,7 +68,7 @@ function EditableCell({
         onChange={e => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={onKeyDown}
-        className="w-full border border-blue-primary/40 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-primary/40"
+        className="w-full border border-teal/40 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-teal/40"
         placeholder={placeholder}
       />
     )
@@ -109,7 +109,7 @@ function SelectCell({
     <select
       value={value ?? ''}
       onChange={e => onSave(e.target.value || null)}
-      className={`w-full border border-transparent rounded px-1 py-0.5 text-xs bg-transparent hover:border-gray-200 focus:outline-none focus:border-blue-primary/40 focus:ring-1 focus:ring-blue-primary/40 cursor-pointer ${!value ? 'text-gray-300' : 'text-gray-700'}`}
+      className={`w-full border border-transparent rounded px-1 py-0.5 text-xs bg-transparent hover:border-gray-200 focus:outline-none focus:border-teal/40 focus:ring-1 focus:ring-teal/40 cursor-pointer ${!value ? 'text-gray-300' : 'text-gray-700'}`}
     >
       <option value="">{placeholder ?? '—'}</option>
       {groups
@@ -315,14 +315,14 @@ export default function LinxoTable({
           <button
             onClick={handleImport}
             disabled={importing}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {importing ? 'Import en cours…' : 'Importer depuis Drive'}
           </button>
           <button
             onClick={handleCategorize}
             disabled={categorizing}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {categorizing ? 'Catégorisation…' : 'Catégoriser'}
           </button>
@@ -336,12 +336,12 @@ export default function LinxoTable({
           placeholder="Rechercher libellé, note, fournisseur…"
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary min-w-[220px]"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal min-w-[220px]"
         />
         <select
           value={filterCategorie}
           onChange={e => { setFilterCategorie(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
           <option value="">Catégorie (toutes)</option>
           {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -349,7 +349,7 @@ export default function LinxoTable({
         <select
           value={filterSource}
           onChange={e => { setFilterSource(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
           <option value="">Source (toutes)</option>
           <option value="moulinet">Moulinet</option>
@@ -360,7 +360,7 @@ export default function LinxoTable({
         <select
           value={filterSupplier}
           onChange={e => { setFilterSupplier(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
           <option value="">Fournisseur (tous)</option>
           {allSuppliers.map(s => <option key={s} value={s}>{s}</option>)}
@@ -368,7 +368,7 @@ export default function LinxoTable({
         <select
           value={filterType}
           onChange={e => { setFilterType(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
           <option value="">Type (tous)</option>
           {[...TYPE_OPTIONS].sort().map(t => <option key={t} value={t}>{t}</option>)}
@@ -376,7 +376,7 @@ export default function LinxoTable({
         <select
           value={filterTenant}
           onChange={e => { setFilterTenant(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
           <option value="">Locataire (tous)</option>
           {tenantSelectGroups.map(g => (
@@ -388,7 +388,7 @@ export default function LinxoTable({
         <select
           value={filterValidated}
           onChange={e => { setFilterValidated(e.target.value as '' | 'true' | 'false'); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
           <option value="">Validé (tous)</option>
           <option value="true">Validées</option>
@@ -442,7 +442,7 @@ export default function LinxoTable({
                       type="checkbox"
                       checked={tx.validated}
                       onChange={e => patchRow(tx.id, { validated: e.target.checked })}
-                      className="accent-blue-primary w-4 h-4 cursor-pointer"
+                      className="accent-teal w-4 h-4 cursor-pointer"
                     />
                   </td>
                   <td className="px-3 py-2 text-gray-700 whitespace-nowrap text-xs">
@@ -539,7 +539,7 @@ export default function LinxoTable({
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={safePage === 1}
-              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Précédent
             </button>
@@ -559,8 +559,8 @@ export default function LinxoTable({
                     onClick={() => setPage(p as number)}
                     className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                       p === safePage
-                        ? 'border-blue-primary bg-blue-primary text-white'
-                        : 'border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary'
+                        ? 'border-teal bg-teal text-white'
+                        : 'border-gray-200 text-gray-600 hover:border-teal hover:text-teal'
                     }`}
                   >
                     {p}
@@ -570,7 +570,7 @@ export default function LinxoTable({
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={safePage === totalPages}
-              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Suivant
             </button>

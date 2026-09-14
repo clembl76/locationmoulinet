@@ -24,7 +24,7 @@ const ROOMS: string[] = [
 
 const CONDITIONS: string[] = ['Neuf', 'Bon état', "État d'usage", 'Mauvais état']
 
-const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30'
+const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30'
 
 // ─── Ligne item existant ───────────────────────────────────────────────────────
 
@@ -102,7 +102,7 @@ function InventoryItemRow({
         )}
         {row.item_reference_url && (
           <a href={row.item_reference_url} target="_blank" rel="noopener noreferrer"
-            className="text-xs text-blue-primary hover:underline mr-3">réf →</a>
+            className="text-xs text-teal hover:underline mr-3">réf →</a>
         )}
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
@@ -110,7 +110,7 @@ function InventoryItemRow({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-xs font-semibold bg-blue-primary text-white px-2.5 py-1 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50 mr-2"
+            className="text-xs font-semibold bg-gray-900 text-white px-2.5 py-1 rounded-full hover:bg-black transition-colors disabled:opacity-50 mr-2"
           >
             {saving ? '…' : 'Enregistrer'}
           </button>
@@ -231,7 +231,7 @@ function AddItemForm({
               <button
                 type="button"
                 onClick={() => setShowCreate(v => !v)}
-                className="mt-1.5 text-xs text-blue-primary hover:underline"
+                className="mt-1.5 text-xs text-teal hover:underline"
               >
                 {showCreate ? '▲ Annuler la création' : '+ Créer un nouvel item dans la bibliothèque'}
               </button>
@@ -301,7 +301,7 @@ function AddItemForm({
               {selected.labor_cost != null && <span><strong>Main d'œuvre :</strong> {selected.labor_cost} €</span>}
               {selected.reference_url && (
                 <a href={selected.reference_url} target="_blank" rel="noopener noreferrer"
-                  className="text-blue-primary hover:underline">Référence →</a>
+                  className="text-teal hover:underline">Référence →</a>
               )}
             </div>
           )}
@@ -329,7 +329,7 @@ function AddItemForm({
 
           <div className="flex gap-2">
             <button onClick={handleAdd} disabled={saving || !itemId}
-              className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50">
+              className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50">
               {saving ? 'Ajout…' : '+ Ajouter'}
             </button>
             <button onClick={onCancel} className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">
@@ -464,7 +464,7 @@ export default function InventoryManager({
           <select
             value={aptId}
             onChange={e => selectApartment(e.target.value)}
-            className="w-full sm:w-80 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+            className="w-full sm:w-80 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
           >
             <option value="">— Sélectionner un appartement —</option>
             {apartments.map(a => (
@@ -476,7 +476,7 @@ export default function InventoryManager({
           {aptId && (
             <button
               onClick={() => router.push(`/admin/inventory/edl-fige/${aptId}`)}
-              className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+              className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
             >
               Figer l&apos;EDL
             </button>
@@ -485,7 +485,7 @@ export default function InventoryManager({
             <button
               onClick={handleFillDefault}
               disabled={filling}
-              className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50"
+              className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50"
             >
               {filling ? 'Remplissage…' : 'Remplir par défaut'}
             </button>
@@ -513,7 +513,7 @@ export default function InventoryManager({
           <div className={`px-6 py-4 flex items-center justify-between ${inventoryOpen ? 'border-b border-gray-100' : ''}`}>
             <button
               onClick={() => setInventoryOpen(v => !v)}
-              className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-blue-primary transition-colors"
+              className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-teal transition-colors"
             >
               <span className="text-xs text-gray-400">{inventoryOpen ? '▼' : '▶'}</span>
               Inventaire
@@ -526,7 +526,7 @@ export default function InventoryManager({
             {inventoryOpen && (
               <button
                 onClick={() => setShowAddForm(v => !v)}
-                className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
               >
                 + Ajouter un item
               </button>
@@ -541,12 +541,12 @@ export default function InventoryManager({
                 placeholder="Filtrer par nom d'item…"
                 value={filterItem}
                 onChange={e => setFilterItem(e.target.value)}
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 w-full sm:w-52"
+                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 w-full sm:w-52"
               />
               <select
                 value={filterRoom}
                 onChange={e => setFilterRoom(e.target.value)}
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
               >
                 <option value="">Toutes les pièces</option>
                 {availableRooms.map(r => <option key={r} value={r}>{r}</option>)}
@@ -554,7 +554,7 @@ export default function InventoryManager({
               <select
                 value={filterCategory}
                 onChange={e => setFilterCategory(e.target.value)}
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
               >
                 <option value="">Toutes les catégories</option>
                 {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}

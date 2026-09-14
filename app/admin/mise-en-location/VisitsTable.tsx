@@ -90,7 +90,7 @@ export default function VisitsTable({ visits: initialVisits }: { visits: Letting
                   {v.first_name} {v.last_name.toUpperCase()}
                 </td>
                 <td className="px-4 py-3">
-                  <a href={`mailto:${v.email}`} className="text-blue-primary hover:underline text-xs block">
+                  <a href={`mailto:${v.email}`} className="text-teal hover:underline text-xs block">
                     {v.email}
                   </a>
                   {v.phone && <span className="text-gray-400 text-xs">{v.phone}</span>}

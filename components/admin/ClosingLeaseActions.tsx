@@ -60,7 +60,7 @@ export default function ClosingLeaseActions({
           id="edl-signed"
           checked={edlSigned}
           onChange={e => handleEdlChange(e.target.checked)}
-          className="accent-blue-primary w-4 h-4 cursor-pointer"
+          className="accent-teal w-4 h-4 cursor-pointer"
         />
         <label htmlFor="edl-signed" className="text-sm text-gray-700 cursor-pointer select-none">
           EDL signé
@@ -72,7 +72,7 @@ export default function ClosingLeaseActions({
           id="deposit-returned"
           checked={depositReturned}
           onChange={e => handleDepositChange(e.target.checked)}
-          className="accent-blue-primary w-4 h-4 cursor-pointer"
+          className="accent-teal w-4 h-4 cursor-pointer"
         />
         <label htmlFor="deposit-returned" className="text-sm text-gray-700 cursor-pointer select-none">
           Caution restituée
@@ -81,7 +81,7 @@ export default function ClosingLeaseActions({
       <button
         onClick={handleArchive}
         disabled={!edlSigned || !depositReturned}
-        className="w-full text-sm bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full text-sm bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Archiver
       </button>

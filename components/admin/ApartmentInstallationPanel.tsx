@@ -8,7 +8,7 @@ import {
 } from '@/app/admin/inventory/summaryActions'
 import type { EdlInstallation } from '@/lib/adminData'
 
-const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 w-full'
+const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 w-full'
 
 const METER_READINGS_TEMPLATE = `ELECTRICITE
 HC Été : KWh
@@ -97,7 +97,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
       <div className={`px-6 py-4 flex items-center justify-between ${open ? 'border-b border-gray-100' : ''}`}>
         <button
           onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-blue-primary transition-colors"
+          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-teal transition-colors"
         >
           <span className="text-xs text-gray-400">{open ? '▼' : '▶'}</span>
           Installations
@@ -105,7 +105,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
         {open && !loading && !editing && (
           <button
             onClick={startEdit}
-            className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+            className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
           >
             {hasValues ? 'Modifier' : '+ Ajouter'}
           </button>
@@ -146,7 +146,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50"
+                    className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50"
                   >
                     {saving ? 'Enregistrement…' : 'Enregistrer'}
                   </button>
@@ -192,7 +192,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
                     onClick={() => handleChargesTypeChange('forfait')}
                     className={`px-3 py-1.5 transition-colors ${
                       chargesType === 'forfait'
-                        ? 'bg-blue-primary text-white font-semibold'
+                        ? 'bg-gray-900 text-white font-semibold'
                         : 'bg-white text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -203,7 +203,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
                     onClick={() => handleChargesTypeChange('compteurs')}
                     className={`px-3 py-1.5 transition-colors border-l border-gray-200 ${
                       chargesType === 'compteurs'
-                        ? 'bg-blue-primary text-white font-semibold'
+                        ? 'bg-gray-900 text-white font-semibold'
                         : 'bg-white text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -220,7 +220,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
                   onChange={e => setMeterReadings(e.target.value)}
                   onBlur={handleMeterReadingsBlur}
                   rows={9}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal/30 resize-y"
                   placeholder={METER_READINGS_TEMPLATE}
                 />
               )}

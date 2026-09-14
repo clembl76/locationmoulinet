@@ -125,8 +125,8 @@ describe('EdlFigeView — toggle Entrée/Sortie', () => {
   it("le bouton Entrée est actif par défaut", () => {
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
-    expect(screen.getByRole('button', { name: 'Entrée' }).className).toContain('bg-blue-primary')
-    expect(screen.getByRole('button', { name: 'Sortie' }).className).not.toContain('bg-blue-primary')
+    expect(screen.getByRole('button', { name: 'Entrée' }).className).toContain('bg-gray-900')
+    expect(screen.getByRole('button', { name: 'Sortie' }).className).not.toContain('bg-gray-900')
   })
 
   it("bascule sur Sortie au clic", async () => {
@@ -134,8 +134,8 @@ describe('EdlFigeView — toggle Entrée/Sortie', () => {
     render(<EdlFigeView apt={apt} leaseDates={leaseDates} installation={installation}
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
     await user.click(screen.getByRole('button', { name: 'Sortie' }))
-    expect(screen.getByRole('button', { name: 'Sortie' }).className).toContain('bg-blue-primary')
-    expect(screen.getByRole('button', { name: 'Entrée' }).className).not.toContain('bg-blue-primary')
+    expect(screen.getByRole('button', { name: 'Sortie' }).className).toContain('bg-gray-900')
+    expect(screen.getByRole('button', { name: 'Entrée' }).className).not.toContain('bg-gray-900')
   })
 
   it("rebascule sur Entrée après double clic", async () => {
@@ -144,8 +144,8 @@ describe('EdlFigeView — toggle Entrée/Sortie', () => {
       keys={keys} inventory={inventory} surfaces={surfaces} header={null} />)
     await user.click(screen.getByRole('button', { name: 'Sortie' }))
     await user.click(screen.getByRole('button', { name: 'Entrée' }))
-    expect(screen.getByRole('button', { name: 'Entrée' }).className).toContain('bg-blue-primary')
-    expect(screen.getByRole('button', { name: 'Sortie' }).className).not.toContain('bg-blue-primary')
+    expect(screen.getByRole('button', { name: 'Entrée' }).className).toContain('bg-gray-900')
+    expect(screen.getByRole('button', { name: 'Sortie' }).className).not.toContain('bg-gray-900')
   })
 
   it("affiche la date de sortie en mode Sortie (sans header)", async () => {

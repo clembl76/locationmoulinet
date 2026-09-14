@@ -31,7 +31,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       type="button"
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-        checked ? 'bg-blue-primary' : 'bg-gray-200'
+        checked ? 'bg-teal' : 'bg-gray-200'
       }`}
     >
       <span
@@ -43,7 +43,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   )
 }
 
-const inputCls = 'border border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary'
+const inputCls = 'border border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal'
 
 // ─── DayRow ───────────────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ function DayRow({ dayOfWeek, rules }: { dayOfWeek: number; rules: VisitAvailabil
         <div className="flex-1 space-y-2">
           {rules.map(rule => (
             <div key={rule.id} className="flex items-center gap-2 text-sm">
-              <span className="bg-blue-light text-blue-dark px-3 py-1 rounded-lg font-medium">
+              <span className="bg-teal/10 text-teal px-3 py-1 rounded-lg font-medium">
                 {rule.start_time.slice(0, 5)} — {rule.end_time.slice(0, 5)}
               </span>
               <button
@@ -100,7 +100,7 @@ function DayRow({ dayOfWeek, rules }: { dayOfWeek: number; rules: VisitAvailabil
               type="button"
               onClick={handleAdd}
               disabled={adding || !start || !end || start >= end}
-              className="text-sm text-blue-primary hover:text-blue-dark font-medium disabled:opacity-40 transition-colors"
+              className="text-sm text-teal hover:text-gray-900 font-medium disabled:opacity-40 transition-colors"
             >
               + Ajouter
             </button>
@@ -186,7 +186,7 @@ function ExceptionsPanel({ exceptions }: { exceptions: VisitAvailabilityExceptio
           type="button"
           onClick={handleAdd}
           disabled={adding || !date || (startTime && !endTime) || (!startTime && !!endTime) || (!!startTime && !!endTime && startTime >= endTime) ? true : false}
-          className="text-sm text-blue-primary hover:text-blue-dark font-medium disabled:opacity-40 transition-colors"
+          className="text-sm text-teal hover:text-gray-900 font-medium disabled:opacity-40 transition-colors"
         >
           + Ajouter
         </button>
@@ -244,7 +244,7 @@ function ContactPanel({ settings }: { settings: VisitSettings }) {
         <button
           type="button"
           onClick={handleSave}
-          className="text-sm bg-blue-primary text-white px-4 py-1.5 rounded-lg hover:bg-blue-dark transition-colors"
+          className="text-sm bg-gray-900 text-white px-4 py-1.5 rounded-full hover:bg-black transition-colors"
         >
           Enregistrer
         </button>

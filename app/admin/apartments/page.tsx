@@ -52,7 +52,7 @@ export default async function AdminApartmentsPage({
                     key={fl.lease_id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-5 py-3 font-bold text-blue-dark">
+                    <td className="px-5 py-3 font-bold text-gray-900">
                       <a href={`/admin/apartments/${fl.apartment_number}?lease=${fl.lease_id}`} className="block">
                         {fl.apartment_number}
                       </a>
@@ -99,7 +99,7 @@ export default async function AdminApartmentsPage({
                     key={cl.lease_id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-5 py-3 font-bold text-blue-dark">
+                    <td className="px-5 py-3 font-bold text-gray-900">
                       <a href={`/admin/apartments/${cl.apartment_number}?lease=${cl.lease_id}`} className="block">
                         {cl.apartment_number}
                       </a>

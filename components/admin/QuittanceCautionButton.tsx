@@ -45,7 +45,7 @@ export default function QuittanceCautionButton({
       <button
         onClick={handleClick}
         disabled={pending}
-        className="w-full text-left text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {pending ? 'Génération en cours…' : 'Quittance de caution'}
       </button>

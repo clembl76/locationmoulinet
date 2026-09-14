@@ -36,7 +36,7 @@ export default function ListingPublishedCheckbox({
         id="listing-published"
         checked={checked}
         onChange={e => handleChange(e.target.checked)}
-        className="accent-blue-primary w-4 h-4 cursor-pointer"
+        className="accent-teal w-4 h-4 cursor-pointer"
       />
       <label htmlFor="listing-published" className="text-sm text-gray-700 cursor-pointer select-none">
         Annonce de relocation publiée

@@ -54,7 +54,7 @@ export default function DepositPaidCheckbox({
             id="deposit-paid"
             checked={paid}
             onChange={e => handleChange(e.target.checked)}
-            className="accent-blue-primary w-4 h-4 cursor-pointer"
+            className="accent-teal w-4 h-4 cursor-pointer"
           />
           <label htmlFor="deposit-paid" className="text-sm text-gray-700 cursor-pointer select-none">
             Caution payée ?

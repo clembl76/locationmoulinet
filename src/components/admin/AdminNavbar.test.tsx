@@ -1,7 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import AdminNavbar from '@/components/admin/AdminNavbar'
+
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/admin/apartments'),
+}))
+
+const { default: AdminNavbar } = await import('@/components/admin/AdminNavbar')
+const { usePathname } = await import('next/navigation')
 
 describe('AdminNavbar — rôle admin', () => {
   it('affiche tous les liens de navigation', () => {
@@ -42,6 +48,29 @@ describe('AdminNavbar — rôle viewer', () => {
   it('affiche le badge "Lecture seule"', () => {
     render(<AdminNavbar role="viewer" />)
     expect(screen.getByText(/lecture seule/i)).toBeInTheDocument()
+  })
+})
+
+describe('AdminNavbar — lien actif', () => {
+  it('met en évidence "Appartements" quand on est sur /admin/apartments', () => {
+    vi.mocked(usePathname).mockReturnValue('/admin/apartments')
+    render(<AdminNavbar role="admin" />)
+    const links = screen.getAllByText('Appartements')
+    expect(links[0].className).toContain('border-teal')
+  })
+
+  it('ne met pas "Tableau de bord" en évidence quand on est sur /admin/apartments', () => {
+    vi.mocked(usePathname).mockReturnValue('/admin/apartments')
+    render(<AdminNavbar role="admin" />)
+    const links = screen.getAllByText('Tableau de bord')
+    expect(links[0].className).not.toContain('border-teal')
+  })
+
+  it('met en évidence "Tableau de bord" quand on est sur /admin', () => {
+    vi.mocked(usePathname).mockReturnValue('/admin')
+    render(<AdminNavbar role="admin" />)
+    const links = screen.getAllByText('Tableau de bord')
+    expect(links[0].className).toContain('border-teal')
   })
 })
 

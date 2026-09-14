@@ -87,7 +87,7 @@ export default function LettingTable({
                     {apt.status === 'available' ? 'Maintenant' : fmtDate(apt.available_from)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-semibold ${Number(apt.visit_count) > 0 ? 'text-blue-primary' : 'text-gray-300'}`}>
+                    <span className={`text-sm font-semibold ${Number(apt.visit_count) > 0 ? 'text-teal' : 'text-gray-300'}`}>
                       {apt.visit_count}
                     </span>
                   </td>
@@ -128,7 +128,7 @@ export default function LettingTable({
                               </td>
                               <td className="px-4 py-2.5">
                                 {c.email && (
-                                  <a href={`mailto:${c.email}`} className="text-blue-primary hover:underline text-xs block" onClick={e => e.stopPropagation()}>
+                                  <a href={`mailto:${c.email}`} className="text-teal hover:underline text-xs block" onClick={e => e.stopPropagation()}>
                                     {c.email}
                                   </a>
                                 )}
@@ -154,7 +154,7 @@ export default function LettingTable({
                               <td className="px-4 py-2.5">
                                 <a
                                   href={`/admin/mise-en-location/candidats/${c.application_id}`}
-                                  className="text-xs text-blue-primary hover:underline whitespace-nowrap"
+                                  className="text-xs text-teal hover:underline whitespace-nowrap"
                                   onClick={e => e.stopPropagation()}
                                 >
                                   Détail →

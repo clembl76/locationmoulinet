@@ -52,7 +52,7 @@ function CollapsibleSection({
         <button
           type="button"
           onClick={onToggle}
-          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-blue-primary transition-colors"
+          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-teal transition-colors"
         >
           <span className="text-xs text-gray-400">{open ? '▼' : '▶'}</span>
           {title}
@@ -86,7 +86,7 @@ function NotesExitCell({ row }: { row: InventoryRow }) {
         onBlur={handleBlur}
         rows={2}
         placeholder="Commentaire sortie…"
-        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-primary/40 ${printTextareaCls} ${saving ? 'opacity-50' : ''}`}
+        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-teal/40 ${printTextareaCls} ${saving ? 'opacity-50' : ''}`}
       />
     </td>
   )
@@ -114,7 +114,7 @@ function SurfaceNotesExitCell({ row }: { row: SurfaceRow }) {
         onBlur={handleBlur}
         rows={2}
         placeholder="Commentaire sortie…"
-        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-primary/40 ${printTextareaCls} ${saving ? 'opacity-50' : ''}`}
+        className={`w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-teal/40 ${printTextareaCls} ${saving ? 'opacity-50' : ''}`}
       />
     </td>
   )
@@ -149,7 +149,7 @@ function ChargesSection({
         onChange={e => setDraft(e.target.value)}
         onBlur={handleBlur}
         rows={chargesType === 'compteurs' ? 9 : 2}
-        className={`mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y ${printTextareaCls}`}
+        className={`mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal/30 resize-y ${printTextareaCls}`}
         placeholder={chargesType === 'forfait' ? 'Charges au forfait, aucun relevé des compteurs.' : 'Relevé des compteurs…'}
       />
     </div>
@@ -309,7 +309,7 @@ function EdlFooter({
               onChange={e => setDepositNotes(e.target.value)}
               onBlur={handleDepositBlur}
               rows={4}
-              className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y ${printTextareaCls}`}
+              className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 resize-y ${printTextareaCls}`}
               placeholder="Commentaires, réserves…"
             />
           </div>
@@ -321,7 +321,7 @@ function EdlFooter({
               onChange={e => setTenantNotesExit(e.target.value)}
               onBlur={handleTenantBlur}
               rows={4}
-              className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 resize-y ${printTextareaCls}`}
+              className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 resize-y ${printTextareaCls}`}
               placeholder="Commentaires ou réserves du locataire…"
             />
           </div>
@@ -415,7 +415,7 @@ export default function EdlFigeView({
                 onClick={() => setEdlType('entree')}
                 className={`px-4 py-2 transition-colors ${
                   edlType === 'entree'
-                    ? 'bg-blue-primary text-white font-semibold'
+                    ? 'bg-gray-900 text-white font-semibold'
                     : 'bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
@@ -426,7 +426,7 @@ export default function EdlFigeView({
                 onClick={() => setEdlType('sortie')}
                 className={`px-4 py-2 transition-colors border-l border-gray-200 ${
                   edlType === 'sortie'
-                    ? 'bg-blue-primary text-white font-semibold'
+                    ? 'bg-gray-900 text-white font-semibold'
                     : 'bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
@@ -439,7 +439,7 @@ export default function EdlFigeView({
               type="button"
               onClick={handleGeneratePdf}
               disabled={pdfPending}
-              className="px-4 py-2 rounded-lg bg-blue-primary text-white text-sm font-semibold hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {pdfPending ? 'Enregistrement…' : 'Générer le pdf'}
             </button>

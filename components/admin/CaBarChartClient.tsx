@@ -76,7 +76,7 @@ export default function CaBarChartClient({
       <div className="flex items-baseline justify-between mb-4">
         <p className="text-xs text-gray-400">
           YTD{' '}:{' '}
-          <span className="text-blue-dark font-semibold text-sm">{fmtEur(ytd)}</span>
+          <span className="text-gray-900 font-semibold text-sm">{fmtEur(ytd)}</span>
           <span className="ml-1 text-gray-300">({mode === 'cc' ? 'CC' : 'HC'})</span>
         </p>
         {buildings.length > 1 && (

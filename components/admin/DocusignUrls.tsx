@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { updateDocusignUrlsAction } from '@/app/admin/apartments/[number]/actions'
 
-const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary'
+const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal'
 
 const DOCUSIGN_BASE = 'https://apps.docusign.com/send/documents/details/'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -71,7 +71,7 @@ export default function DocusignUrls({
         />
         {leaseHref && (
           <a href={leaseHref} target="_blank" rel="noopener noreferrer"
-            className="block text-xs text-blue-primary hover:text-blue-dark underline underline-offset-2 truncate">
+            className="block text-xs text-teal hover:text-gray-900 underline underline-offset-2 truncate">
             Bail signé sur Docusign →
           </a>
         )}
@@ -87,7 +87,7 @@ export default function DocusignUrls({
         />
         {edlHref && (
           <a href={edlHref} target="_blank" rel="noopener noreferrer"
-            className="block text-xs text-blue-primary hover:text-blue-dark underline underline-offset-2 truncate">
+            className="block text-xs text-teal hover:text-gray-900 underline underline-offset-2 truncate">
             EDL Entrée sur Docusign →
           </a>
         )}
@@ -97,7 +97,7 @@ export default function DocusignUrls({
         <button
           type="button"
           onClick={handleSave}
-          className="text-sm bg-blue-primary text-white px-3 py-1.5 rounded-lg hover:bg-blue-dark transition-colors"
+          className="text-sm bg-gray-900 text-white px-3 py-1.5 rounded-full hover:bg-black transition-colors"
         >
           Enregistrer
         </button>

@@ -71,23 +71,23 @@ export default async function AdminApartmentDetailPage({
 
       <div className="flex items-center gap-3 flex-wrap">
         <h1 className="text-2xl font-bold text-gray-900">
-          <a href={`/apartments/${apt.number}`} className="hover:text-blue-primary transition-colors">
+          <a href={`/apartments/${apt.number}`} className="hover:text-teal transition-colors">
             Appartement {apt.number}
           </a>
         </h1>
         <span className="text-sm text-gray-400">{apt.building_short_name} · {apt.surface_area} m²</span>
         {isArchived && (
-          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-gray-50 text-gray-500 border-gray-200">
+          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-full border bg-gray-50 text-gray-500 border-gray-200">
             Archivé
           </div>
         )}
         {isClosing && (
-          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-orange-50 text-orange-700 border-orange-200">
+          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-full border bg-orange-50 text-orange-700 border-orange-200">
             En cours de clôture
           </div>
         )}
         {!isArchived && !isClosing && apt.move_out_date && (
-          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-xl border bg-amber-50 text-amber-700 border-amber-200">
+          <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-full border bg-amber-50 text-amber-700 border-amber-200">
             Départ prévu
           </div>
         )}
@@ -109,7 +109,7 @@ export default async function AdminApartmentDetailPage({
             {hasTenant ? (
               <>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-light flex items-center justify-center text-blue-primary font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center text-teal font-bold text-sm">
                     {(apt.tenant_first_name?.[0] ?? '') + (apt.tenant_last_name?.[0] ?? '')}
                   </div>
                   <div>
@@ -158,7 +158,7 @@ export default async function AdminApartmentDetailPage({
                 {!isArchived && (
                   <a
                     href={`/admin/apartments/${apt.number}/nouveau-bail`}
-                    className="inline-block bg-blue-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                    className="inline-block bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-black transition-colors"
                   >
                     + Créer un bail
                   </a>
@@ -241,7 +241,7 @@ export default async function AdminApartmentDetailPage({
               ) : rentRecord ? (
                 <>
                   <div className="mb-3">
-                    <p className="text-2xl font-bold text-blue-dark">{rentRecord.amount_expected} €</p>
+                    <p className="text-2xl font-bold text-gray-900">{rentRecord.amount_expected} €</p>
                     {rentRecord.is_prorata && rentRecord.prorata_days != null && (
                       <p className="text-xs text-amber-600 mt-0.5">
                         Prorata : {rentRecord.prorata_days} j sur {rentRecord.days_in_month} j
@@ -251,7 +251,7 @@ export default async function AdminApartmentDetailPage({
                   </div>
                   {rentRecord.amount_received != null ? (
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-green-600 font-bold">✓</span>
+                      <svg className="w-4 h-4 text-green-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path d="M20 6L9 17l-5-5"/></svg>
                       <span className="text-green-700 font-semibold text-sm">
                         Encaissé — {rentRecord.amount_received} €
                         {rentRecord.received_at && (
@@ -263,7 +263,7 @@ export default async function AdminApartmentDetailPage({
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-red-500 font-bold">✗</span>
+                      <svg className="w-4 h-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path d="M6 6l12 12M18 6L6 18"/></svg>
                       <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
                     </div>
                   )}
@@ -282,12 +282,12 @@ export default async function AdminApartmentDetailPage({
                 <>
                   {apt.paid_this_month ? (
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-green-600 font-bold">✓</span>
+                      <svg className="w-4 h-4 text-green-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path d="M20 6L9 17l-5-5"/></svg>
                       <span className="text-green-700 font-semibold text-sm">Encaissé (via transactions)</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-red-500 font-bold">✗</span>
+                      <svg className="w-4 h-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path d="M6 6l12 12M18 6L6 18"/></svg>
                       <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
                     </div>
                   )}
@@ -304,7 +304,7 @@ export default async function AdminApartmentDetailPage({
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Loyer</p>
             <InfoRow label="Hors charges" value={apt.rent_excluding_charges ? `${apt.rent_excluding_charges} €` : null} />
             <InfoRow label="Charges" value={apt.charges ? `${apt.charges} €` : null} />
-            <InfoRow label="Total CC" value={<span className="font-bold text-blue-dark">{apt.rent_including_charges} €</span>} />
+            <InfoRow label="Total CC" value={<span className="font-bold text-gray-900">{apt.rent_including_charges} €</span>} />
           </div>
 
           {/* Actions clôture */}
@@ -360,7 +360,7 @@ export default async function AdminApartmentDetailPage({
                     href={driveLeaseUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                    className="block text-sm text-teal hover:text-gray-900 underline underline-offset-2"
                   >
                     Ouvrir le bail sur Google Drive →
                   </a>
@@ -397,7 +397,7 @@ export default async function AdminApartmentDetailPage({
                   href={apt.lease_docusign_lease_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                  className="block text-sm text-teal hover:text-gray-900 underline underline-offset-2"
                 >
                   Bail sur Docusign →
                 </a>
@@ -411,7 +411,7 @@ export default async function AdminApartmentDetailPage({
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
               <a
                 href={`/admin/inventory?apt=${apt.id}`}
-                className="w-full block text-center text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+                className="w-full block text-center text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors"
               >
                 Voir l&apos;EDL/Inventaire
               </a>
@@ -426,7 +426,7 @@ export default async function AdminApartmentDetailPage({
                   href={driveEdlUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                  className="block text-sm text-teal hover:text-gray-900 underline underline-offset-2"
                 >
                   Ouvrir l&apos;EDL d&apos;entrée sur Google Drive →
                 </a>
@@ -436,7 +436,7 @@ export default async function AdminApartmentDetailPage({
                   href={apt.lease_docusign_edl_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-sm text-blue-primary hover:text-blue-dark underline underline-offset-2"
+                  className="block text-sm text-teal hover:text-gray-900 underline underline-offset-2"
                 >
                   EDL Entrée sur Docusign →
                 </a>

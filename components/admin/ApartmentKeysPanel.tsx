@@ -10,7 +10,7 @@ import {
 } from '@/app/admin/inventory/keysActions'
 import type { EdlKey } from '@/lib/adminData'
 
-const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30'
+const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30'
 
 function KeyQuantityInput({ value, onSave }: { value: number; onSave: (v: number) => void }) {
   const [draft, setDraft] = useState(String(value))
@@ -26,7 +26,7 @@ function KeyQuantityInput({ value, onSave }: { value: number; onSave: (v: number
         setDraft(String(v))
         onSave(v)
       }}
-      className="w-16 text-right text-sm text-gray-700 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-primary focus:outline-none py-0.5"
+      className="w-16 text-right text-sm text-gray-700 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-teal focus:outline-none py-0.5"
     />
   )
 }
@@ -84,7 +84,7 @@ export default function ApartmentKeysPanel({ apartmentId }: { apartmentId: strin
       <div className={`px-6 py-4 flex items-center justify-between ${open ? 'border-b border-gray-100' : ''}`}>
         <button
           onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-blue-primary transition-colors"
+          className="flex items-center gap-2 text-base font-semibold text-gray-900 hover:text-teal transition-colors"
         >
           <span className="text-xs text-gray-400">{open ? '▼' : '▶'}</span>
           Clés
@@ -97,7 +97,7 @@ export default function ApartmentKeysPanel({ apartmentId }: { apartmentId: strin
         {open && (
           <button
             onClick={() => setShowForm(v => !v)}
-            className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+            className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
           >
             + Ajouter
           </button>
@@ -138,7 +138,7 @@ export default function ApartmentKeysPanel({ apartmentId }: { apartmentId: strin
                   <button
                     onClick={handleAdd}
                     disabled={adding || !selectedType}
-                    className="text-sm font-semibold bg-blue-primary text-white px-4 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50"
+                    className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50"
                   >
                     {adding ? 'Ajout…' : '+ Ajouter'}
                   </button>

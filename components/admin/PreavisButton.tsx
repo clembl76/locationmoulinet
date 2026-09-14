@@ -45,7 +45,7 @@ export default function PreavisButton({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left text-sm font-semibold bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark transition-colors"
+        className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors"
       >
         Saisir un préavis de départ
       </button>
@@ -60,7 +60,7 @@ export default function PreavisButton({
         value={date}
         onChange={e => setDate(e.target.value)}
         required
-        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal"
       />
       {result && !result.ok && (
         <p className="text-xs text-red-500">{result.error}</p>
@@ -69,7 +69,7 @@ export default function PreavisButton({
         <button
           type="submit"
           disabled={pending || !date}
-          className="flex-1 text-sm font-semibold bg-blue-primary text-white px-3 py-1.5 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50"
+          className="flex-1 text-sm font-semibold bg-gray-900 text-white px-3 py-1.5 rounded-full hover:bg-black transition-colors disabled:opacity-50"
         >
           {pending ? 'Enregistrement…' : 'Confirmer'}
         </button>

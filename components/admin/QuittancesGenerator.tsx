@@ -78,7 +78,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
               setLeaseId(e.target.value)
               setAptNumber(apt?.apartment_number ?? '')
             }}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
           >
             {apartments.map(a => (
               <option key={a.lease_id} value={a.lease_id}>
@@ -95,7 +95,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
           <select
             value={year}
             onChange={e => setYear(Number(e.target.value))}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30"
           >
             {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -107,7 +107,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Mois</span>
           {rents.length > 0 && (
-            <button onClick={toggleAll} className="text-xs text-blue-primary hover:underline">
+            <button onClick={toggleAll} className="text-xs text-teal hover:underline">
               {selected.size === rents.length ? 'Désélectionner tout' : 'Tout sélectionner'}
             </button>
           )}
@@ -137,14 +137,14 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
                   className={[
                     'text-left px-3 py-2.5 rounded-xl border text-sm transition-all',
                     isSelected
-                      ? 'border-blue-primary bg-blue-light text-blue-dark'
-                      : 'border-gray-100 bg-gray-50 text-gray-700 hover:border-blue-primary/40',
+                      ? 'border-teal bg-teal/10 text-teal'
+                      : 'border-gray-100 bg-gray-50 text-gray-700 hover:border-teal/40',
                     monthResult?.ok === true ? 'border-green-300 bg-green-50' : '',
                     monthResult?.ok === false ? 'border-red-200 bg-red-50' : '',
                   ].join(' ')}
                 >
                   <p className="font-medium">{MONTHS_FULL[r.month - 1]}</p>
-                  <p className={`text-xs mt-0.5 ${isSelected ? 'text-blue-primary' : 'text-gray-400'}`}>
+                  <p className={`text-xs mt-0.5 ${isSelected ? 'text-teal' : 'text-gray-400'}`}>
                     {fmtAmount(r)}
                   </p>
                   {monthResult?.ok === true && (
@@ -164,7 +164,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
       <button
         onClick={handleGenerate}
         disabled={selected.size === 0 || pending}
-        className="w-full bg-blue-primary text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {pending
           ? 'Génération en cours…'

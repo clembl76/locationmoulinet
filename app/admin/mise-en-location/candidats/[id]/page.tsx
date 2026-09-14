@@ -80,7 +80,7 @@ export default async function CandidateDetailPage({
       <div className="flex items-start justify-between">
         <div>
           <a href="/admin/mise-en-location"
-            className="text-sm text-blue-primary hover:underline mb-2 block">
+            className="text-sm text-teal hover:underline mb-2 block">
             ← Mise en location
           </a>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -231,7 +231,7 @@ export default async function CandidateDetailPage({
                         <li key={i} className="text-sm">
                           {doc.drive_url ? (
                             <a href={doc.drive_url} target="_blank" rel="noopener noreferrer"
-                              className="text-blue-primary hover:underline flex items-center gap-1.5">
+                              className="text-teal hover:underline flex items-center gap-1.5">
                               <span className="text-gray-300 text-xs">📄</span>
                               <span className="truncate">{doc.file_name || 'Document'}</span>
                             </a>
@@ -254,7 +254,7 @@ export default async function CandidateDetailPage({
                         <li key={i} className="text-sm">
                           {doc.drive_url ? (
                             <a href={doc.drive_url} target="_blank" rel="noopener noreferrer"
-                              className="text-blue-primary hover:underline flex items-center gap-1.5">
+                              className="text-teal hover:underline flex items-center gap-1.5">
                               <span className="text-gray-300 text-xs">📄</span>
                               <span className="truncate">{doc.file_name || 'Document'}</span>
                             </a>

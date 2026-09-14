@@ -56,7 +56,7 @@ function Toggle({
 
 function SortArrow({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
   if (col !== sortKey) return <span className="text-gray-200 ml-1">↕</span>
-  return <span className="text-blue-primary ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
+  return <span className="text-teal ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -150,21 +150,20 @@ export default function ApartmentsClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Appartements</h1>
+      <div className="flex items-center justify-end">
         <span className="text-sm text-gray-400">{displayed.length} / {apartments.length}</span>
       </div>
 
       {/* Filtres */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Occupation</span>
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-28 shrink-0">Occupation</span>
           <Toggle active={occupation.has('loue')} onClick={() => toggleOcc('loue')} colorCls="bg-blue-50 text-blue-700 border-blue-200">Loué</Toggle>
           <Toggle active={occupation.has('disponible')} onClick={() => toggleOcc('disponible')} colorCls="bg-green-50 text-green-700 border-green-200">Disponible</Toggle>
           <Toggle active={occupation.has('depart')} onClick={() => toggleOcc('depart')} colorCls="bg-amber-50 text-amber-700 border-amber-200">Départ prévu</Toggle>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Loyer {mois}</span>
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider w-28 shrink-0">Loyer {mois}</span>
           <Toggle active={payment.has('encaisse')} onClick={() => togglePay('encaisse')} colorCls="bg-green-50 text-green-700 border-green-200">Encaissé</Toggle>
           <Toggle active={payment.has('non_encaisse')} onClick={() => togglePay('non_encaisse')} colorCls="bg-red-50 text-red-600 border-red-200">Non encaissé</Toggle>
         </div>
@@ -205,7 +204,7 @@ export default function ApartmentsClient({
                 onClick={() => router.push(`/admin/apartments/${apt.number}`)}
                 className="hover:bg-gray-50 transition-colors cursor-pointer"
               >
-                <td className="px-5 py-3 font-bold text-blue-dark">{apt.number}</td>
+                <td className="px-5 py-3 font-bold text-gray-900">{apt.number}</td>
                 <td className="px-5 py-3 text-gray-700">
                   {apt.tenant_last_name
                     ? `${apt.tenant_first_name ?? ''} ${apt.tenant_last_name}`.trim()

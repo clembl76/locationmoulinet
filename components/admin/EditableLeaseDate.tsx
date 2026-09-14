@@ -62,7 +62,7 @@ export default function EditableLeaseDate({
           if (e.key === 'Escape') setEditing(false)
         }}
         disabled={pending}
-        className="border border-gray-200 rounded px-1.5 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-primary/40"
+        className="border border-gray-200 rounded px-1.5 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-teal/40"
       />
     )
   }

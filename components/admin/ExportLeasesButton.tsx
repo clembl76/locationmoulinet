@@ -12,7 +12,7 @@ export default function ExportLeasesButton({ currentYear }: { currentYear: numbe
       <select
         value={year}
         onChange={e => setYear(Number(e.target.value))}
-        className="text-xs border border-gray-200 rounded-lg px-2 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-primary/30"
+        className="text-xs border border-gray-200 rounded-lg px-2 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal/30"
       >
         {years.map(y => (
           <option key={y} value={y}>{y}</option>
@@ -21,7 +21,7 @@ export default function ExportLeasesButton({ currentYear }: { currentYear: numbe
       <a
         href={`/api/admin/export-leases?year=${year}`}
         download
-        className="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-600 hover:border-blue-primary hover:text-blue-primary transition-colors"
+        className="text-xs font-medium px-3 py-1 rounded-full border border-gray-200 text-gray-600 hover:border-teal hover:text-teal transition-colors"
       >
         Exporter CSV
       </a>

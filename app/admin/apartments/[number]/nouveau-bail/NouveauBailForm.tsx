@@ -35,9 +35,9 @@ function Field({
 }
 
 const inputCls =
-  'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary w-full'
+  'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal w-full'
 const selectCls =
-  'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-primary/30 focus:border-blue-primary w-full bg-white'
+  'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal w-full bg-white'
 
 export default function NouveauBailForm({ aptNumber }: { aptNumber: string }) {
   const [isPending, startTransition] = useTransition()
@@ -221,7 +221,7 @@ export default function NouveauBailForm({ aptNumber }: { aptNumber: string }) {
               type="checkbox"
               checked={hasGuarantor}
               onChange={e => setHasGuarantor(e.target.checked)}
-              className="accent-blue-primary"
+              className="accent-teal"
             />
             Ajouter un garant
           </label>
@@ -274,7 +274,7 @@ export default function NouveauBailForm({ aptNumber }: { aptNumber: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="bg-blue-primary text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gray-900 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? 'Enregistrement…' : 'Créer le bail'}
         </button>

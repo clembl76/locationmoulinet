@@ -151,7 +151,7 @@ export default function MoisLoyersClient({
         {/* CA encaissé */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">CA encaissé — {mois}</p>
-          <p className="text-3xl font-bold text-blue-dark">{caFormatted}</p>
+          <p className="text-3xl font-bold text-gray-900">{caFormatted}</p>
           <p className="text-xs text-gray-400 mt-1">
             {pie.countPaid} locataire{pie.countPaid !== 1 ? 's' : ''} ont payé
           </p>
@@ -192,7 +192,7 @@ export default function MoisLoyersClient({
             </div>
             <a
               href="/admin/apartments"
-              className="ml-auto text-xs text-blue-primary hover:underline flex-shrink-0"
+              className="ml-auto text-xs text-teal hover:underline flex-shrink-0"
             >
               Voir les appartements →
             </a>
