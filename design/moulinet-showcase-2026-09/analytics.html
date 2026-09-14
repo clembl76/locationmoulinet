@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immeuble Moulinet — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="sheet">
+
+    <div class="page-nav">
+      <a href="index.html">Fonctionnalités</a>
+      <a class="active" href="analytics.html">Analytics</a>
+    </div>
+
+    <div class="eyebrow">Fiche patrimoine — immeuble Moulinet</div>
+    <h1>9 rue du Moulinet <span class="address-en">— Rouen</span></h1>
+    <div class="masthead-meta">
+      <span>18 studios meublés · location étudiante</span>
+      <span>Propriétaire-bailleur indépendant depuis <strong>juin 2017</strong></span>
+    </div>
+
+    <div class="kpi-section">
+      <p class="section-label">Depuis l'acquisition — juin 2017 → sept. 2026</p>
+      <div class="kpi-grid">
+
+        <div class="kpi">
+          <div class="kpi-value num">803 521 <span class="unit">€</span></div>
+          <div class="kpi-label">CA TCC encaissé</div>
+          <div class="kpi-caption">loyers toutes charges comprises — réalisé 2017-2025 + estimation 2026</div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value num">129</div>
+          <div class="kpi-label">Locataires accueillis</div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value num">372 900 <span class="unit">€</span></div>
+          <div class="kpi-label">Travaux &amp; entretien</div>
+          <div class="kpi-caption">travaux structurels + rénovations intérieures + maintenance courante</div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value num">14 <span class="unit">mois</span></div>
+          <div class="kpi-label">Durée moyenne d'occupation</div>
+          <div class="kpi-caption">public étudiant, en cours inclus</div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value num">66 <span class="unit">%</span></div>
+          <div class="kpi-label">Turnover annuel moyen</div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value num">21,9 <span class="unit">ans</span></div>
+          <div class="kpi-label">Âge médian des locataires</div>
+          <div class="kpi-caption">à l'entrée dans les lieux — donnée renseignée pour 125 locataires</div>
+        </div>
+
+        <div class="kpi wide">
+          <div class="kpi-value num">2 921</div>
+          <div class="kpi-label">Documents/Mails générés</div>
+          <div class="kpi-caption">(baux, états des lieux, quittances...)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <p class="section-label">Recettes, occupation et travaux par année</p>
+      <div class="chart-card">
+        <div class="chart-head">
+          <span class="chart-title">Trajectoire de l'immeuble — 2017 → 2026</span>
+          <span class="chart-total">cumul loyers : <span class="num">803 521 €</span></span>
+        </div>
+        <div id="chart-wrap">
+          <svg id="chart" viewBox="0 0 860 545" role="img" aria-label="Taux d'occupation, turnover, et loyers charges comprises contre travaux par année, de 2017 à 2026"></svg>
+          <div id="tooltip"></div>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch-bar" style="background:var(--accent)"></span>loyers encaissés (CA)</span>
+          <span class="legend-item"><span class="legend-swatch-bar" style="background:var(--amber)"></span>travaux &amp; entretien</span>
+          <span class="legend-item"><span class="legend-swatch-line" style="background:var(--accent)"></span>taux d'occupation</span>
+          <span class="legend-item"><span class="legend-swatch-line" style="background:var(--amber)"></span>turnover annuel</span>
+          <span class="legend-item"><span class="legend-swatch-dash"></span>donnée partielle ou estimée</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bio-section">
+      <p class="section-label">Analyse</p>
+      <div class="bio-card">
+        <p class="bio-lead">Synthèse de l'évolution de l'immeuble Moulinet - 2017-2026</p>
+        <p class="bio-text">Le temps de gestion administrative et de syndic a fortement diminué depuis l'acquisition grâce à :</p>
+        <ul class="bio-list">
+          <li>la digitalisation complète des processus de gestion locative</li>
+          <li>des investissements stratégiques les 4 premières années qui ont réduit les charges de syndic et amélioré la satisfaction des locataires</li>
+          <li>le dégagement d'un budget alloué à la maintenance préventive et à l'embellissement pour attirer un public plus fidèle et avec moins d'impayés</li>
+        </ul>
+        <p class="bio-text">Le résultat est un taux d'occupation ainsi qu'un chiffre d'affaires stable, en parallèle d'une diminution progressive du turnover.</p>
+      </div>
+    </div>
+
+    <footer class="page-foot">
+      <span>Location Moulinet · Rouen — voir aussi les <a href="index.html">Fonctionnalités du logiciel →</a></span>
+      <span>Données arrêtées au 11/09/2026 - Immeuble Moulinet uniquement</span>
+    </footer>
+
+</div>
+
+<script>
+(function(){
+  var revenue = [
+    {year:'2017', value:33875,  partial:true,  note:'achat en juin — ~6 mois'},
+    {year:'2018', value:74070,  partial:false},
+    {year:'2019', value:65405,  partial:false},
+    {year:'2020', value:65394,  partial:false},
+    {year:'2021', value:92842,  partial:false},
+    {year:'2022', value:112132, partial:false},
+    {year:'2023', value:94505,  partial:false},
+    {year:'2024', value:91482,  partial:false},
+    {year:'2025', value:82419,  partial:false},
+    {year:'2026', value:91397,  partial:true,  note:'estimation annuelle'}
+  ];
+  var occupancy = [
+    {year:'2017', value:80.0, partial:true,  note:'achat en juin — ~6 mois'},
+    {year:'2018', value:89.0, partial:false},
+    {year:'2019', value:61.0, partial:false},
+    {year:'2020', value:66.0, partial:false},
+    {year:'2021', value:85.0, partial:false},
+    {year:'2022', value:88.0, partial:false},
+    {year:'2023', value:82.0, partial:false},
+    {year:'2024', value:80.0, partial:false},
+    {year:'2025', value:75.0, partial:false},
+    {year:'2026', value:77.8, partial:true,  note:'estimation : 1 studio vacant, aucun départ oct.–déc.'}
+  ];
+  var turnover = [
+    {year:'2017', value:45.0, partial:true,  note:'départs ÷ studios — achat en juin, ~6 mois'},
+    {year:'2018', value:89.5, partial:false, note:'départs ÷ studios'},
+    {year:'2019', value:94.1, partial:false, note:'départs ÷ studios'},
+    {year:'2020', value:60.0, partial:false, note:'départs ÷ studios'},
+    {year:'2021', value:50.0, partial:false, note:'départs ÷ studios'},
+    {year:'2022', value:55.0, partial:false, note:'départs ÷ studios'},
+    {year:'2023', value:63.2, partial:false, note:'départs ÷ studios'},
+    {year:'2024', value:52.6, partial:false, note:'départs ÷ studios'},
+    {year:'2025', value:61.1, partial:false, note:'départs ÷ studios'},
+    {year:'2026', value:38.9, partial:true,  note:'départs ÷ studios — estimation : aucun départ supplémentaire oct.–déc.'}
+  ];
+  var travaux = [
+    {year:'2017', value:51833, partial:false},
+    {year:'2018', value:93753, partial:false},
+    {year:'2019', value:90095, partial:false},
+    {year:'2020', value:96206, partial:false},
+    {year:'2021', value:10741, partial:false},
+    {year:'2022', value:7217,  partial:false},
+    {year:'2023', value:5379,  partial:true, note:'entretien réel 379 € + travaux estimés 5 000 € (donnée manquante)'},
+    {year:'2024', value:5226,  partial:true, note:'entretien réel 226 € + travaux estimés 5 000 € (donnée manquante)'},
+    {year:'2025', value:7446,  partial:true, note:'entretien réel 2 446 € + travaux estimés 5 000 € (donnée manquante)'},
+    {year:'2026', value:5000,  partial:true, note:'travaux estimés 5 000 € (donnée manquante)'}
+  ];
+
+  var svg = document.getElementById('chart');
+  var tooltip = document.getElementById('tooltip');
+  var wrap = document.getElementById('chart-wrap');
+  var ns = 'http://www.w3.org/2000/svg';
+
+  var W = 860;
+  var padL = 34, padR = 12;
+  var chartW = W - padL - padR;
+  var n = revenue.length;
+  var slot = chartW / n;
+  var barW = Math.min(46, slot * 0.62);
+
+  function fmtEUR(v){ return Math.round(v).toLocaleString('fr-FR') + ' €'; }
+  function fmtPct(v){ return v.toLocaleString('fr-FR', {maximumFractionDigits:1}) + ' %'; }
+  function el(tag, attrs){
+    var e = document.createElementNS(ns, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function xCenter(i){ return padL + i * slot + slot / 2; }
+  function xBar(i){ return padL + i * slot + (slot - barW) / 2; }
+
+  function topRoundedBar(x, y, w, h, r){
+    r = Math.min(r, w / 2, h);
+    return 'M' + x + ',' + (y + h) +
+      ' L' + x + ',' + (y + r) +
+      ' Q' + x + ',' + y + ' ' + (x + r) + ',' + y +
+      ' L' + (x + w - r) + ',' + y +
+      ' Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) +
+      ' L' + (x + w) + ',' + (y + h) + ' Z';
+  }
+  function bottomRoundedBar(x, y, w, h, r){
+    r = Math.min(r, w / 2, h);
+    return 'M' + x + ',' + y +
+      ' L' + (x + w) + ',' + y +
+      ' L' + (x + w) + ',' + (y + h - r) +
+      ' Q' + (x + w) + ',' + (y + h) + ' ' + (x + w - r) + ',' + (y + h) +
+      ' L' + (x + r) + ',' + (y + h) +
+      ' Q' + x + ',' + (y + h) + ' ' + x + ',' + (y + h - r) +
+      ' Z';
+  }
+
+  function attachTooltip(g, x, y, label){
+    g.style.cursor = 'default';
+    g.addEventListener('mouseenter', function(){
+      tooltip.innerHTML = label;
+      tooltip.style.opacity = '1';
+    });
+    g.addEventListener('mousemove', function(){
+      var box = wrap.getBoundingClientRect();
+      var scale = box.width / W;
+      tooltip.style.left = (x * scale) + 'px';
+      tooltip.style.top = (y * scale - 10) + 'px';
+    });
+    g.addEventListener('mouseleave', function(){ tooltip.style.opacity = '0'; });
+  }
+
+  function panelTitle(text, y){
+    svg.appendChild(el('text', {x:padL, y:y, class:'panel-title'})).textContent = text;
+  }
+
+  // ── Panel A — Taux d'occupation / Turnover (line, échelle resserrée) ─
+  panelTitle("Taux d'occupation (%) / Turnover annuel (%)", 10);
+  var topOcc = 22, baseOcc = 152;
+  var occValues = occupancy.map(function(d){ return d.value; }).concat(turnover.map(function(d){ return d.value; }));
+  var domainMin = Math.floor(Math.min.apply(null, occValues) / 5) * 5 - 5;
+  var domainMax = Math.ceil(Math.max.apply(null, occValues) / 5) * 5 + 5;
+  var domainSpan = domainMax - domainMin;
+
+  [domainMin, (domainMin + domainMax) / 2, domainMax].forEach(function(v){
+    var y = baseOcc - ((v - domainMin) / domainSpan) * (baseOcc - topOcc);
+    svg.appendChild(el('line', {x1:padL, x2:W-padR, y1:y, y2:y, class:'gridline'}));
+    var t = el('text', {x:padL - 6, y:y + 3, 'text-anchor':'end', class:'tick-label'});
+    t.textContent = Math.round(v) + '%';
+    svg.appendChild(t);
+  });
+
+  var pts = occupancy.map(function(d, i){
+    return { x: xCenter(i), y: baseOcc - ((d.value - domainMin) / domainSpan) * (baseOcc - topOcc), d: d };
+  });
+  for (var i = 0; i < pts.length - 1; i++){
+    svg.appendChild(el('line', {
+      x1:pts[i].x, y1:pts[i].y, x2:pts[i+1].x, y2:pts[i+1].y,
+      class:'occ-line' + ((pts[i].d.partial || pts[i+1].d.partial) ? ' partial-seg' : '')
+    }));
+  }
+  pts.forEach(function(p){
+    var g = el('g', {});
+    g.appendChild(el('circle', {cx:p.x, cy:p.y, r:4, class:'occ-point' + (p.d.partial ? ' partial' : '')}));
+    var lbl = el('text', {x:p.x, y:p.y - 10, 'text-anchor':'middle', class:'bar-label' + (p.d.partial ? ' partial' : '')});
+    lbl.textContent = p.d.value.toLocaleString('fr-FR', {maximumFractionDigits:1}) + '%';
+    g.appendChild(lbl);
+    attachTooltip(g, p.x, p.y, '<strong>' + p.d.year + ' — occupation</strong> ' + fmtPct(p.d.value) + (p.d.note ? '<div class="sub">' + p.d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  var turnPts = turnover.map(function(d, i){
+    return { x: xCenter(i), y: baseOcc - ((d.value - domainMin) / domainSpan) * (baseOcc - topOcc), d: d };
+  });
+  for (var i = 0; i < turnPts.length - 1; i++){
+    svg.appendChild(el('line', {
+      x1:turnPts[i].x, y1:turnPts[i].y, x2:turnPts[i+1].x, y2:turnPts[i+1].y,
+      class:'turn-line' + ((turnPts[i].d.partial || turnPts[i+1].d.partial) ? ' partial-seg' : '')
+    }));
+  }
+  turnPts.forEach(function(p){
+    var g = el('g', {});
+    g.appendChild(el('circle', {cx:p.x, cy:p.y, r:4, class:'turn-point' + (p.d.partial ? ' partial' : '')}));
+    attachTooltip(g, p.x, p.y, '<strong>' + p.d.year + ' — turnover</strong> ' + fmtPct(p.d.value) + (p.d.note ? '<div class="sub">' + p.d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  // ── Panel B — Loyers (haut) vs Travaux (bas), échelle commune ─
+  panelTitle('Loyers encaissés ▲ / Travaux & entretien ▼ (€)', 176);
+  var zeroY = 340, half = 150;
+  var maxAbs = Math.max(
+    Math.max.apply(null, revenue.map(function(d){ return d.value; })),
+    Math.max.apply(null, travaux.map(function(d){ return d.value; }))
+  );
+  var pxPerEuro = half / maxAbs;
+
+  svg.appendChild(el('line', {x1:padL, x2:W-padR, y1:zeroY, y2:zeroY, class:'axis-line'}));
+
+  revenue.forEach(function(d, i){
+    var h = d.value * pxPerEuro;
+    var x = xBar(i), y = zeroY - h;
+    var g = el('g', {});
+    g.appendChild(el('path', {d:topRoundedBar(x, y, barW, h, 6), class:'bar' + (d.partial ? ' partial' : '')}));
+    var lbl = el('text', {x:x + barW/2, y:y - 8, 'text-anchor':'middle', class:'bar-label' + (d.partial ? ' partial' : '')});
+    lbl.textContent = Math.round(d.value/1000) + 'k';
+    g.appendChild(lbl);
+    attachTooltip(g, x + barW/2, y, '<strong>' + d.year + ' — loyers</strong> ' + fmtEUR(d.value) + (d.note ? '<div class="sub">' + d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  travaux.forEach(function(d, i){
+    var h = d.value * pxPerEuro;
+    var x = xBar(i), y = zeroY;
+    var g = el('g', {});
+    g.appendChild(el('path', {d:bottomRoundedBar(x, y, barW, h, 6), class:'bar-travaux' + (d.partial ? ' partial' : '')}));
+    var lbl = el('text', {x:x + barW/2, y:y + h + 15, 'text-anchor':'middle', class:'bar-label' + (d.partial ? ' partial' : '')});
+    lbl.textContent = Math.round(d.value/1000) + 'k';
+    g.appendChild(lbl);
+    attachTooltip(g, x + barW/2, y + h, '<strong>' + d.year + ' — travaux</strong> ' + fmtEUR(d.value) + (d.note ? '<div class="sub">' + d.note + '</div>' : ''));
+    svg.appendChild(g);
+  });
+
+  // ── Shared x-axis (years) ─────────────────────────────────
+  revenue.forEach(function(d, i){
+    svg.appendChild(el('text', {x:xCenter(i), y:zeroY + half + 34, 'text-anchor':'middle', class:'tick-label'})).textContent = d.year;
+  });
+})();
+</script>
+</body>
+</html>
