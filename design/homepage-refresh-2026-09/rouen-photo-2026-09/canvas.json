@@ -1,0 +1,15 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1020 },
+    { "file": "PhotoBanner.dc.html", "x": 1580, "y": 0, "w": 1440, "h": 1120 },
+    { "file": "PhotoBackground.dc.html", "x": 3160, "y": 0, "w": 1440, "h": 850 },
+    { "file": "PhotoImmersiveHero.dc.html", "x": 4740, "y": 0, "w": 1440, "h": 1060 }
+  ],
+  "annotations": [
+    { "id": "note-main", "x": 0, "y": -110, "w": 400, "text": "A — Hero divisé : la photo répond au texte, comme une vraie fiche logement. La ville devient un argument visuel dès l'arrivée." },
+    { "id": "note-banner", "x": 1580, "y": -110, "w": 400, "text": "B — Bandeau photo pleine largeur entre le hero et les studios. Montre le quartier sans toucher à la recherche existante." },
+    { "id": "note-background", "x": 3160, "y": -110, "w": 400, "text": "C — Le \"fond léger\" : la photo est floutée en arrière-plan du hero, presque une texture, pour ne jamais concurrencer le texte." },
+    { "id": "note-immersive", "x": 4740, "y": -110, "w": 400, "text": "E — Direction plus audacieuse : hero plein cadre façon site d'hôtellerie, texte blanc par-dessus la photo. Change davantage l'ambiance du site." }
+  ],
+  "launch": { "view": "canvas" }
+}

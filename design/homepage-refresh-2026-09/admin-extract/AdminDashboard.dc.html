@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <!-- AdminNavbar -->
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:1152px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <!-- Mois en cours -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <h2 style="font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:oklch(45% 0.01 60); margin:0;">Mois en cours</h2>
+      <div style="display:flex; gap:10px;">
+        <span style="font-size:12.5px; font-weight:700; border:1px solid oklch(88% 0.005 60); padding:9px 16px; border-radius:100px;">Générer loyers — septembre 2026</span>
+        <span style="font-size:12.5px; font-weight:700; border:1px solid oklch(88% 0.005 60); padding:9px 16px; border-radius:100px;">Générer loyers — octobre 2026</span>
+      </div>
+    </div>
+
+    <!-- Occupation stat cards -->
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin-bottom:36px;">
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:28px; font-weight:800;">20</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Total</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:28px; font-weight:800; color:oklch(45% 0.1 150);">18</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Loués</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:28px; font-weight:800; color:oklch(40% 0.09 195);">1</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Disponibles</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:28px; font-weight:800; color:oklch(50% 0.1 75);">1</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Départ prévu</div>
+      </div>
+    </div>
+
+    <!-- Loyers du mois -->
+    <h2 style="font-size:18px; font-weight:800; margin:0 0 16px 0;">Loyers — septembre 2026</h2>
+    <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Loué</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Disponible</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Départ prévu</span>
+      <div style="width:1px; background:oklch(90% 0.005 60); margin:4px 4px;"></div>
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Tous bâtiments</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Moulinet</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Vieux Palais</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Renard</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 2fr; gap:16px; margin-bottom:36px;">
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px;">
+        <div style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:oklch(50% 0.01 60); margin-bottom:10px;">CA encaissé — septembre</div>
+        <div style="font-size:30px; font-weight:800;">9 840 €</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:6px;">16 locataire(s) ont payé</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; display:flex; align-items:center; gap:32px;">
+        <svg width="120" height="120" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="oklch(92% 0.01 150)" stroke-width="4"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="oklch(55% 0.13 150)" stroke-width="4" stroke-dasharray="80 20" stroke-dashoffset="25" stroke-linecap="round"/>
+        </svg>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:8px;"><span style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:100%; background:oklch(55% 0.13 150); display:inline-block;"></span>Encaissé</span><span style="font-weight:700;">9 840 € · 16</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:14px;"><span style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:100%; background:oklch(60% 0.15 25); display:inline-block;"></span>Non encaissé</span><span style="font-weight:700;">1 010 € · 2</span></div>
+          <div style="font-size:12.5px; color:oklch(50% 0.01 60); border-top:1px solid oklch(93% 0.004 90); padding-top:12px;">Total attendu : 10 850 €/mois &nbsp;·&nbsp; <a href="#">Voir les appartements →</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Départs à venir -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:22px 24px; margin-bottom:44px;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:14px;">Départs dans les 30 jours</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid oklch(94% 0.004 90); font-size:13.5px;">
+        <span>Appt 12 — Camille Dubreuil</span>
+        <span style="color:oklch(50% 0.1 75); font-weight:600;">28 sept. 2026 (J-15)</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; font-size:13.5px;">
+        <span>Appt 27 — Thomas Renaud</span>
+        <span style="color:oklch(50% 0.1 75); font-weight:600;">3 oct. 2026 (J-20)</span>
+      </div>
+    </div>
+
+    <!-- Tableau de bord annuel -->
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:20px;">
+      <h1 style="font-size:22px; font-weight:800; margin:0;">Tableau de bord annuel</h1>
+    </div>
+
+    <h2 style="font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:oklch(45% 0.01 60); margin:0 0 14px 0;">CA encaissé — 2026</h2>
+    <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Loyers CC</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Loyers HC</span>
+      <div style="width:1px; background:oklch(90% 0.005 60); margin:4px 4px;"></div>
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Tous bâtiments</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Moulinet</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Vieux Palais</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Renard</span>
+    </div>
+
+    <!-- Bar chart -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px;">
+        <div style="font-size:13px; color:oklch(50% 0.01 60);">Cumul YTD</div>
+        <div style="font-size:20px; font-weight:800;">88 420 €</div>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:12px; height:160px; border-bottom:1px solid oklch(93% 0.004 90); padding-bottom:2px;">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:70px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Jan</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:82px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Fév</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:90px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Mar</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:95px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Avr</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:100px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Mai</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:104px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Juin</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:108px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Juil</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:112px; background:oklch(70% 0.1 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(55% 0.01 60);">Août</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:96px; background:oklch(40% 0.09 195); border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(18% 0.01 60); font-weight:700;">Sept</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:0px; border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(80% 0.005 60);">Oct</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:0px; border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(80% 0.005 60);">Nov</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;"><div style="width:100%; height:0px; border-radius:6px 6px 0 0;"></div><span style="font-size:10.5px; color:oklch(80% 0.005 60);">Déc</span></div>
+      </div>
+      <div style="display:flex; gap:16px; margin-top:16px;">
+        <span style="display:flex; align-items:center; gap:6px; font-size:12px; color:oklch(50% 0.01 60);"><span style="width:8px; height:8px; border-radius:2px; background:oklch(70% 0.1 195); display:inline-block;"></span>Moulinet</span>
+      </div>
+    </div>
+
+    <!-- Indicateurs -->
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; margin-bottom:44px;">
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:22px;">
+        <div style="font-size:26px; font-weight:800;">88 420 €</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">CA encaissé YTD</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:22px;">
+        <div style="font-size:26px; font-weight:800;">94 %</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Taux d'occupation moyen</div>
+        <div style="font-size:11px; color:oklch(65% 0.005 60); margin-top:2px;">Moyenne mensuelle depuis janvier</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:22px;">
+        <div style="font-size:26px; font-weight:800;">2,3 ans</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Durée moy. d'occupation</div>
+        <div style="font-size:11px; color:oklch(65% 0.005 60); margin-top:2px;">Tous baux confondus</div>
+      </div>
+    </div>
+
+    <!-- Occupation annuelle -->
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px;">
+      <h2 style="font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:oklch(45% 0.01 60); margin:0;">Occupation 2026</h2>
+      <span style="font-size:12.5px; font-weight:700; border:1px solid oklch(88% 0.005 60); padding:8px 16px; border-radius:100px;">Exporter les baux</span>
+    </div>
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 24px;">
+      <div style="display:grid; grid-template-columns:70px repeat(12, 1fr); gap:4px; font-size:10.5px; color:oklch(55% 0.01 60); margin-bottom:10px;">
+        <div></div><div>J</div><div>F</div><div>M</div><div>A</div><div>M</div><div>J</div><div>J</div><div>A</div><div>S</div><div>O</div><div>N</div><div>D</div>
+      </div>
+      <div style="display:grid; grid-template-columns:70px repeat(12, 1fr); gap:4px; align-items:center; padding:5px 0;">
+        <div style="font-size:12px; font-weight:600;"><a href="#">Appt 30</a></div>
+        <div style="grid-column:span 12; height:20px; border-radius:5px; background:oklch(93% 0.02 90); display:flex; align-items:center; padding-left:6px; font-size:9.5px; color:oklch(50% 0.01 60);">vacant</div>
+      </div>
+      <div style="display:grid; grid-template-columns:70px repeat(12, 1fr); gap:4px; align-items:center; padding:5px 0;">
+        <div style="font-size:12px; font-weight:600;"><a href="#">Appt 84</a></div>
+        <div style="grid-column:1 / span 8; height:20px; border-radius:5px; background:oklch(78% 0.08 195); display:flex; align-items:center; padding-left:6px; font-size:9.5px; color:oklch(20% 0.05 195); font-weight:600;">Sarah Nguyen</div>
+        <div style="grid-column:9 / span 4; height:20px; border-radius:5px; border:1.5px dashed oklch(78% 0.08 195); display:flex; align-items:center; padding-left:6px; font-size:9.5px; color:oklch(45% 0.08 195);">prévisionnel</div>
+      </div>
+      <div style="display:grid; grid-template-columns:70px repeat(12, 1fr); gap:4px; align-items:center; padding:5px 0;">
+        <div style="font-size:12px; font-weight:600;"><a href="#">Appt 1000</a></div>
+        <div style="grid-column:1 / span 12; height:20px; border-radius:5px; background:oklch(82% 0.07 40); display:flex; align-items:center; padding-left:6px; font-size:9.5px; color:oklch(30% 0.08 40); font-weight:600;">Marc Lefèvre</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

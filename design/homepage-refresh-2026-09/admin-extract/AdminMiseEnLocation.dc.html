@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:1152px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+      <h1 style="font-size:22px; font-weight:800; margin:0;">Mise en location</h1>
+      <div style="display:flex; gap:18px; font-size:13px; font-weight:600;">
+        <a href="#">Page Disponibilités →</a>
+        <a href="#">Page visiter →</a>
+        <a href="#">Page candidater →</a>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin:24px 0 36px 0;">
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:26px; font-weight:800;">4</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Visites en attente</div>
+        <div style="font-size:11px; color:oklch(65% 0.005 60);">9 au total</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:26px; font-weight:800;">3</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Candidatures nouvelles</div>
+        <div style="font-size:11px; color:oklch(65% 0.005 60);">7 au total</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:26px; font-weight:800; color:oklch(40% 0.09 195);">1</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Appt. disponibles</div>
+      </div>
+      <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 22px;">
+        <div style="font-size:26px; font-weight:800; color:oklch(50% 0.1 75);">1</div>
+        <div style="font-size:12.5px; color:oklch(50% 0.01 60); margin-top:4px;">Appt. prochainement libres</div>
+      </div>
+    </div>
+
+    <div style="font-size:15px; font-weight:700; margin-bottom:6px;">Appartements mis en location</div>
+    <div style="font-size:12.5px; color:oklch(55% 0.01 60); margin-bottom:14px;">Cliquez sur une ligne pour voir les candidatures</div>
+
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden; margin-bottom:40px;">
+      <div style="display:grid; grid-template-columns:1.8fr 1fr 1.1fr 0.9fr 1fr 0.5fr; padding:12px 22px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60);">
+        <div>Appartement</div><div>Statut</div><div>Disponible le</div><div>Visites</div><div>Candidatures</div><div></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.8fr 1fr 1.1fr 0.9fr 1fr 0.5fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90);">
+        <div><div style="font-weight:700; font-size:13.5px;">Apt n°30 · 3e étage</div><div style="font-size:12px; color:oklch(55% 0.01 60);">9 rue du Moulinet · 550 €</div></div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 195); color:oklch(35% 0.1 195); padding:4px 11px; border-radius:100px;">Disponible</span></div>
+        <div style="font-size:13px;">Maintenant</div>
+        <div style="font-size:13.5px; font-weight:600;">4</div>
+        <div style="font-size:13.5px; font-weight:600;">3</div>
+        <div style="color:oklch(60% 0.005 60);">⌄</div>
+      </div>
+
+      <!-- Expanded sub-table -->
+      <div style="background:oklch(98.5% 0.003 90); padding:6px 22px 14px 48px; border-bottom:1px solid oklch(95% 0.004 90);">
+        <div style="display:grid; grid-template-columns:1.4fr 1.4fr 1.1fr 0.7fr 1fr 0.9fr 0.7fr; padding:8px 0; font-size:10px; font-weight:700; text-transform:uppercase; color:oklch(58% 0.01 60);">
+          <div>Candidat</div><div>Contact</div><div>Date souhaitée</div><div>Garant</div><div>Statut</div><div>Reçu le</div><div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.4fr 1.4fr 1.1fr 0.7fr 1fr 0.9fr 0.7fr; align-items:center; padding:9px 0; font-size:13px; border-top:1px solid oklch(93% 0.004 90);">
+          <div style="font-weight:600;">Nadia Kadiri</div><div style="color:oklch(55% 0.01 60);">n.kadiri@exemple.fr</div><div>1 oct. 2026</div><div>Oui</div>
+          <div><span style="font-size:11px; font-weight:700; background:oklch(94% 0.06 85); color:oklch(45% 0.1 80); padding:3px 10px; border-radius:100px;">Nouvelle</span></div>
+          <div style="color:oklch(55% 0.01 60);">12 sept.</div><div><a href="#">Détail →</a></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.4fr 1.4fr 1.1fr 0.7fr 1fr 0.9fr 0.7fr; align-items:center; padding:9px 0; font-size:13px; border-top:1px solid oklch(93% 0.004 90);">
+          <div style="font-weight:600;">Yanis Belkacem</div><div style="color:oklch(55% 0.01 60);">y.belkacem@exemple.fr</div><div>1 oct. 2026</div><div>Non</div>
+          <div><span style="font-size:11px; font-weight:700; background:oklch(93% 0.05 300); color:oklch(45% 0.12 300); padding:3px 10px; border-radius:100px;">Revenus vérifiés</span></div>
+          <div style="color:oklch(55% 0.01 60);">10 sept.</div><div><a href="#">Détail →</a></div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.8fr 1fr 1.1fr 0.9fr 1fr 0.5fr; align-items:center; padding:14px 22px;">
+        <div><div style="font-weight:700; font-size:13.5px;">Apt n°24 · 2e étage</div><div style="font-size:12px; color:oklch(55% 0.01 60);">9 rue du Moulinet · 650 €</div></div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(94% 0.06 85); color:oklch(45% 0.1 80); padding:4px 11px; border-radius:100px;">Prochainement</span></div>
+        <div style="font-size:13px;">3 oct. 2026</div>
+        <div style="font-size:13.5px; font-weight:600;">5</div>
+        <div style="font-size:13.5px; font-weight:600;">4</div>
+        <div style="color:oklch(60% 0.005 60);">⌄</div>
+      </div>
+    </div>
+
+    <!-- Visits table -->
+    <div style="font-size:15px; font-weight:700; margin-bottom:14px;">Visites (9)</div>
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden;">
+      <div style="display:grid; grid-template-columns:1.3fr 1.6fr 1.5fr 1.4fr 0.9fr 0.4fr; padding:12px 22px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60);">
+        <div>Visiteur</div><div>Contact</div><div>Date souhaitée</div><div>Appartements</div><div>Statut</div><div></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.3fr 1.6fr 1.5fr 1.4fr 0.9fr 0.4fr; align-items:center; padding:13px 22px; border-bottom:1px solid oklch(95% 0.004 90); font-size:13px;">
+        <div style="font-weight:600;">Paul Delacroix</div>
+        <div style="color:oklch(55% 0.01 60);">paul.delacroix@exemple.fr</div>
+        <div>11 sept. — 14:30</div>
+        <div>Apt 30</div>
+        <div><span style="font-size:11px; font-weight:700; background:oklch(94% 0.06 85); color:oklch(45% 0.1 80); padding:3px 10px; border-radius:100px;">En attente</span></div>
+        <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.3fr 1.6fr 1.5fr 1.4fr 0.9fr 0.4fr; align-items:center; padding:13px 22px; font-size:13px;">
+        <div style="font-weight:600;">Inès Rahmani</div>
+        <div style="color:oklch(55% 0.01 60);">ines.rahmani@exemple.fr</div>
+        <div>12 sept. — 10:00</div>
+        <div>Apt 24</div>
+        <div><span style="font-size:11px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:3px 10px; border-radius:100px;">Confirmée</span></div>
+        <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:6px; padding:14px; font-size:12.5px; color:oklch(55% 0.01 60);">
+        <span>‹ Précédent</span><span style="font-weight:700; color:oklch(18% 0.01 60);">1</span><span>2</span><span>Suivant ›</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

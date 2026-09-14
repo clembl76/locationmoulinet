@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:1152px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <h1 style="font-size:22px; font-weight:800; margin:0 0 20px 0;">Inventaire</h1>
+
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 24px; margin-bottom:20px; display:flex; align-items:center; gap:16px;">
+      <div style="display:flex; align-items:center; gap:8px; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 16px; font-size:13.5px; font-weight:600;">Apt 1 — Sarah Nguyen <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></div>
+      <span style="margin-left:auto; font-size:12.5px; font-weight:700; border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Remplir par défaut</span>
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:9px 18px; border-radius:100px;">Figer l'EDL</span>
+    </div>
+
+    <!-- Summary -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 24px; margin-bottom:16px; display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+      <div><div style="font-size:11px; color:oklch(55% 0.01 60); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Entrée</div><div style="font-size:14px; font-weight:700;">1 sept. 2025</div></div>
+      <div><div style="font-size:11px; color:oklch(55% 0.01 60); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Sortie</div><div style="font-size:14px; font-weight:700; color:oklch(65% 0.005 60);">—</div></div>
+      <div><div style="font-size:11px; color:oklch(55% 0.01 60); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Caution</div><div style="font-size:14px; font-weight:700;">625 €</div></div>
+    </div>
+
+    <!-- Clés -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); margin-bottom:16px; overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 24px;">
+        <span style="font-weight:700; font-size:14px;">Clés</span>
+        <span style="font-size:11px; font-weight:700; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:2px 9px; border-radius:100px;">3</span>
+        <svg style="margin-left:auto;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(55% 0.01 60)" stroke-width="2.4"><path d="M18 15l-6-6-6 6"/></svg>
+      </div>
+      <div style="padding:0 24px 20px 24px;">
+        <div style="display:grid; grid-template-columns:2fr 1fr 0.5fr; padding:8px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; color:oklch(55% 0.01 60);">
+          <div>Type de clé</div><div>Quantité</div><div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:2fr 1fr 0.5fr; align-items:center; padding:11px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:13.5px;">
+          <div>Porte d'entrée</div><div>2</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+        <div style="display:grid; grid-template-columns:2fr 1fr 0.5fr; align-items:center; padding:11px 0; font-size:13.5px;">
+          <div>Boîte aux lettres</div><div>1</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+        <span style="display:inline-block; margin-top:12px; font-size:12.5px; font-weight:600; color:oklch(40% 0.09 195);">+ Ajouter</span>
+      </div>
+    </div>
+
+    <!-- Installations -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); margin-bottom:16px; overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 24px;">
+        <span style="font-weight:700; font-size:14px;">Installations</span>
+        <svg style="margin-left:auto;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(55% 0.01 60)" stroke-width="2.4"><path d="M18 15l-6-6-6 6"/></svg>
+      </div>
+      <div style="padding:0 24px 20px 24px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <label style="font-size:12.5px; font-weight:600; display:block; margin-bottom:6px;">Eau chaude</label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13.5px;">Chauffe-eau électrique</div>
+        </div>
+        <div>
+          <label style="font-size:12.5px; font-weight:600; display:block; margin-bottom:6px;">Chauffage</label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13.5px;">Électrique individuel</div>
+        </div>
+        <div style="grid-column:span 2; display:flex; gap:8px; margin-top:4px;">
+          <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Charges au forfait</span>
+          <span style="font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Relevé des compteurs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventaire -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); margin-bottom:16px; overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 24px;">
+        <span style="font-weight:700; font-size:14px;">Inventaire</span>
+        <span style="font-size:11px; font-weight:700; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:2px 9px; border-radius:100px;">14</span>
+        <svg style="margin-left:auto;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(55% 0.01 60)" stroke-width="2.4"><path d="M18 15l-6-6-6 6"/></svg>
+      </div>
+      <div style="padding:0 24px 20px 24px;">
+        <div style="display:flex; gap:10px; margin-bottom:16px;">
+          <div style="flex:1; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(62% 0.005 60);">Rechercher un item…</div>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(55% 0.01 60);">Pièce — Toutes</div>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(55% 0.01 60);">Catégorie — Toutes</div>
+        </div>
+
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:oklch(45% 0.09 195); padding:8px 0;">Coin nuit</div>
+        <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.5fr 0.8fr 1.4fr 0.4fr; align-items:center; padding:9px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:13px;">
+          <div><div style="font-weight:600;">Lit banquette</div><div style="font-size:11px; color:oklch(58% 0.01 60);">Mobilier</div></div>
+          <div>Coin nuit</div><div>1</div><div>Bon état</div><div style="color:oklch(58% 0.01 60);">—</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.5fr 0.8fr 1.4fr 0.4fr; align-items:center; padding:9px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:13px;">
+          <div><div style="font-weight:600;">Commode 3 tiroirs</div><div style="font-size:11px; color:oklch(58% 0.01 60);">Mobilier</div></div>
+          <div>Coin nuit</div><div>1</div><div>Bon état</div><div style="color:oklch(58% 0.01 60);">—</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:oklch(45% 0.09 195); padding:14px 0 8px 0;">Cuisine</div>
+        <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.5fr 0.8fr 1.4fr 0.4fr; align-items:center; padding:9px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:13px;">
+          <div><div style="font-weight:600;">Plaques de cuisson</div><div style="font-size:11px; color:oklch(58% 0.01 60);">Électroménager</div></div>
+          <div>Cuisine</div><div>1</div><div>Bon état</div><div style="color:oklch(58% 0.01 60);">2 feux</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.5fr 0.8fr 1.4fr 0.4fr; align-items:center; padding:9px 0; font-size:13px;">
+          <div><div style="font-weight:600;">Réfrigérateur</div><div style="font-size:11px; color:oklch(58% 0.01 60);">Électroménager</div></div>
+          <div>Cuisine</div><div>1</div><div>Usure normale</div><div style="color:oklch(58% 0.01 60);">—</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+
+        <span style="display:inline-block; margin-top:14px; font-size:12.5px; font-weight:600; color:oklch(40% 0.09 195);">+ Ajouter un item</span>
+      </div>
+    </div>
+
+    <!-- Surfaces -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 24px;">
+        <span style="font-weight:700; font-size:14px;">État des lieux — Surfaces &amp; équipements</span>
+        <span style="font-size:11px; font-weight:700; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:2px 9px; border-radius:100px;">6</span>
+        <svg style="margin-left:auto;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(55% 0.01 60)" stroke-width="2.4"><path d="M18 15l-6-6-6 6"/></svg>
+      </div>
+      <div style="padding:0 24px 20px 24px;">
+        <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.9fr 0.8fr 1.4fr 0.4fr; padding:8px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; color:oklch(55% 0.01 60);">
+          <div>Surface / équipement</div><div>Pièce</div><div>Matière</div><div>État</div><div>Commentaire</div><div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.9fr 0.8fr 1.4fr 0.4fr; align-items:center; padding:10px 0; font-size:13px;">
+          <div>Sol</div><div>Coin nuit</div><div>Parquet</div><div>Bon état</div><div style="color:oklch(58% 0.01 60);">—</div><div><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(60% 0.13 25)" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:760px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <h1 style="font-size:22px; font-weight:800; margin:0 0 8px 0;">Disponibilités visites</h1>
+    <p style="font-size:13.5px; color:oklch(50% 0.01 60); margin:0 0 28px 0;">Gérez les créneaux et journées ouvertes aux demandes de visite et de candidature.</p>
+
+    <!-- Paramètres généraux -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:20px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60); margin-bottom:18px;">Paramètres généraux</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="font-size:14px; font-weight:600;">Visites activées</span>
+        <span style="width:38px; height:22px; border-radius:100px; background:oklch(40% 0.09 195); position:relative; display:inline-block;"><span style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:100%; background:white;"></span></span>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="font-size:14px; font-weight:600;">Candidatures activées</span>
+        <span style="width:38px; height:22px; border-radius:100px; background:oklch(40% 0.09 195); position:relative; display:inline-block;"><span style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:100%; background:white;"></span></span>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding-top:12px;">
+        <span style="font-size:14px; font-weight:600;">Durée d'un créneau</span>
+        <span style="display:flex; align-items:center; gap:8px; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13.5px;">30 min <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:20px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60); margin-bottom:6px;">Contact gestion locative</div>
+      <p style="font-size:12.5px; color:oklch(55% 0.01 60); margin:0 0 18px 0;">Ces informations apparaissent dans les invitations Google Agenda envoyées aux visiteurs.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Prénom</label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">Clémentine</div>
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Nom</label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">Blanchon</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Téléphone</label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">06 00 00 00 00</div>
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Email</label>
+          <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">location.moulinet@gmail.com</div>
+        </div>
+      </div>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Site web</label>
+        <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">locationmoulinet.fr</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:13px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:10px 22px; border-radius:100px;">Enregistrer</span>
+        <span style="display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:oklch(45% 0.13 150);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Sauvegardé</span>
+      </div>
+    </div>
+
+    <!-- Plages hebdomadaires -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:20px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60); margin-bottom:18px;">Plages hebdomadaires</div>
+
+      <div style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Lundi</span>
+        <span style="font-size:12.5px; font-weight:600; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">09:00 — 12:00 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        <span style="margin-left:8px; font-size:12.5px; font-weight:600; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">14:00 — 18:00 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+      <div style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Mardi</span>
+        <span style="font-size:12.5px; font-weight:600; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">09:00 — 12:00 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+      <div style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Mercredi</span>
+        <span style="font-size:12.5px; color:oklch(60% 0.005 60);">Indisponible</span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+      <div style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Jeudi</span>
+        <span style="font-size:12.5px; font-weight:600; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">09:00 — 12:00 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+      <div style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Vendredi</span>
+        <span style="font-size:12.5px; font-weight:600; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">09:00 — 17:00 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+      <div style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid oklch(95% 0.004 90);">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Samedi</span>
+        <span style="font-size:12.5px; color:oklch(60% 0.005 60);">Indisponible</span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+      <div style="display:flex; align-items:center; padding:12px 0;">
+        <span style="width:100px; font-size:13.5px; font-weight:600;">Dimanche</span>
+        <span style="font-size:12.5px; color:oklch(60% 0.005 60);">Indisponible</span>
+        <span style="margin-left:auto; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:6px 14px; border-radius:100px;">+ Ajouter</span>
+      </div>
+    </div>
+
+    <!-- Exceptions -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60); margin-bottom:6px;">Exceptions (journées ou plages bloquées)</div>
+      <p style="font-size:12px; color:oklch(60% 0.005 60); margin:0 0 16px 0;">Sans plage horaire = journée entière bloquée.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        <span style="font-size:12.5px; font-weight:600; background:oklch(93% 0.05 25); color:oklch(48% 0.15 25); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">25 déc. 2026 — Noël <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        <span style="font-size:12.5px; font-weight:600; background:oklch(93% 0.05 25); color:oklch(48% 0.15 25); padding:6px 12px; border-radius:100px; display:flex; align-items:center; gap:6px;">1 janv. 2027 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="cursor:pointer;"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(62% 0.005 60);">jj/mm/aaaa</div>
+        <div style="flex:1; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(62% 0.005 60);">Motif (optionnel)</div>
+        <span style="font-size:13px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:9px 20px; border-radius:100px; white-space:nowrap;">+ Ajouter</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:1152px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <h1 style="font-size:22px; font-weight:800; margin:0;">Appartements</h1>
+      <span style="font-size:12.5px; font-weight:700; border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Envoyer la liste des locataires</span>
+    </div>
+
+    <div style="font-size:13px; color:oklch(50% 0.01 60); margin-bottom:16px;">20 / 20</div>
+
+    <!-- Filters -->
+    <div style="display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;">
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Tous</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Loué</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Disponible</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Départ prévu</span>
+      <div style="width:1px; background:oklch(90% 0.005 60); margin:4px 4px;"></div>
+      <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 16px; border-radius:100px;">Loyer sept. — Tous</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Encaissé</span>
+      <span style="font-size:12.5px; font-weight:600; background:white; border:1px solid oklch(88% 0.005 60); padding:7px 15px; border-radius:100px;">Non encaissé</span>
+    </div>
+
+    <!-- Table -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden; margin-bottom:32px;">
+      <div style="display:grid; grid-template-columns:1fr 1.6fr 1.1fr 1.1fr 0.9fr; padding:12px 22px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60);">
+        <div>Appt</div><div>Locataire</div><div>Statut</div><div>Loyer sept.</div><div style="text-align:right;">CC / mois</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1.6fr 1.1fr 1.1fr 0.9fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90);">
+        <div style="font-weight:700; font-size:13.5px;">30</div>
+        <div style="font-size:13.5px; font-style:italic; color:oklch(55% 0.01 60);">Vacant</div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 195); color:oklch(35% 0.1 195); padding:4px 11px; border-radius:100px;">Disponible</span></div>
+        <div style="font-size:13px; color:oklch(65% 0.005 60);">—</div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">550 €</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1.6fr 1.1fr 1.1fr 0.9fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90);">
+        <div style="font-weight:700; font-size:13.5px;">1</div>
+        <div style="font-size:13.5px;">Sarah Nguyen</div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:4px 11px; border-radius:100px;">Loué</span></div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:4px 11px; border-radius:100px;">Encaissé</span></div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">625 €</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1.6fr 1.1fr 1.1fr 0.9fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90);">
+        <div style="font-weight:700; font-size:13.5px;">12</div>
+        <div style="font-size:13.5px;">Camille Dubreuil</div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(94% 0.06 85); color:oklch(45% 0.1 80); padding:4px 11px; border-radius:100px;">Départ prévu</span></div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:4px 11px; border-radius:100px;">Encaissé</span></div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">400 €</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1.6fr 1.1fr 1.1fr 0.9fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90);">
+        <div style="font-weight:700; font-size:13.5px;">27</div>
+        <div style="font-size:13.5px;">Thomas Renaud</div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:4px 11px; border-radius:100px;">Loué</span></div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.05 25); color:oklch(48% 0.15 25); padding:4px 11px; border-radius:100px;">Non encaissé</span></div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">510 €</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1.6fr 1.1fr 1.1fr 0.9fr; align-items:center; padding:14px 22px;">
+        <div style="font-weight:700; font-size:13.5px;">84</div>
+        <div style="font-size:13.5px;">Marc Lefèvre</div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:4px 11px; border-radius:100px;">Loué</span></div>
+        <div><span style="font-size:11.5px; font-weight:700; background:oklch(93% 0.06 150); color:oklch(35% 0.1 150); padding:4px 11px; border-radius:100px;">Encaissé</span></div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">820 €</div>
+      </div>
+    </div>
+
+    <!-- Futurs baux -->
+    <div style="font-size:13px; font-weight:700; margin-bottom:10px;">Futurs baux</div>
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden; margin-bottom:24px;">
+      <div style="display:grid; grid-template-columns:1fr 2fr 1.2fr 1fr; padding:10px 22px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60);">
+        <div>Appt</div><div>Locataire</div><div>Entrée</div><div style="text-align:right;">Loyer CC</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 2fr 1.2fr 1fr; align-items:center; padding:12px 22px;">
+        <div style="font-weight:700; font-size:13.5px;">24</div>
+        <div style="font-size:13.5px;">Léa Fontaine</div>
+        <div style="font-size:13px;">3 oct. 2026</div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">650 €</div>
+      </div>
+    </div>
+
+    <!-- Baux en cours de clôture -->
+    <div style="font-size:13px; font-weight:700; margin-bottom:10px;">Baux en cours de clôture</div>
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden; margin-bottom:32px;">
+      <div style="display:grid; grid-template-columns:1fr 2fr 1.2fr 1fr; padding:10px 22px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60);">
+        <div>Appt</div><div>Locataire</div><div>Départ</div><div style="text-align:right;">Loyer CC</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 2fr 1.2fr 1fr; align-items:center; padding:12px 22px;">
+        <div style="font-weight:700; font-size:13.5px;">12</div>
+        <div style="font-size:13.5px;">Camille Dubreuil</div>
+        <div style="font-size:13px;">28 sept. 2026</div>
+        <div style="text-align:right; font-weight:600; font-size:13.5px;">400 €</div>
+      </div>
+    </div>
+
+    <!-- Archives -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:20px 24px;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:12px;">Archives</div>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px; color:oklch(55% 0.01 60);">Sélectionner un bail — Appt 20 – Nadia Kadiri – juin 2024</div>
+        <span style="font-size:13.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:10px 24px; border-radius:100px;">OK</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

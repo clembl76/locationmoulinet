@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:1152px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <h1 style="font-size:22px; font-weight:800; margin:0 0 24px 0;">Paiements</h1>
+
+    <!-- Quittances -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:32px;">
+      <div style="font-weight:700; font-size:14px; margin-bottom:16px;">Générer des quittances</div>
+      <div style="display:flex; gap:12px; margin-bottom:18px;">
+        <div style="flex:1; display:flex; align-items:center; justify-content:space-between; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">Apt 1 — Sarah Nguyen <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div style="width:140px; display:flex; align-items:center; justify-content:space-between; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13.5px;">2026 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:8px; margin-bottom:16px;">
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:10px 4px; border-radius:12px;">Jan<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:10px 4px; border-radius:12px;">Fév<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:700; background:oklch(40% 0.09 195); color:white; padding:10px 4px; border-radius:12px;">Mar<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:700; background:oklch(40% 0.09 195); color:white; padding:10px 4px; border-radius:12px;">Avr<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1.5px solid oklch(55% 0.13 150); padding:9px 4px; border-radius:12px; color:oklch(35% 0.13 150);">Mai<br><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;"><path d="M20 6L9 17l-5-5"/></svg> créée</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:10px 4px; border-radius:12px;">Juin<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:10px 4px; border-radius:12px;">Juil<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:10px 4px; border-radius:12px;">Août<br>625 €</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; border:1px solid oklch(88% 0.005 60); padding:10px 4px; border-radius:12px;">Sept<br>625 €<br><span style="font-weight:400; opacity:0.7;">(prorata)</span></span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; color:oklch(70% 0.005 60); border:1px solid oklch(93% 0.004 90); padding:10px 4px; border-radius:12px;">Oct<br>—</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; color:oklch(70% 0.005 60); border:1px solid oklch(93% 0.004 90); padding:10px 4px; border-radius:12px;">Nov<br>—</span>
+        <span style="text-align:center; font-size:12.5px; font-weight:600; color:oklch(70% 0.005 60); border:1px solid oklch(93% 0.004 90); padding:10px 4px; border-radius:12px;">Déc<br>—</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12.5px; font-weight:600; color:oklch(40% 0.09 195);">Tout sélectionner</span>
+        <span style="font-size:13.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:11px 24px; border-radius:100px;">Générer 2 quittance(s)</span>
+      </div>
+    </div>
+
+    <!-- Linxo -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="font-weight:800; font-size:16px;">Transactions Linxo</div>
+      <div style="display:flex; gap:10px;">
+        <span style="font-size:12.5px; font-weight:700; border:1px solid oklch(88% 0.005 60); padding:9px 16px; border-radius:100px;">Importer depuis Drive</span>
+        <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:9px 16px; border-radius:100px;">Catégoriser</span>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:160px; border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(62% 0.005 60);">Rechercher…</div>
+      <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(55% 0.01 60);">Catégorie — Toutes</div>
+      <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(55% 0.01 60);">Source — Toutes</div>
+      <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(55% 0.01 60);">Type — Tous</div>
+      <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:9px 14px; font-size:13px; color:oklch(55% 0.01 60);">Locataire — Tous</div>
+      <span style="font-size:12.5px; font-weight:600; color:oklch(40% 0.09 195); padding:9px 8px;">Réinitialiser</span>
+    </div>
+
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden; margin-bottom:16px;">
+      <div style="display:grid; grid-template-columns:0.4fr 0.9fr 0.9fr 1.4fr 1fr 0.9fr 0.5fr 1fr 1fr; padding:10px 20px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:oklch(55% 0.01 60);">
+        <div>Validé</div><div>Date</div><div>Montant</div><div>Fournisseur</div><div>Type</div><div>Locataire</div><div>Appt</div><div>Libellé</div><div>Source</div>
+      </div>
+      <div style="display:grid; grid-template-columns:0.4fr 0.9fr 0.9fr 1.4fr 1fr 0.9fr 0.5fr 1fr 1fr; align-items:center; padding:11px 20px; border-bottom:1px solid oklch(95% 0.004 90); font-size:12.5px;">
+        <div><span style="width:14px; height:14px; border-radius:4px; background:oklch(40% 0.09 195); display:inline-block;"></span></div>
+        <div>03/09</div><div style="color:oklch(45% 0.13 150); font-weight:600;">+625 €</div><div>Sarah Nguyen</div><div>LOYER</div><div>S. Nguyen</div><div>1</div><div style="color:oklch(58% 0.01 60);">VIR SEPA</div>
+        <div><span style="font-size:10.5px; font-weight:700; background:oklch(93% 0.06 195); color:oklch(35% 0.1 195); padding:3px 9px; border-radius:100px;">Moulinet</span></div>
+      </div>
+      <div style="display:grid; grid-template-columns:0.4fr 0.9fr 0.9fr 1.4fr 1fr 0.9fr 0.5fr 1fr 1fr; align-items:center; padding:11px 20px; border-bottom:1px solid oklch(95% 0.004 90); font-size:12.5px;">
+        <div><span style="width:14px; height:14px; border-radius:4px; border:1.5px solid oklch(85% 0.005 60); display:inline-block;"></span></div>
+        <div>02/09</div><div style="color:oklch(55% 0.13 25); font-weight:600;">-89 €</div><div>Leroy Merlin</div><div>ACHAT</div><div style="color:oklch(70% 0.005 60);">—</div><div style="color:oklch(70% 0.005 60);">—</div><div style="color:oklch(58% 0.01 60);">CB</div>
+        <div><span style="font-size:10.5px; font-weight:700; background:oklch(94% 0.05 40); color:oklch(40% 0.1 30); padding:3px 9px; border-radius:100px;">Renard</span></div>
+      </div>
+      <div style="display:grid; grid-template-columns:0.4fr 0.9fr 0.9fr 1.4fr 1fr 0.9fr 0.5fr 1fr 1fr; align-items:center; padding:11px 20px; font-size:12.5px;">
+        <div><span style="width:14px; height:14px; border-radius:4px; background:oklch(40% 0.09 195); display:inline-block;"></span></div>
+        <div>01/09</div><div style="color:oklch(45% 0.13 150); font-weight:600;">+400 €</div><div>Camille Dubreuil</div><div>LOYER</div><div>C. Dubreuil</div><div>12</div><div style="color:oklch(58% 0.01 60);">VIR SEPA</div>
+        <div><span style="font-size:10.5px; font-weight:700; background:oklch(93% 0.05 300); color:oklch(45% 0.12 300); padding:3px 9px; border-radius:100px;">Vieux Palais</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:oklch(55% 0.01 60);">
+      <span>3 transactions · 1 validée</span>
+      <span style="display:flex; gap:6px;"><span style="font-weight:700; color:oklch(18% 0.01 60);">1</span><span>2</span><span>3</span></span>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

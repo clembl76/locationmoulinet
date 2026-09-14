@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:1152px; margin:0 auto; padding:32px 24px 80px 24px;">
+
+    <h1 style="font-size:22px; font-weight:800; margin:0 0 6px 0;">Actions</h1>
+    <p style="font-size:13.5px; color:oklch(50% 0.01 60); margin:0 0 24px 0;">Récapitulatif des actions à réaliser, triées par date limite.</p>
+
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); overflow:hidden;">
+      <div style="display:grid; grid-template-columns:2fr 0.8fr 1.4fr 1fr 1fr; padding:12px 22px; border-bottom:1px solid oklch(93% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:oklch(55% 0.01 60);">
+        <div>Titre</div><div>Appartement</div><div>Locataire / candidat</div><div>Owner</div><div>Date limite</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:2fr 0.8fr 1.4fr 1fr 1fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90); font-size:13.5px;">
+        <div><a href="#">Envoyer l'attestation d'assurance</a></div>
+        <div>1</div>
+        <div>Sarah Nguyen</div>
+        <div><span style="font-size:11px; font-weight:700; background:oklch(93% 0.06 195); color:oklch(35% 0.1 195); padding:4px 11px; border-radius:100px;">Locataire</span></div>
+        <div style="font-weight:700; color:oklch(55% 0.15 25);">12 sept. 2026</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:2fr 0.8fr 1.4fr 1fr 1fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90); font-size:13.5px;">
+        <div><a href="#">Relancer le paiement de septembre</a></div>
+        <div>27</div>
+        <div>Thomas Renaud</div>
+        <div><span style="font-size:11px; font-weight:700; background:oklch(93% 0.06 195); color:oklch(35% 0.1 195); padding:4px 11px; border-radius:100px;">Locataire</span></div>
+        <div style="font-weight:600;">18 sept. 2026</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:2fr 0.8fr 1.4fr 1fr 1fr; align-items:center; padding:14px 22px; border-bottom:1px solid oklch(95% 0.004 90); font-size:13.5px;">
+        <div><a href="#">Vérifier les revenus déclarés</a></div>
+        <div>30</div>
+        <div>Nadia Kadiri</div>
+        <div><span style="font-size:11px; font-weight:700; background:oklch(93% 0.05 300); color:oklch(45% 0.12 300); padding:4px 11px; border-radius:100px;">Candidat</span></div>
+        <div style="font-weight:600;">20 sept. 2026</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:2fr 0.8fr 1.4fr 1fr 1fr; align-items:center; padding:14px 22px; font-size:13.5px;">
+        <div><a href="#">Programmer l'intervention chauffagiste</a></div>
+        <div>84</div>
+        <div>Marc Lefèvre</div>
+        <div><span style="font-size:11px; font-weight:700; background:oklch(94% 0.05 85); color:oklch(45% 0.1 80); padding:4px 11px; border-radius:100px;">Propriétaire</span></div>
+        <div style="font-weight:600;">2 oct. 2026</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

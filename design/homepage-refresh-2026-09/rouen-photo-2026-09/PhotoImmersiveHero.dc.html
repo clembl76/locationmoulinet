@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(99% 0.003 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60); position:relative; overflow:hidden;">
+
+  <!-- Hero plein cadre -->
+  <div style="position:relative; width:100%; height:640px; overflow:hidden;">
+    <img src="rouen-tall-hero.jpg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 32%;">
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, oklch(12% 0.015 60 / 0.6) 0%, oklch(12% 0.015 60 / 0.1) 34%, oklch(12% 0.015 60 / 0.35) 68%, oklch(12% 0.015 60 / 0.88) 100%);"></div>
+
+    <!-- Header, superposé -->
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:26px 64px; position:relative; z-index:2;">
+      <div style="font-size:19px; font-weight:700; color:white;">Location Moulinet</div>
+      <div style="display:flex; align-items:center; gap:24px;">
+        <a href="#" style="font-size:14px; font-weight:500; color:white;">Visiter</a>
+        <a href="#" style="font-size:14px; font-weight:700; background:white; color:oklch(18% 0.01 60); padding:12px 24px; border-radius:100px;">Déposer mon dossier</a>
+      </div>
+    </div>
+
+    <!-- Texte hero, ancré en bas -->
+    <div style="position:absolute; bottom:56px; left:64px; right:64px; z-index:2; text-align:center;">
+      <div style="font-size:12.5px; font-weight:700; letter-spacing:0.1em; color:oklch(88% 0.06 195); margin-bottom:18px;">ROUEN · CENTRE-VILLE</div>
+      <h1 style="font-size:54px; font-weight:800; letter-spacing:-0.02em; line-height:1.08; color:white; margin:0 auto 32px auto; max-width:760px;">Studios meublés à louer</h1>
+      <div style="display:inline-flex; align-items:center; border-radius:100px; background:white; box-shadow:0 12px 32px -8px oklch(0% 0 0 / 0.35); overflow:hidden;">
+        <div style="padding:15px 26px; font-size:13.5px; font-weight:700; text-align:left;">Rouen · Centre-ville</div>
+        <div style="width:1px; height:22px; background:oklch(90% 0.005 60);"></div>
+        <div style="padding:15px 26px; font-size:13.5px; color:oklch(45% 0.01 60); text-align:left;">Studio ou +</div>
+        <div style="width:1px; height:22px; background:oklch(90% 0.005 60);"></div>
+        <div style="padding:15px 26px; font-size:13.5px; color:oklch(45% 0.01 60); text-align:left;">Budget</div>
+        <div style="padding:8px; padding-right:9px;">
+          <div style="width:36px; height:36px; border-radius:100%; background:oklch(18% 0.01 60); display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section heading -->
+  <div style="text-align:center; padding:48px 64px 8px 64px; position:relative; z-index:1;">
+    <h2 style="font-size:26px; font-weight:700; letter-spacing:-0.01em; line-height:1.4; margin:0 auto; max-width:680px; color:oklch(28% 0.01 60);">Visitez nos studios meublés en plein centre du quartier historique.</h2>
+  </div>
+
+  <!-- Features -->
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:20px; padding:36px 64px 56px 64px; position:relative; z-index:1;">
+    <div style="background:white; border-radius:20px; padding:26px; box-shadow:0 10px 28px -18px oklch(30% 0.02 60 / 0.2);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="1.5" style="margin-bottom:12px;"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+      <div style="font-size:15.5px; font-weight:700; margin-bottom:6px;">Meublé & tout équipé</div>
+      <div style="font-size:13px; line-height:1.55; color:oklch(45% 0.01 60);">Logements meublés et équipés, prêts à vivre dès l'arrivée. Pas de déménagement à prévoir.</div>
+    </div>
+    <div style="background:white; border-radius:20px; padding:26px; box-shadow:0 10px 28px -18px oklch(30% 0.02 60 / 0.2);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="1.5" style="margin-bottom:12px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <div style="font-size:15.5px; font-weight:700; margin-bottom:6px;">Idéalement situé</div>
+      <div style="font-size:13px; line-height:1.55; color:oklch(45% 0.01 60);">Centre de Rouen, à 2 min à pied de la gare, bus et métro vers toutes les écoles et universités — dans une rue calme.</div>
+    </div>
+    <div style="background:white; border-radius:20px; padding:26px; box-shadow:0 10px 28px -18px oklch(30% 0.02 60 / 0.2);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(40% 0.09 195)" stroke-width="1.5" style="margin-bottom:12px;"><path d="M20 6L9 17l-5-5"/></svg>
+      <div style="font-size:15.5px; font-weight:700; margin-bottom:6px;">Tout inclus, sans surprise</div>
+      <div style="font-size:13px; line-height:1.55; color:oklch(45% 0.01 60);">Eau, électricité, chauffage, Wifi inclus. Pas de frais d'agence, pas d'abonnement. Éligible APL.</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

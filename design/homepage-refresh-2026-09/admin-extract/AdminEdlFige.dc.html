@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: oklch(40% 0.09 195); text-decoration: none; }
+</style>
+</helmet>
+
+<div style="width:1440px; background:oklch(98% 0.004 90); font-family:'Plus Jakarta Sans', sans-serif; color:oklch(18% 0.01 60);">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 40px; background:white; border-bottom:1px solid oklch(92% 0.005 60);">
+    <a href="#" style="font-size:17px; font-weight:800; color:oklch(18% 0.01 60);">Location Moulinet</a>
+    <div style="display:flex; align-items:center; gap:28px;">
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Tableau de bord</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Mise en location</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Appartements</a>
+      <a href="#" style="font-size:13.5px; font-weight:700; color:oklch(18% 0.01 60); border-bottom:2px solid oklch(40% 0.09 195); padding-bottom:4px;">Inventaire</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Paiements</a>
+      <a href="#" style="font-size:13.5px; font-weight:500; color:oklch(45% 0.01 60);">Actions</a>
+    </div>
+    <a href="#" style="font-size:13px; font-weight:600; color:oklch(45% 0.01 60); border:1px solid oklch(88% 0.005 60); padding:9px 18px; border-radius:100px;">Déconnexion</a>
+  </div>
+
+  <div style="max-width:900px; margin:0 auto; padding:24px 24px 80px 24px;">
+
+    <a href="#" style="font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg>
+      Retour à l'inventaire
+    </a>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <div>
+        <h1 style="font-size:21px; font-weight:800; margin:0;">Etat des lieux - Apt 1</h1>
+        <div style="font-size:13px; color:oklch(50% 0.01 60); margin-top:2px;">Sarah Nguyen</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; border:1px solid oklch(88% 0.005 60); border-radius:100px; overflow:hidden;">
+          <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:8px 18px;">Entrée</span>
+          <span style="font-size:12.5px; font-weight:600; padding:8px 18px;">Sortie</span>
+        </div>
+        <span style="font-size:12.5px; font-weight:700; background:oklch(18% 0.01 60); color:white; padding:9px 18px; border-radius:100px;">Générer le pdf</span>
+      </div>
+    </div>
+
+    <!-- Legal header -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:28px; margin-bottom:16px;">
+      <div style="text-align:center; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">État des lieux / Inventaire des meubles</div>
+      <div style="text-align:center; font-size:12.5px; color:oklch(50% 0.01 60); margin-bottom:20px;">9 rue du Moulinet, 76000 Rouen — Appartement 1 — dressé le 1 septembre 2025</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; font-size:12.5px; line-height:1.7;">
+        <div>
+          <div style="font-weight:700; margin-bottom:6px;">D'UNE PART</div>
+          <div style="color:oklch(35% 0.01 60);">Le bailleur, représenté par Location Moulinet</div>
+        </div>
+        <div>
+          <div style="font-weight:700; margin-bottom:6px;">D'AUTRE PART</div>
+          <div style="color:oklch(35% 0.01 60);">Mme Sarah Nguyen, née le 08/04/2001 à Rouen, demeurant 9 rue du Moulinet, 76000 Rouen — 06 12 34 56 78 — sarah.nguyen@exemple.fr</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Installations -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:16px;">
+      <div style="font-weight:700; font-size:14px; margin-bottom:14px;">Installations</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; font-size:13.5px;">
+        <div><span style="color:oklch(55% 0.01 60);">Eau chaude —</span> Chauffe-eau électrique</div>
+        <div><span style="color:oklch(55% 0.01 60);">Chauffage —</span> Électrique individuel</div>
+      </div>
+      <label style="font-size:12.5px; font-weight:600; display:block; margin-bottom:6px;">Relevé des consommations</label>
+      <div style="border:1px solid oklch(87% 0.005 60); border-radius:10px; padding:10px 14px; font-size:13px; color:oklch(62% 0.005 60); height:52px;">Électricité : 04512 kWh — Eau : 0128 m³</div>
+    </div>
+
+    <!-- Clés -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <span style="font-weight:700; font-size:14px;">Clés</span>
+        <span style="font-size:11px; font-weight:700; background:oklch(96% 0.01 195); color:oklch(35% 0.08 195); padding:2px 9px; border-radius:100px;">2</span>
+      </div>
+      <div style="display:grid; grid-template-columns:2fr 1fr; padding:8px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; color:oklch(55% 0.01 60);">
+        <div>Type</div><div>Quantité</div>
+      </div>
+      <div style="display:grid; grid-template-columns:2fr 1fr; padding:10px 0; font-size:13.5px;">
+        <div>Porte d'entrée</div><div>2</div>
+      </div>
+    </div>
+
+    <!-- Inventaire -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:16px;">
+      <div style="font-weight:700; font-size:14px; margin-bottom:14px;">Inventaire</div>
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:oklch(45% 0.09 195); padding:6px 0;">Coin nuit</div>
+      <div style="display:grid; grid-template-columns:1.8fr 0.7fr 1fr; padding:9px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:13px;">
+        <div>Lit banquette</div><div>1</div><div>Bon état</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.8fr 0.7fr 1fr; padding:9px 0; font-size:13px;">
+        <div>Commode 3 tiroirs</div><div>1</div><div>Bon état</div>
+      </div>
+    </div>
+
+    <!-- Surfaces -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:24px; margin-bottom:24px;">
+      <div style="font-weight:700; font-size:14px; margin-bottom:14px;">Surfaces &amp; équipements</div>
+      <div style="display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; padding:8px 0; border-bottom:1px solid oklch(95% 0.004 90); font-size:10.5px; font-weight:700; text-transform:uppercase; color:oklch(55% 0.01 60);">
+        <div>Surface / équipement</div><div>Pièce</div><div>Matière</div><div>État</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; padding:9px 0; font-size:13px;">
+        <div>Sol</div><div>Coin nuit</div><div>Parquet</div><div>Bon état</div>
+      </div>
+    </div>
+
+    <!-- Signatures -->
+    <div style="background:white; border-radius:18px; border:1px solid oklch(93% 0.004 90); padding:28px;">
+      <p style="font-size:12.5px; color:oklch(35% 0.01 60); line-height:1.7; margin:0 0 20px 0;">
+        Le présent état des lieux fait foi entre les parties jusqu'à preuve du contraire. Le dépôt de garantie de 625 € sera restitué déduction faite, le cas échéant, des sommes dues au bailleur.
+        Fait en 2 exemplaires, à Rouen le 1 septembre 2025.
+      </p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+        <div style="text-align:center; padding-top:48px; border-top:1px solid oklch(90% 0.005 60); font-size:12.5px; color:oklch(50% 0.01 60);">
+          Signature du locataire<br><span style="font-style:italic;">« Lu et approuvé »</span>
+        </div>
+        <div style="text-align:center; padding-top:48px; border-top:1px solid oklch(90% 0.005 60); font-size:12.5px; color:oklch(50% 0.01 60);">
+          Signature du propriétaire<br><span style="font-style:italic;">« Lu et approuvé »</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

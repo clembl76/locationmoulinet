@@ -1,0 +1,177 @@
+{
+  "artboards": [
+    {
+      "file": "AdminLogin.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "AdminDashboard.dc.html",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 1750
+    },
+    {
+      "file": "AdminApartmentsList.dc.html",
+      "x": 3120,
+      "y": 0,
+      "w": 1440,
+      "h": 1150
+    },
+    {
+      "file": "AdminApartmentDetail.dc.html",
+      "x": 4680,
+      "y": 0,
+      "w": 1440,
+      "h": 1000
+    },
+    {
+      "file": "AdminNouveauBail.dc.html",
+      "x": 6240,
+      "y": 0,
+      "w": 1440,
+      "h": 1300
+    },
+    {
+      "file": "AdminMiseEnLocation.dc.html",
+      "x": 7800,
+      "y": 0,
+      "w": 1440,
+      "h": 1050
+    },
+    {
+      "file": "AdminCandidateDetail.dc.html",
+      "x": 9360,
+      "y": 0,
+      "w": 1440,
+      "h": 1200
+    },
+    {
+      "file": "AdminDisponibilites.dc.html",
+      "x": 10920,
+      "y": 0,
+      "w": 1440,
+      "h": 1700
+    },
+    {
+      "file": "AdminInventory.dc.html",
+      "x": 12480,
+      "y": 0,
+      "w": 1440,
+      "h": 1450
+    },
+    {
+      "file": "AdminEdlFige.dc.html",
+      "x": 14040,
+      "y": 0,
+      "w": 1440,
+      "h": 1500
+    },
+    {
+      "file": "AdminPayments.dc.html",
+      "x": 15600,
+      "y": 0,
+      "w": 1440,
+      "h": 1000
+    },
+    {
+      "file": "AdminActions.dc.html",
+      "x": 17160,
+      "y": 0,
+      "w": 1440,
+      "h": 650
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-1",
+      "x": 0,
+      "y": -90,
+      "w": 460,
+      "text": "1 — Connexion (/admin/login)"
+    },
+    {
+      "id": "note-2",
+      "x": 1560,
+      "y": -90,
+      "w": 460,
+      "text": "2 — Tableau de bord (/admin)\nOccupation, loyers du mois, CA annuel, indicateurs, calendrier d'occupation. Chiffres illustratifs."
+    },
+    {
+      "id": "note-3",
+      "x": 3120,
+      "y": -90,
+      "w": 460,
+      "text": "3 — Appartements (/admin/apartments)\nListe + filtres, futurs baux, baux en clôture, archives."
+    },
+    {
+      "id": "note-4",
+      "x": 4680,
+      "y": -90,
+      "w": 460,
+      "text": "4 — Fiche appartement admin (/admin/apartments/[n])"
+    },
+    {
+      "id": "note-5",
+      "x": 6240,
+      "y": -90,
+      "w": 460,
+      "text": "5 — Nouveau bail (/admin/apartments/[n]/nouveau-bail)"
+    },
+    {
+      "id": "note-6",
+      "x": 7800,
+      "y": -90,
+      "w": 460,
+      "text": "6 — Mise en location (/admin/mise-en-location)\nKPIs, appartements en location (dépliable), visites paginées."
+    },
+    {
+      "id": "note-7",
+      "x": 9360,
+      "y": -90,
+      "w": 460,
+      "text": "7 — Détail candidature (/admin/mise-en-location/candidats/[id])"
+    },
+    {
+      "id": "note-8",
+      "x": 10920,
+      "y": -90,
+      "w": 460,
+      "text": "8 — Disponibilités visites (/admin/disponibilites)"
+    },
+    {
+      "id": "note-9",
+      "x": 12480,
+      "y": -90,
+      "w": 460,
+      "text": "9 — Inventaire (/admin/inventory)\nClés, installations, inventaire par pièce, surfaces & équipements."
+    },
+    {
+      "id": "note-10",
+      "x": 14040,
+      "y": -90,
+      "w": 460,
+      "text": "10 — État des lieux figé (/admin/inventory/edl-fige/[id])\nDocument légal imprimable."
+    },
+    {
+      "id": "note-11",
+      "x": 15600,
+      "y": -90,
+      "w": 460,
+      "text": "11 — Paiements (/admin/payments)\nGénérateur de quittances + transactions Linxo."
+    },
+    {
+      "id": "note-12",
+      "x": 17160,
+      "y": -90,
+      "w": 460,
+      "text": "12 — Actions (/admin/actions)\nLa page \"Mois\" a été fusionnée dans le Tableau de bord (comme dans le vrai code) — pas de maquette séparée."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}
