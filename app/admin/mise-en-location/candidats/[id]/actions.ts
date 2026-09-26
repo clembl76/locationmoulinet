@@ -2,7 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { runSqlAdmin } from '@/lib/adminData'
-import { moveCandidateFolderToTenants, generateBailAndUploadToDrive, triggerCandidateAcceptedWebhook, createGmailDraftCandidateAccepted, createGoogleContacts } from '@/lib/quittance'
+import { moveCandidateFolderToTenants, generateBailAndUploadToDrive, triggerCandidateAcceptedWebhook, createGmailDraftCandidateAccepted, createGoogleContacts, uploadCandidateDocuments } from '@/lib/quittance'
 import { revalidatePath } from 'next/cache'
 
 // ── Calcul du loyer du 1er mois au prorata depuis la date de signature ───────
@@ -487,6 +487,59 @@ export async function updateVisitorFieldAction(
       .update({ [field]: value || null })
       .eq('id', visitorId)
     if (error) throw new Error(error.message)
+    revalidateCandidatePage(applicationId)
+    return { ok: true }
+  } catch (e) {
+    return editResult(e)
+  }
+}
+
+// ── Ajouter un document — section "Documents" ────────────────────────────────
+// Réutilise uploadCandidateDocuments (même logique/dossiers Drive que le dépôt initial via
+// /candidater), puis référence le document dans candidate_documents comme au dépôt initial.
+
+export type DocumentOwner = 'candidate' | 'guarantor'
+
+export async function addCandidateDocumentAction(
+  formData: FormData
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const applicationId = (formData.get('applicationId') as string | null)?.trim()
+    const owner = formData.get('owner') as DocumentOwner | null
+    const aptNumber = (formData.get('aptNumber') as string | null)?.trim()
+    const candidateLastName = (formData.get('candidateLastName') as string | null)?.trim()
+    const file = formData.get('file') as File | null
+
+    if (!applicationId || !aptNumber || !candidateLastName) {
+      return { ok: false, error: 'Candidature introuvable.' }
+    }
+    if (owner !== 'candidate' && owner !== 'guarantor') {
+      return { ok: false, error: 'Merci de préciser le destinataire (candidat ou garant).' }
+    }
+    if (!file || file.size === 0) {
+      return { ok: false, error: 'Merci de sélectionner un fichier.' }
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const fileEntry = { name: file.name, type: file.type || 'application/octet-stream', buffer }
+
+    const { candidateUrls, guarantorUrls } = await uploadCandidateDocuments({
+      aptNumber,
+      candidateLastName,
+      candidateFiles: owner === 'candidate' ? [fileEntry] : [],
+      guarantorFiles: owner === 'guarantor' ? [fileEntry] : [],
+    })
+    const driveUrl = (owner === 'candidate' ? candidateUrls[0] : guarantorUrls[0]) || null
+
+    const admin = createAdminClient()
+    const { error } = await admin.from('candidate_documents').insert({
+      application_id: applicationId,
+      owner,
+      file_name: file.name,
+      drive_url: driveUrl,
+    })
+    if (error) throw new Error(error.message)
+
     revalidateCandidatePage(applicationId)
     return { ok: true }
   } catch (e) {

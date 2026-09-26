@@ -28,7 +28,7 @@
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
-Rend tous les champs edtitables au clic pour les blocs "Demande de bail","Candidat","Garant"
+Je voudrais pouvoir ajouter un document dans la section Documents. Tu dois me proposer de choisir si c'est un document pour le candidat ou pour son garant
 
 ## Page Disponibilités visites /admin/disponibilites
 

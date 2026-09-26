@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### 2026-09-26 — Fiche candidat : ajout d'un document depuis la section Documents (candidat ou garant)
+- Nouveau composant `AddDocumentForm.tsx` : bouton « + Ajouter un document » sous la liste des documents, ouvrant un petit formulaire (choix Candidat/Garant — le choix Garant n'apparaît que si un garant est lié à la candidature —, sélecteur de fichier, Ajouter/Annuler) ; bouton Ajouter désactivé tant qu'aucun fichier n'est choisi
+- `actions.ts` : nouvelle server action `addCandidateDocumentAction` — réutilise `uploadCandidateDocuments` (`lib/quittance.ts`, même logique/dossiers Drive que le dépôt initial via `/candidater`) pour déposer le fichier dans `{aptNumber}-{LASTNAME}/justificatifs/{candidate|guarantor}/`, puis référence le document dans `candidate_documents` (`application_id`, `owner`, `file_name`, `drive_url`) comme au dépôt initial
+- `page.tsx` : formulaire affiché uniquement pour les rôles autorisés à éditer (`canEdit`), jamais pour le rôle `viewer`
+- Tests : `actions.test.ts` (8 nouveaux cas — validations applicationId/owner/fichier manquants, routage candidat vs garant vers `uploadCandidateDocuments`, contenu de l'insertion `candidate_documents`, échec upload Drive, échec insertion en base), `AddDocumentForm.test.tsx` (nouveau, 9 cas — affichage ouvert/fermé, masquage du choix Garant sans garant, bouton désactivé sans fichier, soumission avec les bons champs de FormData, reset+fermeture au succès, message d'erreur affiché sans fermer le formulaire)
+
 ### 2026-09-26 — Fix : crash runtime sur la fiche candidat ("Functions cannot be passed directly to Client Components")
 - **Cause** : la feature précédente (champs éditables) passait `formatDisplay={fmtDate}` et des fonctions fléchées (`v => fmtIncome(Number(v))`, etc.) en prop depuis `page.tsx` (Server Component) vers `EditableRow.tsx` (Client Component) — seules les Server Actions (`'use server'`) peuvent traverser cette frontière, une fonction ordinaire fait planter le rendu au runtime
 - `EditableRow.tsx` : la prop `formatDisplay` (fonction) remplacée par `format` (clé string `'date' | 'uppercase' | 'duration' | 'income'`), résolue en interne vers des fonctions de formatage définies côté client — plus aucune fonction ne traverse la frontière serveur/client

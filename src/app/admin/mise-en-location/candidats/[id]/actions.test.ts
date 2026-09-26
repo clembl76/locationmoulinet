@@ -18,6 +18,7 @@ vi.mock('@/lib/quittance', () => ({
   createGmailDraftCandidateAccepted: vi.fn().mockResolvedValue(undefined),
   createGoogleContacts: vi.fn().mockResolvedValue(undefined),
   moveCandidateFolderToTenants: vi.fn().mockResolvedValue(undefined),
+  uploadCandidateDocuments: vi.fn().mockResolvedValue({ candidateUrls: [], guarantorUrls: [] }),
 }))
 
 vi.mock('next/cache', () => ({
@@ -32,6 +33,7 @@ import {
   createGmailDraftCandidateAccepted,
   createGoogleContacts,
   moveCandidateFolderToTenants,
+  uploadCandidateDocuments,
 } from '@/lib/quittance'
 import {
   updateApplicationStatusAction,
@@ -40,14 +42,16 @@ import {
   updateGuarantorFieldAction,
   updateApplicationFieldAction,
   updateVisitorFieldAction,
+  addCandidateDocumentAction,
 } from '@/app/admin/mise-en-location/candidats/[id]/actions'
 
 function makeAdminMock() {
   const eq = vi.fn().mockResolvedValue({ error: null })
   const update = vi.fn().mockReturnValue({ eq })
-  const from = vi.fn().mockReturnValue({ update })
+  const insert = vi.fn().mockResolvedValue({ error: null })
+  const from = vi.fn().mockReturnValue({ update, insert })
   vi.mocked(createAdminClient).mockReturnValue({ from } as ReturnType<typeof createAdminClient>)
-  return { from, update, eq }
+  return { from, update, eq, insert }
 }
 
 describe('updateApplicationStatusAction — accepted_at', () => {
@@ -389,5 +393,127 @@ describe('signLeaseAction — candidate_application_id / signed_at', () => {
 
     expect(result.ok).toBe(true)
     expect(result.ok && result.warnings).toBeUndefined()
+  })
+})
+
+describe('addCandidateDocumentAction — ajout de document (candidat ou garant)', () => {
+  function makeFormData(overrides: Record<string, string | File> = {}) {
+    const fd = new FormData()
+    fd.set('applicationId', 'app-1')
+    fd.set('owner', 'candidate')
+    fd.set('aptNumber', '7')
+    fd.set('candidateLastName', 'Dupont')
+    fd.set('file', new File(['contenu'], 'piece-identite.pdf', { type: 'application/pdf' }))
+    for (const [k, v] of Object.entries(overrides)) fd.set(k, v)
+    return fd
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(uploadCandidateDocuments).mockResolvedValue({ candidateUrls: [], guarantorUrls: [] })
+  })
+
+  it('refuse sans fichier', async () => {
+    const fd = makeFormData()
+    fd.set('file', new File([], '', { type: 'application/octet-stream' }))
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: false, error: 'Merci de sélectionner un fichier.' })
+    expect(uploadCandidateDocuments).not.toHaveBeenCalled()
+  })
+
+  it('refuse un destinataire invalide', async () => {
+    const fd = makeFormData({ owner: 'autre' })
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: false, error: 'Merci de préciser le destinataire (candidat ou garant).' })
+  })
+
+  it('refuse si applicationId est manquant', async () => {
+    const fd = makeFormData({ applicationId: '' })
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: false, error: 'Candidature introuvable.' })
+  })
+
+  it('route le fichier vers candidateFiles quand owner="candidate"', async () => {
+    makeAdminMock()
+    vi.mocked(uploadCandidateDocuments).mockResolvedValueOnce({
+      candidateUrls: ['https://drive.google.com/candidate-doc'],
+      guarantorUrls: [],
+    })
+    const fd = makeFormData({ owner: 'candidate' })
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: true })
+    expect(uploadCandidateDocuments).toHaveBeenCalledWith(expect.objectContaining({
+      aptNumber: '7',
+      candidateLastName: 'Dupont',
+      guarantorFiles: [],
+    }))
+    const call = vi.mocked(uploadCandidateDocuments).mock.calls[0][0]
+    expect(call.candidateFiles).toHaveLength(1)
+    expect(call.candidateFiles[0].name).toBe('piece-identite.pdf')
+  })
+
+  it('route le fichier vers guarantorFiles quand owner="guarantor" et référence la bonne URL', async () => {
+    const { from } = makeAdminMock()
+    vi.mocked(uploadCandidateDocuments).mockResolvedValueOnce({
+      candidateUrls: [],
+      guarantorUrls: ['https://drive.google.com/guarantor-doc'],
+    })
+    const fd = makeFormData({ owner: 'guarantor' })
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: true })
+    const call = vi.mocked(uploadCandidateDocuments).mock.calls[0][0]
+    expect(call.candidateFiles).toHaveLength(0)
+    expect(call.guarantorFiles).toHaveLength(1)
+    expect(from).toHaveBeenCalledWith('candidate_documents')
+  })
+
+  it('insère la ligne candidate_documents avec owner, file_name et drive_url', async () => {
+    const { insert } = makeAdminMock()
+    vi.mocked(uploadCandidateDocuments).mockResolvedValueOnce({
+      candidateUrls: ['https://drive.google.com/doc-1'],
+      guarantorUrls: [],
+    })
+    const fd = makeFormData({ owner: 'candidate' })
+
+    await addCandidateDocumentAction(fd)
+
+    expect(insert).toHaveBeenCalledWith({
+      application_id: 'app-1',
+      owner: 'candidate',
+      file_name: 'piece-identite.pdf',
+      drive_url: 'https://drive.google.com/doc-1',
+    })
+  })
+
+  it('retourne ok:false si l\'upload Drive échoue', async () => {
+    makeAdminMock()
+    vi.mocked(uploadCandidateDocuments).mockRejectedValueOnce(new Error('Drive indisponible'))
+    const fd = makeFormData()
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: false, error: 'Drive indisponible' })
+  })
+
+  it('retourne ok:false si l\'insertion en base échoue', async () => {
+    const insert = vi.fn().mockResolvedValue({ error: { message: 'Erreur DB' } })
+    const from = vi.fn().mockReturnValue({ insert })
+    vi.mocked(createAdminClient).mockReturnValue({ from } as ReturnType<typeof createAdminClient>)
+    vi.mocked(uploadCandidateDocuments).mockResolvedValueOnce({ candidateUrls: ['url'], guarantorUrls: [] })
+    const fd = makeFormData()
+
+    const result = await addCandidateDocumentAction(fd)
+
+    expect(result).toEqual({ ok: false, error: 'Erreur DB' })
   })
 })

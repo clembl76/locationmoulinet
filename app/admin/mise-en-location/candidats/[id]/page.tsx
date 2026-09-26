@@ -9,6 +9,7 @@ import { getSession } from '@/lib/session'
 import { CANDIDATE_STATUS_LABELS } from '@/lib/candidateStatus'
 import CandidateActions from './CandidateActions'
 import EditableRow from './EditableRow'
+import AddDocumentForm from './AddDocumentForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -302,9 +303,9 @@ export default async function CandidateDetailPage({
             </h2>
 
             {docs.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">Aucun document transmis.</p>
+              <p className="text-sm text-gray-400 italic mb-3">Aucun document transmis.</p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 mb-3">
                 {candidateDocs.length > 0 && (
                   <div>
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Candidat</p>
@@ -352,6 +353,15 @@ export default async function CandidateDetailPage({
                   </div>
                 )}
               </div>
+            )}
+
+            {canEdit && (
+              <AddDocumentForm
+                applicationId={applicationId}
+                aptNumber={detail.apartment_number}
+                candidateLastName={detail.last_name}
+                hasGuarantor={!!guarantor}
+              />
             )}
           </section>
 
