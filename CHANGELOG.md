@@ -2,6 +2,21 @@
 
 ## [Non publié]
 
+### 2026-09-26 — Fix : crash runtime sur la fiche candidat ("Functions cannot be passed directly to Client Components")
+- **Cause** : la feature précédente (champs éditables) passait `formatDisplay={fmtDate}` et des fonctions fléchées (`v => fmtIncome(Number(v))`, etc.) en prop depuis `page.tsx` (Server Component) vers `EditableRow.tsx` (Client Component) — seules les Server Actions (`'use server'`) peuvent traverser cette frontière, une fonction ordinaire fait planter le rendu au runtime
+- `EditableRow.tsx` : la prop `formatDisplay` (fonction) remplacée par `format` (clé string `'date' | 'uppercase' | 'duration' | 'income'`), résolue en interne vers des fonctions de formatage définies côté client — plus aucune fonction ne traverse la frontière serveur/client
+- `page.tsx` : tous les appels `formatDisplay={...}` remplacés par `format="..."` ; `fmtDate`/`fmtIncome`/`fmtDuration` du fichier restent utilisées telles quelles pour l'affichage lecture seule (rôle viewer), où seul le résultat (une chaîne) est rendu côté serveur, sans traverser de frontière
+- Tests : `EditableRow.test.tsx` mis à jour (`format` au lieu de `formatDisplay`), 3 nouveaux cas couvrant explicitement chaque valeur de `format` en régression de ce crash
+
+### 2026-09-26 — Fiche candidat : tous les champs éditables au clic (Demande de bail / Candidat / Garant)
+- Nouveau composant générique `EditableRow.tsx` (click-to-edit — même principe que `EditableLeaseDate` sur la fiche appartement), gérant text/email/tel/date/time/number/textarea/select, avec état optimiste et retour en arrière + message d'erreur si l'action échoue
+- 4 nouvelles server actions dans `actions.ts` (une par table concernée, chacune avec sa propre liste blanche de champs) : `updateCandidateFieldAction`, `updateGuarantorFieldAction`, `updateApplicationFieldAction`, `updateVisitorFieldAction`
+- `lib/adminData.ts` : ajout de `apartment_id` à `CandidateDetail` et `id` à `CandidateGuarantor` (nécessaires pour cibler les mises à jour) ; nouvelle fonction `getCandidateApartmentOptions()` pour le sélecteur d'appartement (distincte de `getApartmentOptions()`/`ApartmentOption` déjà existants, utilisés par `/visiter` avec un shape différent — collision de nom évitée)
+- **Champs concernés** : Demande de bail (appartement — via sélecteur —, date de signature souhaitée, date de réception du dossier, date/heure de visite, ville d'études, durée souhaitée, revenus déclarés, commentaires), Candidat et Garant (titre, prénom, nom, email, téléphone, date/lieu de naissance, adresse)
+- Les champs liés au visiteur (visite, revenus, durée, commentaires…) sont désormais éditables dès qu'un visiteur est lié à la candidature, même si le champ est encore vide (auparavant masqué tant que vide) — permet de compléter, pas seulement corriger
+- Rôle `viewer` : toujours en lecture seule (nouveau composant `ReadOnly*Info` réutilisant l'affichage d'origine), cohérent avec le reste de l'admin
+- Tests : `EditableRow.test.tsx` (nouveau, 15 cas : affichage, édition texte/select/textarea, dispatch par entité, erreurs), `actions.test.ts` (8 nouveaux cas pour les 4 actions)
+
 ### 2026-09-14 — Ajustements tableau de bord/paiements : cohérence légende, marges, réorganisation
 - `components/admin/MoisLoyersClient.tsx` : la pastille de légende « Non encaissé » (rouge) ne correspondait pas à la piste neutre du donut — passée en gris (`bg-gray-300`) pour rester cohérente avec le graphique ; marge insuffisante entre les libellés « Occupation »/« Bâtiment » et leurs pastilles de filtre (`w-20` → `w-28 shrink-0`, même correctif que sur la page Appartements)
 - `components/admin/DashboardAnnualClient.tsx` : même correctif de marge sur les libellés « Affichage »/« Bâtiment »

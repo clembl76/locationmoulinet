@@ -33,14 +33,21 @@ import {
   createGoogleContacts,
   moveCandidateFolderToTenants,
 } from '@/lib/quittance'
-import { updateApplicationStatusAction, signLeaseAction } from '@/app/admin/mise-en-location/candidats/[id]/actions'
+import {
+  updateApplicationStatusAction,
+  signLeaseAction,
+  updateCandidateFieldAction,
+  updateGuarantorFieldAction,
+  updateApplicationFieldAction,
+  updateVisitorFieldAction,
+} from '@/app/admin/mise-en-location/candidats/[id]/actions'
 
 function makeAdminMock() {
   const eq = vi.fn().mockResolvedValue({ error: null })
   const update = vi.fn().mockReturnValue({ eq })
   const from = vi.fn().mockReturnValue({ update })
   vi.mocked(createAdminClient).mockReturnValue({ from } as ReturnType<typeof createAdminClient>)
-  return { from, update }
+  return { from, update, eq }
 }
 
 describe('updateApplicationStatusAction — accepted_at', () => {
@@ -188,6 +195,95 @@ describe('updateApplicationStatusAction — warnings (aucune erreur silencieuse)
     expect(result.warnings).toHaveLength(2)
     expect(result.warnings).toContain('Génération du bail échouée : Drive down')
     expect(result.warnings).toContain('Webhook Make.com échoué : timeout')
+  })
+})
+
+describe('Édition au clic — "Demande de bail" / "Candidat" / "Garant"', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('updateCandidateFieldAction met à jour la table candidates avec le bon champ', async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateCandidateFieldAction('cand-1', 'first_name', 'Anaëlle', 'app-1')
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('candidates')
+    expect(update).toHaveBeenCalledWith({ first_name: 'Anaëlle' })
+    expect(eq).toHaveBeenCalledWith('id', 'cand-1')
+  })
+
+  it('updateCandidateFieldAction enregistre null pour une valeur vide (pas une chaîne vide)', async () => {
+    const { update } = makeAdminMock()
+
+    await updateCandidateFieldAction('cand-1', 'phone', '', 'app-1')
+
+    expect(update).toHaveBeenCalledWith({ phone: null })
+  })
+
+  it('updateCandidateFieldAction retourne ok:false avec le message d\'erreur si la mise à jour échoue', async () => {
+    const eq = vi.fn().mockResolvedValue({ error: { message: 'Erreur DB' } })
+    const update = vi.fn().mockReturnValue({ eq })
+    const from = vi.fn().mockReturnValue({ update })
+    vi.mocked(createAdminClient).mockReturnValue({ from } as ReturnType<typeof createAdminClient>)
+
+    const result = await updateCandidateFieldAction('cand-1', 'email', 'test@test.com', 'app-1')
+
+    expect(result).toEqual({ ok: false, error: 'Erreur DB' })
+  })
+
+  it('updateGuarantorFieldAction met à jour la table candidate_guarantors', async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateGuarantorFieldAction('guar-1', 'last_name', 'DUPONT', 'app-1')
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('candidate_guarantors')
+    expect(update).toHaveBeenCalledWith({ last_name: 'DUPONT' })
+    expect(eq).toHaveBeenCalledWith('id', 'guar-1')
+  })
+
+  it('updateApplicationFieldAction met à jour la table candidate_applications (ex. apartment_id)', async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateApplicationFieldAction('app-1', 'apartment_id', 'apt-42')
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('candidate_applications')
+    expect(update).toHaveBeenCalledWith({ apartment_id: 'apt-42' })
+    expect(eq).toHaveBeenCalledWith('id', 'app-1')
+  })
+
+  it('updateApplicationFieldAction accepte desired_signing_date et created_at', async () => {
+    const { update } = makeAdminMock()
+
+    await updateApplicationFieldAction('app-1', 'desired_signing_date', '2026-10-01')
+    expect(update).toHaveBeenCalledWith({ desired_signing_date: '2026-10-01' })
+
+    await updateApplicationFieldAction('app-1', 'created_at', '2026-09-15')
+    expect(update).toHaveBeenCalledWith({ created_at: '2026-09-15' })
+  })
+
+  it('updateVisitorFieldAction met à jour la table visitors (ex. comments)', async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateVisitorFieldAction('visitor-1', 'comments', 'Très motivé', 'app-1')
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('visitors')
+    expect(update).toHaveBeenCalledWith({ comments: 'Très motivé' })
+    expect(eq).toHaveBeenCalledWith('id', 'visitor-1')
+  })
+
+  it('updateVisitorFieldAction accepte les champs numériques (desired_duration_months, total_income)', async () => {
+    const { update } = makeAdminMock()
+
+    await updateVisitorFieldAction('visitor-1', 'desired_duration_months', '12', 'app-1')
+    expect(update).toHaveBeenCalledWith({ desired_duration_months: '12' })
+
+    await updateVisitorFieldAction('visitor-1', 'total_income', '1500', 'app-1')
+    expect(update).toHaveBeenCalledWith({ total_income: '1500' })
   })
 })
 

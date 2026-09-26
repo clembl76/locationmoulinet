@@ -391,3 +391,105 @@ export async function signLeaseAction(opts: {
     return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
   }
 }
+
+// ── Édition au clic — "Demande de bail" / "Candidat" / "Garant" ─────────────
+// 4 actions génériques (une par table), chacune avec sa propre liste blanche de champs
+// autorisés — même principe que updateLeaseDateAction (fiche appartement).
+
+function editResult(error: unknown): { ok: false; error: string } {
+  return { ok: false, error: error instanceof Error ? error.message : 'Erreur inconnue' }
+}
+
+function revalidateCandidatePage(applicationId: string) {
+  revalidatePath(`/admin/mise-en-location/candidats/${applicationId}`)
+  revalidatePath('/admin/mise-en-location')
+}
+
+export type CandidateEditableField =
+  | 'title' | 'first_name' | 'last_name' | 'email' | 'phone' | 'birth_date' | 'birth_place' | 'address'
+
+export async function updateCandidateFieldAction(
+  candidateId: string,
+  field: CandidateEditableField,
+  value: string,
+  applicationId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('candidates')
+      .update({ [field]: value || null })
+      .eq('id', candidateId)
+    if (error) throw new Error(error.message)
+    revalidateCandidatePage(applicationId)
+    return { ok: true }
+  } catch (e) {
+    return editResult(e)
+  }
+}
+
+export type GuarantorEditableField = CandidateEditableField
+
+export async function updateGuarantorFieldAction(
+  guarantorId: string,
+  field: GuarantorEditableField,
+  value: string,
+  applicationId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('candidate_guarantors')
+      .update({ [field]: value || null })
+      .eq('id', guarantorId)
+    if (error) throw new Error(error.message)
+    revalidateCandidatePage(applicationId)
+    return { ok: true }
+  } catch (e) {
+    return editResult(e)
+  }
+}
+
+export type ApplicationEditableField = 'apartment_id' | 'desired_signing_date' | 'created_at'
+
+export async function updateApplicationFieldAction(
+  applicationId: string,
+  field: ApplicationEditableField,
+  value: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('candidate_applications')
+      .update({ [field]: value || null })
+      .eq('id', applicationId)
+    if (error) throw new Error(error.message)
+    revalidateCandidatePage(applicationId)
+    return { ok: true }
+  } catch (e) {
+    return editResult(e)
+  }
+}
+
+export type VisitorEditableField =
+  | 'visit_date' | 'visit_time' | 'studies_at' | 'desired_duration_months' | 'total_income' | 'comments'
+
+export async function updateVisitorFieldAction(
+  visitorId: string,
+  field: VisitorEditableField,
+  value: string,
+  applicationId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('visitors')
+      .update({ [field]: value || null })
+      .eq('id', visitorId)
+    if (error) throw new Error(error.message)
+    revalidateCandidatePage(applicationId)
+    return { ok: true }
+  } catch (e) {
+    return editResult(e)
+  }
+}

@@ -882,6 +882,7 @@ export type CandidateDetail = {
   application_id: string
   status: string
   desired_signing_date: string | null
+  apartment_id: string
   apartment_number: string
   floor_label: string | null
   rent_including_charges: number
@@ -896,6 +897,7 @@ export type CandidateDetail = {
 }
 
 export type CandidateGuarantor = {
+  id: string
   title: string | null
   first_name: string | null
   last_name: string | null
@@ -1011,6 +1013,7 @@ export async function getCandidateDetail(applicationId: string): Promise<Candida
       ca.created_at::date::text AS created_at,
       ca.id AS application_id, ca.status::text AS status,
       ca.desired_signing_date::date::text,
+      ca.apartment_id,
       a.number AS apartment_number, a.floor_label, a.rent_including_charges,
       ca.visitor_id,
       v.visit_date::date::text AS visitor_visit_date,
@@ -1031,13 +1034,34 @@ export async function getCandidateDetail(applicationId: string): Promise<Candida
 
 export async function getCandidateGuarantor(candidateId: string): Promise<CandidateGuarantor | null> {
   const rows = await runSql<CandidateGuarantor>(`
-    SELECT title, first_name, last_name, email, phone,
+    SELECT id, title, first_name, last_name, email, phone,
            birth_date::text, birth_place, address
     FROM candidate_guarantors
     WHERE candidate_id = '${candidateId}'
     LIMIT 1
   `)
   return rows[0] ?? null
+}
+
+export type CandidateApartmentOption = {
+  id: string
+  number: string
+  building_short_name: string
+}
+
+// Liste légère pour un sélecteur d'appartement (ex. réaffecter une candidature) — tous les
+// appartements valides, occupés ou non (contrairement à getLettingApartments, réservé aux
+// disponibles pour le site vitrine). Nommée distinctement de ApartmentOption/getApartmentOptions
+// (existants plus bas, utilisés par /visiter avec un shape différent : { number } seul).
+export async function getCandidateApartmentOptions(): Promise<CandidateApartmentOption[]> {
+  return runSql<CandidateApartmentOption>(`
+    SELECT a.id, a.number, b.short_name AS building_short_name
+    FROM apartments a
+    JOIN buildings b ON b.id = a.building_id
+    WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
+      AND ${EXCLUDE_BUREAU}
+    ORDER BY a.number::integer
+  `)
 }
 
 export async function getCandidateDocuments(applicationId: string): Promise<CandidateDocument[]> {

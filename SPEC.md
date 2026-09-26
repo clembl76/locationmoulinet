@@ -28,7 +28,7 @@
 ## Page Mise en location /admin/mise-en-location
 
 ## Page Détail d'un candidat /admin/mise-en-location/candidats/id
-
+Rend tous les champs edtitables au clic pour les blocs "Demande de bail","Candidat","Garant"
 
 ## Page Disponibilités visites /admin/disponibilites
 

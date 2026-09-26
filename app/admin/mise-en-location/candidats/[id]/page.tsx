@@ -3,10 +3,12 @@ import {
   getCandidateDetail,
   getCandidateGuarantor,
   getCandidateDocuments,
+  getCandidateApartmentOptions,
 } from '@/lib/adminData'
 import { getSession } from '@/lib/session'
 import { CANDIDATE_STATUS_LABELS } from '@/lib/candidateStatus'
 import CandidateActions from './CandidateActions'
+import EditableRow from './EditableRow'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,17 +19,11 @@ function fmtDate(d: string | null) {
   })
 }
 
-function fmtTime(t: string | null) {
-  if (!t) return ''
-  return t.slice(0, 5)
+function fmtIncome(n: number) {
+  return `${Number(n).toLocaleString('fr-FR')} €/mois`
 }
 
-function fmtIncome(n: number | null) {
-  if (!n) return '—'
-  return `${n.toLocaleString('fr-FR')} €/mois`
-}
-
-function fmtDuration(months: number | null) {
+function fmtDuration(months: number) {
   if (!months) return '—'
   if (months < 12) return `${months} mois`
   const years = Math.floor(months / 12)
@@ -36,14 +32,11 @@ function fmtDuration(months: number | null) {
   return `${years} an${years > 1 ? 's' : ''} et ${rem} mois`
 }
 
-function Row({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className="flex gap-4 py-2 border-b border-gray-50 last:border-0">
-      <dt className="text-sm text-gray-400 w-44 shrink-0">{label}</dt>
-      <dd className="text-sm text-gray-900">{value || '—'}</dd>
-    </div>
-  )
-}
+const TITLE_OPTIONS = [
+  { value: '', label: '—' },
+  { value: 'M.', label: 'M.' },
+  { value: 'Mme', label: 'Mme' },
+]
 
 const STATUS_COLORS: Record<string, string> = {
   pending:   'bg-blue-50 text-blue-700 border-blue-200',
@@ -61,9 +54,10 @@ export default async function CandidateDetailPage({
   const { id } = await params
   const session = await getSession()
   const isViewer = session?.role === 'viewer'
-  const [detail, docs] = await Promise.all([
+  const [detail, docs, apartmentOptions] = await Promise.all([
     getCandidateDetail(id),
     getCandidateDocuments(id),
+    getCandidateApartmentOptions(),
   ])
 
   if (!detail) notFound()
@@ -72,6 +66,13 @@ export default async function CandidateDetailPage({
 
   const candidateDocs = docs.filter(d => d.owner === 'candidate')
   const guarantorDocs = docs.filter(d => d.owner === 'guarantor')
+  const canEdit = !isViewer
+  const applicationId = detail.application_id
+
+  const aptSelectOptions = apartmentOptions.map(a => ({
+    value: a.id,
+    label: `n°${a.number} · ${a.building_short_name}`,
+  }))
 
   return (
     <div className="space-y-6">
@@ -105,60 +106,141 @@ export default async function CandidateDetailPage({
           {/* Demande de bail — EN PREMIER */}
           <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Demande de bail</h2>
-            <dl>
-              <Row label="Appartement" value={`n°${detail.apartment_number}${detail.floor_label ? ` · ${detail.floor_label}` : ''}`} />
-              <Row label="Date de signature souhaitée" value={fmtDate(detail.desired_signing_date)} />
-              <Row label="Dossier reçu le" value={fmtDate(detail.created_at)} />
-              {detail.visitor_visit_date && (
-                <Row
-                  label="Visite effectuée le"
-                  value={`${fmtDate(detail.visitor_visit_date)}${detail.visitor_visit_time ? ` à ${fmtTime(detail.visitor_visit_time)}` : ''}`}
+            {canEdit ? (
+              <dl>
+                <EditableRow
+                  label="Appartement" entity="application" id={applicationId} applicationId={applicationId}
+                  field="apartment_id" initialValue={detail.apartment_id} type="select" options={aptSelectOptions}
                 />
-              )}
-              {detail.visitor_studies_at && (
-                <Row label="J'étudie à" value={detail.visitor_studies_at} />
-              )}
-              {detail.visitor_desired_duration_months != null && (
-                <Row label="Durée souhaitée" value={fmtDuration(detail.visitor_desired_duration_months)} />
-              )}
-              {detail.visitor_total_income != null && (
-                <Row label="Revenus déclarés" value={fmtIncome(detail.visitor_total_income)} />
-              )}
-              {detail.visitor_comments && (
-                <Row label="Commentaires" value={detail.visitor_comments} />
-              )}
-            </dl>
+                <EditableRow
+                  label="Date de signature souhaitée" entity="application" id={applicationId} applicationId={applicationId}
+                  field="desired_signing_date" initialValue={detail.desired_signing_date} type="date" format="date"
+                />
+                <EditableRow
+                  label="Dossier reçu le" entity="application" id={applicationId} applicationId={applicationId}
+                  field="created_at" initialValue={detail.created_at} type="date" format="date"
+                />
+                {detail.visitor_id && (
+                  <>
+                    <EditableRow
+                      label="Date de visite" entity="visitor" id={detail.visitor_id} applicationId={applicationId}
+                      field="visit_date" initialValue={detail.visitor_visit_date} type="date" format="date"
+                    />
+                    <EditableRow
+                      label="Heure de visite" entity="visitor" id={detail.visitor_id} applicationId={applicationId}
+                      field="visit_time" initialValue={detail.visitor_visit_time ? detail.visitor_visit_time.slice(0, 5) : null} type="time"
+                    />
+                    <EditableRow
+                      label="J'étudie à" entity="visitor" id={detail.visitor_id} applicationId={applicationId}
+                      field="studies_at" initialValue={detail.visitor_studies_at} type="text"
+                    />
+                    <EditableRow
+                      label="Durée souhaitée" entity="visitor" id={detail.visitor_id} applicationId={applicationId}
+                      field="desired_duration_months" initialValue={detail.visitor_desired_duration_months?.toString() ?? null}
+                      type="number" format="duration"
+                    />
+                    <EditableRow
+                      label="Revenus déclarés" entity="visitor" id={detail.visitor_id} applicationId={applicationId}
+                      field="total_income" initialValue={detail.visitor_total_income?.toString() ?? null}
+                      type="number" format="income"
+                    />
+                    <EditableRow
+                      label="Commentaires" entity="visitor" id={detail.visitor_id} applicationId={applicationId}
+                      field="comments" initialValue={detail.visitor_comments} type="textarea"
+                    />
+                  </>
+                )}
+              </dl>
+            ) : (
+              <ReadOnlyBailInfo detail={detail} />
+            )}
           </section>
 
           {/* Candidat */}
           <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Candidat</h2>
-            <dl>
-              {detail.title && <Row label="Titre" value={detail.title} />}
-              <Row label="Prénom" value={detail.first_name} />
-              <Row label="Nom" value={detail.last_name.toUpperCase()} />
-              <Row label="Email" value={detail.email} />
-              <Row label="Téléphone" value={detail.phone} />
-              <Row label="Date de naissance" value={fmtDate(detail.birth_date)} />
-              <Row label="Lieu de naissance" value={detail.birth_place} />
-              <Row label="Adresse" value={detail.address} />
-            </dl>
+            {canEdit ? (
+              <dl>
+                <EditableRow
+                  label="Titre" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="title" initialValue={detail.title} type="select" options={TITLE_OPTIONS}
+                />
+                <EditableRow
+                  label="Prénom" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="first_name" initialValue={detail.first_name} type="text"
+                />
+                <EditableRow
+                  label="Nom" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="last_name" initialValue={detail.last_name} type="text" format="uppercase"
+                />
+                <EditableRow
+                  label="Email" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="email" initialValue={detail.email} type="email"
+                />
+                <EditableRow
+                  label="Téléphone" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="phone" initialValue={detail.phone} type="tel"
+                />
+                <EditableRow
+                  label="Date de naissance" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="birth_date" initialValue={detail.birth_date} type="date" format="date"
+                />
+                <EditableRow
+                  label="Lieu de naissance" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="birth_place" initialValue={detail.birth_place} type="text"
+                />
+                <EditableRow
+                  label="Adresse" entity="candidate" id={detail.candidate_id} applicationId={applicationId}
+                  field="address" initialValue={detail.address} type="text"
+                />
+              </dl>
+            ) : (
+              <ReadOnlyCandidateInfo detail={detail} />
+            )}
           </section>
 
           {/* Garant */}
           {guarantor ? (
             <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-base font-semibold text-gray-900 mb-4">Garant</h2>
-              <dl>
-                {guarantor.title && <Row label="Titre" value={guarantor.title} />}
-                <Row label="Prénom" value={guarantor.first_name} />
-                <Row label="Nom" value={guarantor.last_name ? guarantor.last_name.toUpperCase() : null} />
-                <Row label="Email" value={guarantor.email} />
-                <Row label="Téléphone" value={guarantor.phone} />
-                <Row label="Date de naissance" value={fmtDate(guarantor.birth_date)} />
-                <Row label="Lieu de naissance" value={guarantor.birth_place} />
-                <Row label="Adresse" value={guarantor.address} />
-              </dl>
+              {canEdit ? (
+                <dl>
+                  <EditableRow
+                    label="Titre" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="title" initialValue={guarantor.title} type="select" options={TITLE_OPTIONS}
+                  />
+                  <EditableRow
+                    label="Prénom" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="first_name" initialValue={guarantor.first_name} type="text"
+                  />
+                  <EditableRow
+                    label="Nom" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="last_name" initialValue={guarantor.last_name} type="text" format="uppercase"
+                  />
+                  <EditableRow
+                    label="Email" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="email" initialValue={guarantor.email} type="email"
+                  />
+                  <EditableRow
+                    label="Téléphone" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="phone" initialValue={guarantor.phone} type="tel"
+                  />
+                  <EditableRow
+                    label="Date de naissance" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="birth_date" initialValue={guarantor.birth_date} type="date" format="date"
+                  />
+                  <EditableRow
+                    label="Lieu de naissance" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="birth_place" initialValue={guarantor.birth_place} type="text"
+                  />
+                  <EditableRow
+                    label="Adresse" entity="guarantor" id={guarantor.id} applicationId={applicationId}
+                    field="address" initialValue={guarantor.address} type="text"
+                  />
+                </dl>
+              ) : (
+                <ReadOnlyGuarantorInfo guarantor={guarantor} />
+              )}
             </section>
           ) : (
             <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
@@ -277,5 +359,70 @@ export default async function CandidateDetailPage({
       </div>
 
     </div>
+  )
+}
+
+// ─── Lecture seule (rôle viewer) — mêmes informations, sans édition ────────────
+
+function ReadOnlyRow({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div className="flex gap-4 py-2 border-b border-gray-50 last:border-0">
+      <dt className="text-sm text-gray-400 w-44 shrink-0">{label}</dt>
+      <dd className="text-sm text-gray-900">{value || '—'}</dd>
+    </div>
+  )
+}
+
+function ReadOnlyBailInfo({ detail }: { detail: NonNullable<Awaited<ReturnType<typeof getCandidateDetail>>> }) {
+  return (
+    <dl>
+      <ReadOnlyRow label="Appartement" value={`n°${detail.apartment_number}${detail.floor_label ? ` · ${detail.floor_label}` : ''}`} />
+      <ReadOnlyRow label="Date de signature souhaitée" value={fmtDate(detail.desired_signing_date)} />
+      <ReadOnlyRow label="Dossier reçu le" value={fmtDate(detail.created_at)} />
+      {detail.visitor_visit_date && (
+        <ReadOnlyRow
+          label="Visite effectuée le"
+          value={`${fmtDate(detail.visitor_visit_date)}${detail.visitor_visit_time ? ` à ${detail.visitor_visit_time.slice(0, 5)}` : ''}`}
+        />
+      )}
+      {detail.visitor_studies_at && <ReadOnlyRow label="J'étudie à" value={detail.visitor_studies_at} />}
+      {detail.visitor_desired_duration_months != null && (
+        <ReadOnlyRow label="Durée souhaitée" value={fmtDuration(detail.visitor_desired_duration_months)} />
+      )}
+      {detail.visitor_total_income != null && (
+        <ReadOnlyRow label="Revenus déclarés" value={fmtIncome(detail.visitor_total_income)} />
+      )}
+      {detail.visitor_comments && <ReadOnlyRow label="Commentaires" value={detail.visitor_comments} />}
+    </dl>
+  )
+}
+
+function ReadOnlyCandidateInfo({ detail }: { detail: NonNullable<Awaited<ReturnType<typeof getCandidateDetail>>> }) {
+  return (
+    <dl>
+      {detail.title && <ReadOnlyRow label="Titre" value={detail.title} />}
+      <ReadOnlyRow label="Prénom" value={detail.first_name} />
+      <ReadOnlyRow label="Nom" value={detail.last_name.toUpperCase()} />
+      <ReadOnlyRow label="Email" value={detail.email} />
+      <ReadOnlyRow label="Téléphone" value={detail.phone} />
+      <ReadOnlyRow label="Date de naissance" value={fmtDate(detail.birth_date)} />
+      <ReadOnlyRow label="Lieu de naissance" value={detail.birth_place} />
+      <ReadOnlyRow label="Adresse" value={detail.address} />
+    </dl>
+  )
+}
+
+function ReadOnlyGuarantorInfo({ guarantor }: { guarantor: NonNullable<Awaited<ReturnType<typeof getCandidateGuarantor>>> }) {
+  return (
+    <dl>
+      {guarantor.title && <ReadOnlyRow label="Titre" value={guarantor.title} />}
+      <ReadOnlyRow label="Prénom" value={guarantor.first_name} />
+      <ReadOnlyRow label="Nom" value={guarantor.last_name ? guarantor.last_name.toUpperCase() : null} />
+      <ReadOnlyRow label="Email" value={guarantor.email} />
+      <ReadOnlyRow label="Téléphone" value={guarantor.phone} />
+      <ReadOnlyRow label="Date de naissance" value={fmtDate(guarantor.birth_date)} />
+      <ReadOnlyRow label="Lieu de naissance" value={guarantor.birth_place} />
+      <ReadOnlyRow label="Adresse" value={guarantor.address} />
+    </dl>
   )
 }
