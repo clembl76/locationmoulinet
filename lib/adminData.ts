@@ -497,6 +497,26 @@ export type RentRecord = {
   amount_received: number | null
   received_at: string | null
   notes: string | null
+  /** Date à laquelle le loyer impayé a été déclaré irrécouvrable (null = non). */
+  written_off_at: string | null
+}
+
+// Loyers jamais encaissés d'un bail, antérieurs au mois donné (irrécouvrables inclus),
+// du plus récent au plus ancien — pour les suivre depuis la fiche appartement.
+export async function getUnpaidRentsForLease(
+  leaseId: string,
+  beforeYear: number,
+  beforeMonth: number
+): Promise<RentRecord[]> {
+  return runSql<RentRecord>(`
+    SELECT id, lease_id, year, month, amount_expected, is_prorata, prorata_days, days_in_month,
+           amount_received, received_at::text AS received_at, notes, written_off_at::text AS written_off_at
+    FROM rents
+    WHERE lease_id = '${leaseId}'
+      AND amount_received IS NULL
+      AND (year * 12 + month) < (${beforeYear} * 12 + ${beforeMonth})
+    ORDER BY year DESC, month DESC
+  `)
 }
 
 export async function getRentForMonth(
@@ -506,7 +526,7 @@ export async function getRentForMonth(
 ): Promise<RentRecord | null> {
   const rows = await runSql<RentRecord>(`
     SELECT id, lease_id, year, month, amount_expected, is_prorata, prorata_days, days_in_month,
-           amount_received, received_at, notes
+           amount_received, received_at, notes, written_off_at::text AS written_off_at
     FROM rents
     WHERE lease_id = '${leaseId}' AND year = ${year} AND month = ${month}
     LIMIT 1
@@ -585,7 +605,7 @@ export async function getRentsForLeaseYear(
 ): Promise<RentRecord[]> {
   return runSql<RentRecord>(`
     SELECT id, lease_id, year, month, amount_expected, is_prorata, prorata_days,
-           days_in_month, amount_received, received_at, notes
+           days_in_month, amount_received, received_at, notes, written_off_at::text AS written_off_at
     FROM rents
     WHERE lease_id = '${leaseId}' AND year = ${year}
     ORDER BY month
@@ -1220,21 +1240,50 @@ export type CaMonthRow = {
   ca_hc: number
 }
 
+// Revenus de location courte durée (Airbnb, Le Bon Coin — table short_term_revenues, migration
+// 20261009) : pas de bail ni de charges, le montant compte tel quel en CC comme en HC.
+export const SHORT_TERM_CA_SELECT = (year: number) => `
+      SELECT
+        s.month,
+        b.short_name AS building,
+        s.amount AS ca_cc,
+        s.amount AS ca_hc
+      FROM short_term_revenues s
+      JOIN apartments a ON a.id = s.apartment_id
+      JOIN buildings b ON b.id = a.building_id
+      WHERE s.year = ${year}`
+
+// Un appartement qui a un revenu de courte durée sur le mois est occupé ce mois-là, même sans bail.
+// `apt` et `month` sont des expressions SQL (id de l'appartement, numéro du mois).
+export const SHORT_TERM_OCCUPIED = (apt: string, year: number, month: string) => `EXISTS (
+          SELECT 1 FROM short_term_revenues s
+          WHERE s.apartment_id = ${apt} AND s.year = ${year} AND s.month = ${month}
+        )`
+
 export async function getCaByMonth(year: number): Promise<CaMonthRow[]> {
   return runSql<CaMonthRow>(`
     SELECT
-      r.month,
-      b.short_name AS building,
-      COALESCE(SUM(r.amount_received), 0)::float AS ca_cc,
-      COALESCE(SUM(r.amount_received - COALESCE(l.charges, 0)), 0)::float AS ca_hc
-    FROM rents r
-    JOIN leases l ON l.id = r.lease_id
-    JOIN apartments a ON a.id = l.apartment_id
-    JOIN buildings b ON b.id = a.building_id
-    WHERE r.year = ${year}
-      AND r.amount_received IS NOT NULL
-    GROUP BY r.month, b.short_name
-    ORDER BY r.month, b.short_name
+      x.month,
+      x.building,
+      COALESCE(SUM(x.ca_cc), 0)::float AS ca_cc,
+      COALESCE(SUM(x.ca_hc), 0)::float AS ca_hc
+    FROM (
+      SELECT
+        r.month,
+        b.short_name AS building,
+        r.amount_received AS ca_cc,
+        r.amount_received - COALESCE(l.charges, 0) AS ca_hc
+      FROM rents r
+      JOIN leases l ON l.id = r.lease_id
+      JOIN apartments a ON a.id = l.apartment_id
+      JOIN buildings b ON b.id = a.building_id
+      WHERE r.year = ${year}
+        AND r.amount_received IS NOT NULL
+      UNION ALL
+      ${SHORT_TERM_CA_SELECT(year)}
+    ) x
+    GROUP BY x.month, x.building
+    ORDER BY x.month, x.building
   `)
 }
 
@@ -1270,6 +1319,7 @@ export async function getOccupationRateByBuildingMonth(year: number, month: numb
             AND (l.move_out_inspection_date IS NULL
                  OR l.move_out_inspection_date >= make_date(${year}::int, m.m::int, 1))
         )
+        OR ${SHORT_TERM_OCCUPIED('ab.id', year, 'm.m')}
       )::float AS occupied,
       COUNT(*)::float AS total
     FROM months m
@@ -1373,6 +1423,10 @@ async function getDepositMissingActions(): Promise<AdminAction[]> {
   `).catch(() => [] as AdminAction[]) // colonnes candidate_application_id/signed_at — migration 20260725
 }
 
+// Loyer non déclaré irrécouvrable (rents.written_off_at — migration 20261008). Passe par to_jsonb
+// pour rester valide tant que la colonne n'existe pas : la clé est alors absente → NULL.
+export const RENT_NOT_WRITTEN_OFF = `(to_jsonb(r)->>'written_off_at') IS NULL`
+
 async function getRentDueActions(): Promise<AdminAction[]> {
   return runSql<AdminAction>(`
     SELECT
@@ -1389,6 +1443,7 @@ async function getRentDueActions(): Promise<AdminAction[]> {
     LEFT JOIN lease_tenants lt ON lt.lease_id = l.id
     LEFT JOIN tenants t ON t.id = lt.tenant_id
     WHERE r.amount_received IS NULL
+      AND ${RENT_NOT_WRITTEN_OFF}
       AND make_date(r.year::int, r.month::int, 1) <= CURRENT_DATE
   `)
 }

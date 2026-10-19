@@ -226,6 +226,58 @@ export async function markReceivedAndGenerateQuittance(
   }
 }
 
+// Passe un loyer impayé en irrécouvrable (on ne recevra jamais l'argent) : il reste impayé
+// mais ne génère plus d'action « loyer à payer ». value=false annule.
+export async function setRentWrittenOffAction(
+  rentId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string; writtenOffAt?: string | null }> {
+  try {
+    const admin = createAdminClient()
+    const now = new Date()
+    const writtenOffAt = value
+      ? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      : null
+    // Garde-fou : un loyer déjà encaissé ne peut pas être irrécouvrable
+    const { data, error } = await admin
+      .from('rents')
+      .update({ written_off_at: writtenOffAt })
+      .eq('id', rentId)
+      .is('amount_received', null)
+      .select('id')
+    if (error) throw new Error(error.message)
+    if (!data || data.length === 0) throw new Error('Loyer introuvable ou déjà encaissé')
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    revalidatePath('/admin')
+    revalidatePath('/admin/actions')
+    return { ok: true, writtenOffAt }
+  } catch (e) {
+    console.error(`[setRentWrittenOffAction] loyer ${rentId} (appt ${aptNumber}) :`, e)
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
+export async function updateRentNotesAction(
+  rentId: string,
+  aptNumber: string,
+  notes: string
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('rents')
+      .update({ notes: notes.trim() === '' ? null : notes.trim() })
+      .eq('id', rentId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    return { ok: true }
+  } catch (e) {
+    console.error(`[updateRentNotesAction] loyer ${rentId} (appt ${aptNumber}) :`, e)
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}
+
 export async function generateQuittanceCautionAction(
   leaseId: string,
   aptNumber: string

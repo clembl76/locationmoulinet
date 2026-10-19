@@ -27,6 +27,8 @@ import {
   updateMoveInDateConfirmedAction,
   updateLeaseDateAction,
   savePreavisAction,
+  setRentWrittenOffAction,
+  updateRentNotesAction,
 } from '@/app/admin/apartments/[number]/actions'
 
 function makeAdminMock(updateError: { message: string } | null = null) {
@@ -211,5 +213,96 @@ describe('savePreavisAction — notice_given_at', () => {
       move_out_inspection_date: '2026-12-31',
       end_date: '2026-12-31',
     })
+  })
+})
+
+describe('setRentWrittenOffAction', () => {
+  function makeWriteOffMock(result: { data: { id: string }[] | null; error: { message: string } | null }) {
+    const select = vi.fn().mockResolvedValue(result)
+    const is = vi.fn().mockReturnValue({ select })
+    const eq = vi.fn().mockReturnValue({ is })
+    const update = vi.fn().mockReturnValue({ eq })
+    const from = vi.fn().mockReturnValue({ update })
+    vi.mocked(createAdminClient).mockReturnValue({ from } as unknown as ReturnType<typeof createAdminClient>)
+    return { from, update, eq, is }
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  it('renseigne written_off_at (date du jour), uniquement sur un loyer non encaissé', async () => {
+    const { from, update, eq, is } = makeWriteOffMock({ data: [{ id: 'rent-1' }], error: null })
+
+    const result = await setRentWrittenOffAction('rent-1', '21', true)
+
+    expect(result).toEqual({ ok: true, writtenOffAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) })
+    expect(from).toHaveBeenCalledWith('rents')
+    expect(update).toHaveBeenCalledWith({ written_off_at: result.writtenOffAt })
+    expect(eq).toHaveBeenCalledWith('id', 'rent-1')
+    expect(is).toHaveBeenCalledWith('amount_received', null)
+  })
+
+  it('remet written_off_at à null quand value=false', async () => {
+    const { update } = makeWriteOffMock({ data: [{ id: 'rent-1' }], error: null })
+
+    const result = await setRentWrittenOffAction('rent-1', '21', false)
+
+    expect(result).toEqual({ ok: true, writtenOffAt: null })
+    expect(update).toHaveBeenCalledWith({ written_off_at: null })
+  })
+
+  it('refuse un loyer introuvable ou déjà encaissé (aucune ligne modifiée)', async () => {
+    makeWriteOffMock({ data: [], error: null })
+
+    const result = await setRentWrittenOffAction('rent-1', '21', true)
+
+    expect(result).toEqual({ ok: false, error: 'Loyer introuvable ou déjà encaissé' })
+    expect(console.error).toHaveBeenCalled()
+  })
+
+  it("remonte l'erreur de la base", async () => {
+    makeWriteOffMock({ data: null, error: { message: 'Erreur DB' } })
+
+    const result = await setRentWrittenOffAction('rent-1', '21', true)
+
+    expect(result).toEqual({ ok: false, error: 'Erreur DB' })
+    expect(console.error).toHaveBeenCalled()
+  })
+})
+
+describe('updateRentNotesAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  it('enregistre le commentaire sans les espaces superflus', async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateRentNotesAction('rent-1', '21', '  Payé en espèces ')
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('rents')
+    expect(update).toHaveBeenCalledWith({ notes: 'Payé en espèces' })
+    expect(eq).toHaveBeenCalledWith('id', 'rent-1')
+  })
+
+  it('enregistre null pour un commentaire vide', async () => {
+    const { update } = makeAdminMock()
+
+    await updateRentNotesAction('rent-1', '21', '   ')
+
+    expect(update).toHaveBeenCalledWith({ notes: null })
+  })
+
+  it("retourne l'erreur et la journalise si la mise à jour échoue", async () => {
+    makeAdminMock({ message: 'Erreur DB' })
+
+    const result = await updateRentNotesAction('rent-1', '21', 'x')
+
+    expect(result).toEqual({ ok: false, error: 'Erreur DB' })
+    expect(console.error).toHaveBeenCalled()
   })
 })

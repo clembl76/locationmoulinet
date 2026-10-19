@@ -1,4 +1,5 @@
-import { getAdminApartmentDetail, getLinxoTransactionsForApartment, getRentForMonth, checkCautionTransaction, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
+import { getAdminApartmentDetail, getLinxoTransactionsForApartment, getRentForMonth, getUnpaidRentsForLease, checkCautionTransaction, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
+import { MONTH_LABELS } from '@/lib/monthLabels'
 import { getDriveTenantFolderUrl, getDriveEdlEntryUrl } from '@/lib/quittance'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
@@ -14,6 +15,7 @@ import EdlSentCheckbox from '@/components/admin/EdlSentCheckbox'
 import ListingPublishedCheckbox from '@/components/admin/ListingPublishedCheckbox'
 import MoveInDateConfirmedCheckbox from '@/components/admin/MoveInDateConfirmedCheckbox'
 import EditableLeaseDate from '@/components/admin/EditableLeaseDate'
+import RentFollowUp from '@/components/admin/RentFollowUp'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -37,13 +39,14 @@ export default async function AdminApartmentDetailPage({
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
-  const [linxoTxs, rentRecord, , guarantor, driveLeaseUrl, driveEdlUrl] = await Promise.all([
+  const [linxoTxs, rentRecord, , guarantor, driveLeaseUrl, driveEdlUrl, unpaidRents] = await Promise.all([
     getLinxoTransactionsForApartment(number, apt?.lease_id, apt?.move_in_date, apt?.move_out_date).catch(() => []),
     apt?.lease_id ? getRentForMonth(apt.lease_id, year, month) : Promise.resolve(null),
     checkCautionTransaction(number),
     apt?.lease_id ? getGuarantorForLease(apt.lease_id) : Promise.resolve(null),
     apt?.tenant_last_name ? getDriveTenantFolderUrl(number, apt.tenant_last_name) : Promise.resolve(null),
     apt?.tenant_last_name ? getDriveEdlEntryUrl(number, apt.tenant_last_name) : Promise.resolve(null),
+    apt?.lease_id ? getUnpaidRentsForLease(apt.lease_id, year, month) : Promise.resolve([] as RentRecord[]),
   ])
 
   if (!apt) notFound()
@@ -52,6 +55,7 @@ export default async function AdminApartmentDetailPage({
   const moisCourt = now.toLocaleString('fr-FR', { month: 'long' })
   const isOccupied = !!apt.lease_id
   const isUnpaid = !!rentRecord && rentRecord.amount_received == null
+  const isWrittenOff = isUnpaid && !!rentRecord?.written_off_at
 
   const hasTenant = !!apt.tenant_last_name
   const tenantName = hasTenant
@@ -267,7 +271,7 @@ export default async function AdminApartmentDetailPage({
                       <span className="text-red-600 font-semibold text-sm">Non encaissé</span>
                     </div>
                   )}
-                  {isUnpaid && rentRecord && apt.lease_id && (
+                  {isUnpaid && !isWrittenOff && rentRecord && apt.lease_id && (
                     <QuittanceButton
                       rentId={rentRecord.id}
                       leaseId={apt.lease_id}
@@ -277,6 +281,15 @@ export default async function AdminApartmentDetailPage({
                       mois={moisCourt}
                     />
                   )}
+                  <div className="mt-3">
+                    <RentFollowUp
+                      rentId={rentRecord.id}
+                      aptNumber={apt.number}
+                      initialNotes={rentRecord.notes}
+                      initialWrittenOffAt={rentRecord.written_off_at}
+                      unpaid={isUnpaid}
+                    />
+                  </div>
                 </>
               ) : (
                 <>
@@ -296,6 +309,31 @@ export default async function AdminApartmentDetailPage({
                   </p>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Loyers impayés des mois précédents (irrécouvrables inclus) */}
+          {unpaidRents.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                Loyers impayés
+              </p>
+              <div className="space-y-5 divide-y divide-gray-50">
+                {unpaidRents.map(r => (
+                  <div key={r.id} className="pt-4 first:pt-0">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">
+                      {MONTH_LABELS[r.month]} {r.year} — {r.amount_expected} €
+                    </p>
+                    <RentFollowUp
+                      rentId={r.id}
+                      aptNumber={apt.number}
+                      initialNotes={r.notes}
+                      initialWrittenOffAt={r.written_off_at}
+                      unpaid
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
