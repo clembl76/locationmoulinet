@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### 2026-10-19 — Compte admin dédié à l'agent IA Muse
+- Nouvelles variables d'environnement `MUSE_EMAIL` / `MUSE_PASSWORD` : connexion sur `/admin/login` avec cet email + ce mot de passe → session `role: 'admin'`, `sub: 'muse'` (accès admin complet, distinct de l'admin principal) ; compte désactivé tant que l'une des deux variables est vide — **à ajouter dans les variables d'environnement de production avant de déployer**
+- Logique de connexion extraite dans `lib/loginCredentials.ts` (`resolveLogin`) ; `app/admin/login/actions.ts` l'appelle, comportement admin/viewer inchangé
+- Tests : `src/lib/loginCredentials.test.ts` (nouveau, 11 cas)
+
 ### 2026-10-08 — Revenus de courte durée (Airbnb / Le Bon Coin) + suivi des loyers sur la fiche appartement
 - **Nouvelle table `short_term_revenues`** (migration `20261009_short_term_revenues.sql`, **à exécuter manuellement avant de déployer** — `getCaByMonth` et `getOccupationRateByBuildingMonth` la lisent) : une ligne par paiement et par appartement, sans locataire ni bail (`apartment_id`, `year`, `month`, `platform`, `amount`, `description`, `import_key` unique pour un import relançable)
 - `lib/adminData.ts` : `getCaByMonth` additionne loyers encaissés + revenus de courte durée (montant compté tel quel en CC et en HC — pas de charges) ; `getOccupationRateByBuildingMonth` compte un appartement comme occupé le mois où il a un revenu de courte durée, même sans bail
