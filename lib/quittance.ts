@@ -719,6 +719,7 @@ export async function generateAttestationLoyerCafPdf(
 
   drawX(203, 470.5) // sous-location : non
   drawX(276, 444.5) // hôtel/pension de famille : non
+  drawX(98.5, 314.5) // autres cas, versement direct de l'aide : non
   drawX(363, 301.5) // décence : oui
 
   draw('Rouen', 55, 189, 9)

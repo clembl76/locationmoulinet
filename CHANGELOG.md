@@ -2,6 +2,10 @@
 
 ## [Non publié]
 
+### 2026-10-21 — Attestation de loyer CAF : case « versement direct » cochée « non »
+- `lib/quittance.ts` (`generateAttestationLoyerCafPdf`) : la case « non » de la question « Dans les autres cas, souhaitez-vous recevoir directement l'aide au logement ? » est désormais cochée sur le CERFA 10842*07
+- Tests : `src/lib/attestationLoyerCafPdf.test.ts` (nouveau, 5 cas)
+
 ### 2026-10-19 — Compte admin dédié à l'agent IA Muse
 - Nouvelles variables d'environnement `MUSE_EMAIL` / `MUSE_PASSWORD` : connexion sur `/admin/login` avec cet email + ce mot de passe → session `role: 'admin'`, `sub: 'muse'` (accès admin complet, distinct de l'admin principal) ; compte désactivé tant que l'une des deux variables est vide — **à ajouter dans les variables d'environnement de production avant de déployer**
 - Logique de connexion extraite dans `lib/loginCredentials.ts` (`resolveLogin`) ; `app/admin/login/actions.ts` l'appelle, comportement admin/viewer inchangé
