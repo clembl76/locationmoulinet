@@ -324,6 +324,18 @@ export default async function AdminApartmentDetailPage({
                     <p className="text-sm font-semibold text-gray-900 mb-2">
                       {MONTH_LABELS[r.month]} {r.year} — {r.amount_expected} €
                     </p>
+                    {!r.written_off_at && (
+                      <div className="mb-2">
+                        <QuittanceButton
+                          rentId={r.id}
+                          leaseId={r.lease_id}
+                          aptNumber={apt.number}
+                          year={r.year}
+                          month={r.month}
+                          mois={MONTH_LABELS[r.month]}
+                        />
+                      </div>
+                    )}
                     <RentFollowUp
                       rentId={r.id}
                       aptNumber={apt.number}
