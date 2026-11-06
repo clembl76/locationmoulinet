@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { generateRentsAction } from '@/app/admin/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function GenerateRentsButton({
   year,
@@ -34,7 +35,7 @@ export default function GenerateRentsButton({
       <button
         onClick={handleClick}
         disabled={pending}
-        className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass()}
       >
         {pending ? 'Génération…' : `Générer les loyers — ${mois}`}
       </button>

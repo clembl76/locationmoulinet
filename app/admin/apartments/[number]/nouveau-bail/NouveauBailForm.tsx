@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { createBailAction } from './actions'
 import { FAMILY_STATUSES } from '@/lib/familyStatus'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const TITLES = ['M.', 'Mme']
 const RESIDENCY_TYPES = ['Principale', 'Secondaire']
@@ -274,7 +275,7 @@ export default function NouveauBailForm({ aptNumber }: { aptNumber: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="bg-gray-900 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={buttonClass()}
         >
           {isPending ? 'Enregistrement…' : 'Créer le bail'}
         </button>

@@ -9,6 +9,7 @@ import { updateChargesTypeAction, updateDepositNotesAction, updateTenantNotesExi
 import { updateInventoryNotesExitAction } from '@/app/admin/inventory/actions'
 import { updateSurfaceNotesExitAction } from '@/app/admin/inventory/surfacesActions'
 import { generateEdlFigePdfAction, type GenerateEdlFigePdfResult } from '@/app/admin/inventory/edlFigePdfActions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 type EdlType = 'entree' | 'sortie'
 
@@ -439,7 +440,7 @@ export default function EdlFigeView({
               type="button"
               onClick={handleGeneratePdf}
               disabled={pdfPending}
-              className="px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={buttonClass()}
             >
               {pdfPending ? 'Enregistrement…' : 'Générer le pdf'}
             </button>

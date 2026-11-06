@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import LanguageSwitch from './LanguageSwitch'
 import { useLang } from '@/context/LanguageContext'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function Navbar() {
   const { lang } = useLang()
@@ -19,7 +20,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-2 sm:gap-4">
           <a
             href="/visiter"
-            className="bg-gray-900 text-white text-sm font-semibold px-4 sm:px-5 py-2.5 rounded-full hover:bg-black transition-colors whitespace-nowrap"
+            className={buttonClass({ className: 'whitespace-nowrap' })}
           >
             {lang === 'fr' ? 'Visiter' : 'Book a visit'}
           </a>
@@ -50,7 +51,7 @@ export default function Navbar() {
           <a
             href="/visiter"
             onClick={() => setOpen(false)}
-            className="block w-full text-center bg-gray-900 text-white text-sm font-semibold px-4 py-3 rounded-full hover:bg-black transition-colors"
+            className={buttonClass({ fullWidth: true })}
           >
             {lang === 'fr' ? 'Visiter' : 'Book a visit'}
           </a>

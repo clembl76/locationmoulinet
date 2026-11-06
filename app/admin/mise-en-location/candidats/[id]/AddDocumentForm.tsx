@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { addCandidateDocumentAction, type DocumentOwner } from './actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function AddDocumentForm({
   applicationId,
@@ -56,7 +57,7 @@ export default function AddDocumentForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-sm text-teal hover:underline font-medium"
+        className={buttonClass({ variant: 'link' })}
       >
         + Ajouter un document
       </button>
@@ -103,7 +104,7 @@ export default function AddDocumentForm({
         <button
           type="submit"
           disabled={pending || !fileName}
-          className="text-sm font-semibold bg-teal text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          className={buttonClass()}
         >
           {pending ? 'Envoi en cours…' : 'Ajouter'}
         </button>
@@ -111,7 +112,7 @@ export default function AddDocumentForm({
           type="button"
           onClick={() => { reset(); setOpen(false) }}
           disabled={pending}
-          className="text-sm text-gray-400 hover:text-gray-600 px-2"
+          className={buttonClass({ variant: 'ghost' })}
         >
           Annuler
         </button>

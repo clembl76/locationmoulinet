@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateDocusignUrlsAction } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal'
 
@@ -97,7 +98,7 @@ export default function DocusignUrls({
         <button
           type="button"
           onClick={handleSave}
-          className="text-sm bg-gray-900 text-white px-3 py-1.5 rounded-full hover:bg-black transition-colors"
+          className={buttonClass()}
         >
           Enregistrer
         </button>

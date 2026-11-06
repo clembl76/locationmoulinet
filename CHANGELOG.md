@@ -2,6 +2,15 @@
 
 ## [Non publié]
 
+### 2026-11-06 — Design system des boutons
+- Nouveau module `lib/buttonStyles.ts` : `buttonClass({ variant, size, fullWidth, className })`, source unique des styles de boutons d'action (utilisable sur `<button>`, `<a>`, `<Link>`, côté serveur comme client)
+  - Variantes : `primary` (rectangle sombre, une par zone d'action), `secondary` (rectangle blanc bordé), `ghost` (Annuler / Réinitialiser), `link` (action textuelle teal), `danger` / `success` (refuser / accepter une candidature)
+  - Tailles : `sm` (compact dans les tableaux et lignes, 44px sur mobile), `md` (par défaut), `lg` (validation des formulaires publics)
+  - Libellé toujours centré (fin des `text-left` sur les boutons pleine largeur de la fiche appartement), forme unique rectangulaire aux coins légèrement arrondis `rounded-lg` (fin des pilules `rounded-full` et des `rounded-xl`), focus clavier visible, zone tactile ≥ 44px sur mobile, état désactivé uniforme (50 %)
+  - Les boutons `bg-blue-primary`, `bg-teal` et vert (hors acceptation de candidature) passent en `primary`
+- Appliqué à ~70 boutons et liens-boutons dans 30 fichiers (admin et site public) ; hors périmètre, volontairement : filtres/chips, contrôles segmentés Entrée/Sortie et Forfait/Compteurs, interrupteurs, calendrier, cartes sélectionnables, accordéons, tri, icônes de suppression, hamburger, bouton Déconnexion de la navbar admin
+- Tests : `src/lib/buttonStyles.test.ts` (nouveau, 27 cas), `QuittanceButton.test.tsx` (1 cas : libellé centré)
+
 ### 2026-11-06 — Fiche appartement : libellé du bouton de quittance raccourci
 - `components/admin/QuittanceButton.tsx` : le bouton « Marquer encaissé et générer la quittance {mois} » devient « Encaisser et quittance » (loyer du mois courant et loyers impayés) ; la prop `mois`, devenue inutile, est retirée (et ses passages dans `app/admin/apartments/[number]/page.tsx`)
 - Tests : `src/components/admin/QuittanceButton.test.tsx` mis à jour

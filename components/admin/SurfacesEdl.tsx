@@ -10,6 +10,7 @@ import {
   deleteSurfaceAction,
 } from '@/app/admin/inventory/surfacesActions'
 import { SURFACE_TYPES, SURFACE_MATERIALS, ROOM_TYPES } from '@/lib/surfacesConstants'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const CONDITIONS = ['Neuf', 'Bon état', "État d'usage", 'Mauvais état']
 
@@ -72,7 +73,7 @@ function SurfaceRow({
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
         {dirty && (
           <button onClick={handleSave} disabled={saving}
-            className="text-xs font-semibold bg-gray-900 text-white px-2.5 py-1 rounded-full hover:bg-black transition-colors disabled:opacity-50 mr-2">
+            className={buttonClass({ size: 'sm', className: 'mr-2' })}>
             {saving ? '…' : 'Enregistrer'}
           </button>
         )}
@@ -189,7 +190,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
         </button>
         {open && (
           <button onClick={handleToggleAdd}
-            className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors">
+            className={buttonClass()}>
             + Ajouter
           </button>
         )}
@@ -236,7 +237,7 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                         <button
                           type="button"
                           onClick={() => { setShowCreate(v => !v); setCustomName('') }}
-                          className="mt-1.5 text-xs text-teal hover:underline"
+                          className={buttonClass({ variant: 'link', size: 'sm', className: 'mt-1.5' })}
                         >
                           {showCreate ? '▲ Annuler la création' : '+ Créer un nouvel item dans la bibliothèque'}
                         </button>
@@ -274,11 +275,11 @@ export default function SurfacesEdl({ apartmentId }: { apartmentId: string }) {
                     {addError && <p className="text-xs text-red-500 mt-2">{addError}</p>}
                     <div className="flex gap-2 mt-3">
                       <button onClick={handleAdd} disabled={adding}
-                        className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50">
+                        className={buttonClass()}>
                         {adding ? 'Ajout…' : '+ Ajouter'}
                       </button>
                       <button onClick={handleToggleAdd}
-                        className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">
+                        className={buttonClass({ variant: 'ghost' })}>
                         Annuler
                       </button>
                     </div>

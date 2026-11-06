@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ArchivedLease } from '@/lib/adminData'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function ArchivesSection({
   archivedLeases,
@@ -48,7 +49,7 @@ export default function ArchivesSection({
             <button
               onClick={handleOk}
               disabled={!selectedLeaseId}
-              className="bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className={buttonClass()}
             >
               OK
             </button>

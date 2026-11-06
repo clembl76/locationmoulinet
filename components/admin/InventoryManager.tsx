@@ -17,6 +17,7 @@ import SurfacesEdl from '@/components/admin/SurfacesEdl'
 import ApartmentSummaryPanel from '@/components/admin/ApartmentSummaryPanel'
 import ApartmentKeysPanel from '@/components/admin/ApartmentKeysPanel'
 import ApartmentInstallationPanel from '@/components/admin/ApartmentInstallationPanel'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const ROOMS: string[] = [
   'Partout', 'Parties communes', 'Cave', 'Chambre', 'Couloir', 'Cuisine', 'Salle de bains', 'Salon', 'Toilettes',
@@ -110,7 +111,7 @@ function InventoryItemRow({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-xs font-semibold bg-gray-900 text-white px-2.5 py-1 rounded-full hover:bg-black transition-colors disabled:opacity-50 mr-2"
+            className={buttonClass({ size: 'sm', className: 'mr-2' })}
           >
             {saving ? '…' : 'Enregistrer'}
           </button>
@@ -231,7 +232,7 @@ function AddItemForm({
               <button
                 type="button"
                 onClick={() => setShowCreate(v => !v)}
-                className="mt-1.5 text-xs text-teal hover:underline"
+                className={buttonClass({ variant: 'link', size: 'sm', className: 'mt-1.5' })}
               >
                 {showCreate ? '▲ Annuler la création' : '+ Créer un nouvel item dans la bibliothèque'}
               </button>
@@ -286,7 +287,7 @@ function AddItemForm({
               <button
                 onClick={handleCreate}
                 disabled={creating || !newName.trim()}
-                className="text-sm font-semibold bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                className={buttonClass()}
               >
                 {creating ? 'Création…' : 'Créer l\'item'}
               </button>
@@ -329,10 +330,10 @@ function AddItemForm({
 
           <div className="flex gap-2">
             <button onClick={handleAdd} disabled={saving || !itemId}
-              className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50">
+              className={buttonClass()}>
               {saving ? 'Ajout…' : '+ Ajouter'}
             </button>
-            <button onClick={onCancel} className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">
+            <button onClick={onCancel} className={buttonClass({ variant: 'ghost' })}>
               Annuler
             </button>
           </div>
@@ -476,7 +477,7 @@ export default function InventoryManager({
           {aptId && (
             <button
               onClick={() => router.push(`/admin/inventory/edl-fige/${aptId}`)}
-              className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
+              className={buttonClass()}
             >
               Figer l&apos;EDL
             </button>
@@ -485,7 +486,7 @@ export default function InventoryManager({
             <button
               onClick={handleFillDefault}
               disabled={filling}
-              className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50"
+              className={buttonClass()}
             >
               {filling ? 'Remplissage…' : 'Remplir par défaut'}
             </button>
@@ -526,7 +527,7 @@ export default function InventoryManager({
             {inventoryOpen && (
               <button
                 onClick={() => setShowAddForm(v => !v)}
-                className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
+                className={buttonClass()}
               >
                 + Ajouter un item
               </button>
@@ -562,7 +563,7 @@ export default function InventoryManager({
               {(filterItem || filterRoom || filterCategory) && (
                 <button
                   onClick={() => { setFilterItem(''); setFilterRoom(''); setFilterCategory('') }}
-                  className="text-xs text-gray-400 hover:text-gray-600 px-2"
+                  className={buttonClass({ variant: 'ghost', size: 'sm' })}
                 >
                   ✕ Réinitialiser
                 </button>

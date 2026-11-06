@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateEdlSignedAction, updateDepositReturnedAction, archiveLeaseAction } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function ClosingLeaseActions({
   leaseId,
@@ -81,7 +82,7 @@ export default function ClosingLeaseActions({
       <button
         onClick={handleArchive}
         disabled={!edlSigned || !depositReturned}
-        className="w-full text-sm bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className={buttonClass({ fullWidth: true })}
       >
         Archiver
       </button>

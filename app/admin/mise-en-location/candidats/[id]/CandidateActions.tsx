@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateApplicationStatusAction, signLeaseAction } from './actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function CandidateActions({
   applicationId,
@@ -133,9 +134,7 @@ export default function CandidateActions({
         <button
           onClick={handleSign}
           disabled={pending}
-          className="w-full text-sm font-semibold py-2.5 rounded-full border transition-colors
-            bg-gray-900 text-white hover:bg-black
-            disabled:opacity-40 disabled:cursor-not-allowed"
+          className={buttonClass({ fullWidth: true })}
         >
           {pending ? 'Création en cours…' : 'Bail signé'}
         </button>
@@ -145,9 +144,7 @@ export default function CandidateActions({
         <button
           onClick={() => handleStatus('withdrawn')}
           disabled={pending}
-          className="w-full text-sm font-medium py-2 rounded-xl border border-gray-200 text-gray-500
-            hover:border-gray-300 hover:bg-gray-50 transition-colors
-            disabled:opacity-40 disabled:cursor-not-allowed"
+          className={buttonClass({ variant: 'secondary', fullWidth: true })}
         >
           Plus intéressé
         </button>
@@ -207,18 +204,14 @@ export default function CandidateActions({
         <button
           onClick={() => handleStatus('rejected')}
           disabled={!incomeChecked || pending}
-          className="flex-1 text-sm font-semibold py-2.5 rounded-xl transition-colors
-            bg-red-600 text-white hover:bg-red-700
-            disabled:opacity-40 disabled:cursor-not-allowed"
+          className={buttonClass({ variant: 'danger', className: 'flex-1' })}
         >
           {pending ? '…' : 'Rejeter'}
         </button>
         <button
           onClick={() => handleStatus('accepted')}
           disabled={!incomeChecked || pending}
-          className="flex-1 text-sm font-semibold py-2.5 rounded-xl transition-colors
-            bg-green-600 text-white hover:bg-green-700
-            disabled:opacity-40 disabled:cursor-not-allowed"
+          className={buttonClass({ variant: 'success', className: 'flex-1' })}
         >
           {pending ? '…' : 'Choisir'}
         </button>
@@ -228,9 +221,7 @@ export default function CandidateActions({
       <button
         onClick={() => handleStatus('withdrawn')}
         disabled={pending}
-        className="w-full text-sm font-medium py-2 rounded-xl border border-gray-200 text-gray-500
-          hover:border-gray-300 hover:bg-gray-50 transition-colors
-          disabled:opacity-40 disabled:cursor-not-allowed"
+        className={buttonClass({ variant: 'secondary', fullWidth: true })}
       >
         Plus intéressé
       </button>

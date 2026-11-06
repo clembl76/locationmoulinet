@@ -7,6 +7,7 @@ import {
   updateChargesTypeAction,
 } from '@/app/admin/inventory/summaryActions'
 import type { EdlInstallation } from '@/lib/adminData'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 w-full'
 
@@ -105,7 +106,7 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
         {open && !loading && !editing && (
           <button
             onClick={startEdit}
-            className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
+            className={buttonClass()}
           >
             {hasValues ? 'Modifier' : '+ Ajouter'}
           </button>
@@ -146,13 +147,13 @@ export default function ApartmentInstallationPanel({ apartmentId }: { apartmentI
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50"
+                    className={buttonClass()}
                   >
                     {saving ? 'Enregistrement…' : 'Enregistrer'}
                   </button>
                   <button
                     onClick={() => setEditing(false)}
-                    className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2"
+                    className={buttonClass({ variant: 'ghost' })}
                   >
                     Annuler
                   </button>

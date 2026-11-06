@@ -4,6 +4,7 @@ import { useState, useTransition, useMemo } from 'react'
 import { createVisitorAction, getAvailableSlotsAction, type BookingResult } from '@/app/visiter/actions'
 import type { AvailableApartment, VisitAvailabilityRule } from '@/lib/adminData'
 import { MONTHS_FULL } from '@/lib/monthLabels'
+import { buttonClass } from '@/lib/buttonStyles'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -556,7 +557,7 @@ export default function VisitorForm({
             setResult(null); setSelectedApts([]); setDate(''); setTime('')
             setSlots([]); setIncome(0); setSituation(''); setGuarantorType('')
           }}
-          className="text-sm text-teal underline hover:text-gray-900"
+          className={buttonClass({ variant: 'link' })}
         >
           Faire une nouvelle demande
         </button>
@@ -619,7 +620,7 @@ export default function VisitorForm({
           <h2 className="text-base font-semibold text-gray-900">
             Appartements à visiter <span className="text-red-400">*</span>
           </h2>
-          <a href="/" target="_blank" rel="noopener noreferrer" className="text-xs text-teal hover:underline">
+          <a href="/" target="_blank" rel="noopener noreferrer" className={buttonClass({ variant: 'link', size: 'sm' })}>
             Voir tous les appartements →
           </a>
         </div>
@@ -833,7 +834,7 @@ export default function VisitorForm({
       <button
         type="submit"
         disabled={!canSubmit || !!phoneError || !!emailError || apartments.length === 0}
-        className="w-full font-semibold bg-gray-900 text-white px-6 py-3.5 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        className={buttonClass({ size: 'lg', fullWidth: true })}
       >
         {pending ? 'Envoi en cours…' : 'Envoyer ma demande de visite'}
       </button>

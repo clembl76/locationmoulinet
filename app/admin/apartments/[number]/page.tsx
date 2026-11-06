@@ -1,5 +1,6 @@
 import { getAdminApartmentDetail, getLinxoTransactionsForApartment, getRentForMonth, getUnpaidRentsForLease, checkCautionTransaction, getGuarantorForLease, type RentRecord } from '@/lib/adminData'
 import { MONTH_LABELS } from '@/lib/monthLabels'
+import { buttonClass } from '@/lib/buttonStyles'
 import { getDriveTenantFolderUrl, getDriveEdlEntryUrl } from '@/lib/quittance'
 import { notFound } from 'next/navigation'
 import QuittanceButton from '@/components/admin/QuittanceButton'
@@ -161,7 +162,7 @@ export default async function AdminApartmentDetailPage({
                 {!isArchived && (
                   <a
                     href={`/admin/apartments/${apt.number}/nouveau-bail`}
-                    className="inline-block bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-black transition-colors"
+                    className={buttonClass()}
                   >
                     + Créer un bail
                   </a>
@@ -458,7 +459,7 @@ export default async function AdminApartmentDetailPage({
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">État des lieux</p>
               <a
                 href={`/admin/inventory?apt=${apt.id}`}
-                className="w-full block text-center text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors"
+                className={buttonClass({ fullWidth: true })}
               >
                 Voir l&apos;EDL/Inventaire
               </a>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { savePreavisAction } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 function defaultDate(): string {
   const d = new Date()
@@ -45,7 +46,7 @@ export default function PreavisButton({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors"
+        className={buttonClass({ fullWidth: true })}
       >
         Saisir un préavis de départ
       </button>
@@ -69,14 +70,14 @@ export default function PreavisButton({
         <button
           type="submit"
           disabled={pending || !date}
-          className="flex-1 text-sm font-semibold bg-gray-900 text-white px-3 py-1.5 rounded-full hover:bg-black transition-colors disabled:opacity-50"
+          className={buttonClass({ className: 'flex-1' })}
         >
           {pending ? 'Enregistrement…' : 'Confirmer'}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-sm text-gray-400 hover:text-gray-600 px-3 py-1.5"
+          className={buttonClass({ variant: 'ghost' })}
         >
           Annuler
         </button>

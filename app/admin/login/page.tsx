@@ -1,4 +1,5 @@
 import { loginAction } from './actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default async function LoginPage({
   searchParams,
@@ -48,7 +49,7 @@ export default async function LoginPage({
 
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white rounded-full py-2 text-sm font-semibold hover:bg-black transition-colors"
+            className={buttonClass({ fullWidth: true })}
           >
             Connexion
           </button>

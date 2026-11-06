@@ -9,6 +9,7 @@ import {
   deleteApartmentKeyAction,
 } from '@/app/admin/inventory/keysActions'
 import type { EdlKey } from '@/lib/adminData'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const inputCls = 'border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal/30'
 
@@ -97,7 +98,7 @@ export default function ApartmentKeysPanel({ apartmentId }: { apartmentId: strin
         {open && (
           <button
             onClick={() => setShowForm(v => !v)}
-            className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors"
+            className={buttonClass()}
           >
             + Ajouter
           </button>
@@ -138,13 +139,13 @@ export default function ApartmentKeysPanel({ apartmentId }: { apartmentId: strin
                   <button
                     onClick={handleAdd}
                     disabled={adding || !selectedType}
-                    className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50"
+                    className={buttonClass()}
                   >
                     {adding ? 'Ajout…' : '+ Ajouter'}
                   </button>
                   <button
                     onClick={() => { setShowForm(false); setError('') }}
-                    className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2"
+                    className={buttonClass({ variant: 'ghost' })}
                   >
                     Annuler
                   </button>

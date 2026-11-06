@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef } from 'react'
 import type { LinxoTransaction } from '@/lib/linxoImport'
 import type { TenantOption } from '@/lib/adminData'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const SOURCE_LABELS: Record<string, string> = {
   moulinet:    'Moulinet',
@@ -315,14 +316,14 @@ export default function LinxoTable({
           <button
             onClick={handleImport}
             disabled={importing}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className={buttonClass({ variant: 'secondary', size: 'sm' })}
           >
             {importing ? 'Import en cours…' : 'Importer depuis Drive'}
           </button>
           <button
             onClick={handleCategorize}
             disabled={categorizing}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className={buttonClass({ variant: 'secondary', size: 'sm' })}
           >
             {categorizing ? 'Catégorisation…' : 'Catégoriser'}
           </button>
@@ -397,7 +398,7 @@ export default function LinxoTable({
         {(search || filterCategorie || filterSource || filterSupplier || filterType || filterTenant || filterValidated) && (
           <button
             onClick={() => { setSearch(''); setFilterCategorie(''); setFilterSource(''); setFilterSupplier(''); setFilterType(''); setFilterTenant(''); setFilterValidated(''); setPage(1) }}
-            className="text-sm text-gray-400 hover:text-gray-700 px-2"
+            className={buttonClass({ variant: 'ghost' })}
           >
             Réinitialiser
           </button>
@@ -539,7 +540,7 @@ export default function LinxoTable({
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={safePage === 1}
-              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className={buttonClass({ variant: 'secondary', size: 'sm' })}
             >
               Précédent
             </button>
@@ -557,11 +558,8 @@ export default function LinxoTable({
                   <button
                     key={p}
                     onClick={() => setPage(p as number)}
-                    className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
-                      p === safePage
-                        ? 'border-teal bg-teal text-white'
-                        : 'border-gray-200 text-gray-600 hover:border-teal hover:text-teal'
-                    }`}
+                    aria-current={p === safePage ? 'page' : undefined}
+                    className={buttonClass({ variant: p === safePage ? 'primary' : 'secondary', size: 'sm' })}
                   >
                     {p}
                   </button>
@@ -570,7 +568,7 @@ export default function LinxoTable({
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={safePage === totalPages}
-              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-teal hover:text-teal disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className={buttonClass({ variant: 'secondary', size: 'sm' })}
             >
               Suivant
             </button>

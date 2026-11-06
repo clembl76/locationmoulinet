@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react'
 import type { ApartmentWithLease } from '@/lib/adminData'
 import { generateQuittancesForMonthsAction, getRentsForYearAction } from '@/app/admin/payments/quittancesActions'
 import { MONTHS_FULL } from '@/lib/monthLabels'
+import { buttonClass } from '@/lib/buttonStyles'
 
 type RentInfo = { month: number; amount_expected: number; amount_received: number | null; is_prorata: boolean }
 type MonthResult = { month: number; ok: boolean; filename?: string; error?: string }
@@ -107,7 +108,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Mois</span>
           {rents.length > 0 && (
-            <button onClick={toggleAll} className="text-xs text-teal hover:underline">
+            <button onClick={toggleAll} className={buttonClass({ variant: 'link', size: 'sm' })}>
               {selected.size === rents.length ? 'Désélectionner tout' : 'Tout sélectionner'}
             </button>
           )}
@@ -164,7 +165,7 @@ export default function QuittancesGenerator({ apartments }: { apartments: Apartm
       <button
         onClick={handleGenerate}
         disabled={selected.size === 0 || pending}
-        className="w-full bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass({ fullWidth: true })}
       >
         {pending
           ? 'Génération en cours…'

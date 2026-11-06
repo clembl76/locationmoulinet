@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import type { LettingVisit } from '@/lib/adminData'
 import { deleteVisitAction } from './visitsActions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 const PAGE_SIZE = 5
 
@@ -135,14 +136,14 @@ export default function VisitsTable({ visits: initialVisits }: { visits: Letting
             <button
               onClick={() => setPage(p => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-white transition-colors"
+              className={buttonClass({ variant: 'secondary', size: 'sm' })}
             >
               ‹ Précédent
             </button>
             <button
               onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
-              className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-white transition-colors"
+              className={buttonClass({ variant: 'secondary', size: 'sm' })}
             >
               Suivant ›
             </button>

@@ -8,6 +8,7 @@ import type { DrivePhoto, DriveVideo } from '@/lib/drivePhotos'
 import { getApartmentStatus, formatAvailableFrom } from '@/lib/apartmentStatus'
 import { getQuartierContent, getChargesBullets } from '@/lib/apartmentContent'
 import { TYPE_LABELS } from '@/lib/apartmentTypeLabels'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export type ApartmentDetailData = {
   id: string
@@ -284,7 +285,7 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
                 </a>
               ) : (
                 <button onClick={() => setShowEmail(true)}
-                  className="text-sm font-semibold text-gray-900 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-full transition-colors">
+                  className={buttonClass({ variant: 'secondary' })}>
                   {t.contact}
                 </button>
               )}

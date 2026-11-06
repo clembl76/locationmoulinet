@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { generateAttestationLoyerCafAction, type QuittanceActionResult } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function AttestationLoyerCafButton({
   leaseId,
@@ -37,7 +38,7 @@ export default function AttestationLoyerCafButton({
       <button
         onClick={handleClick}
         disabled={pending}
-        className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass({ fullWidth: true })}
       >
         {pending ? 'Génération en cours…' : 'Attestation CAF'}
       </button>

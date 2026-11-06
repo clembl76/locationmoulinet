@@ -27,6 +27,13 @@ describe('QuittanceButton — affichage', () => {
     expect(screen.getByRole('button', { name: 'Encaisser et quittance' })).toBeInTheDocument()
     expect(screen.queryByText(/septembre/i)).not.toBeInTheDocument()
   })
+
+  it('utilise le bouton primaire pleine largeur du design system, libellé centré', () => {
+    render(<QuittanceButton {...defaultProps} />)
+    const button = screen.getByRole('button', { name: 'Encaisser et quittance' })
+    expect(button).toHaveClass('w-full', 'justify-center', 'text-center', 'bg-gray-900', 'rounded-lg')
+    expect(button).not.toHaveClass('text-left')
+  })
 })
 
 describe('QuittanceButton — génération réussie', () => {

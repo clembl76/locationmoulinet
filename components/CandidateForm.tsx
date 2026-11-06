@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from 'react'
 import { createCandidateAction, type CandidateResult } from '@/app/candidater/actions'
 import type { CandidateApartment } from '@/lib/adminData'
 import { FAMILY_STATUSES } from '@/lib/familyStatus'
+import { buttonClass } from '@/lib/buttonStyles'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -208,7 +209,7 @@ function FileSection({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-sm text-teal hover:text-gray-900 font-medium underline underline-offset-2"
+            className={buttonClass({ variant: 'link' })}
           >
             + Ajouter un fichier {files.length > 0 ? `(${files.length}/${MAX_FILES})` : ''}
           </button>
@@ -695,7 +696,7 @@ export default function CandidateForm({ apartments }: { apartments: CandidateApa
       <button
         type="submit"
         disabled={!canSubmit}
-        className="w-full py-3.5 rounded-full bg-gray-900 text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass({ size: 'lg', fullWidth: true })}
       >
         {pending ? 'Envoi en cours…' : 'Envoyer ma candidature'}
       </button>

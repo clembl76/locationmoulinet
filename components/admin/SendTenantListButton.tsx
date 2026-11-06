@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { sendTenantListEmailAction } from '@/app/admin/apartments/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function SendTenantListButton() {
   const [pending, startTransition] = useTransition()
@@ -20,7 +21,7 @@ export default function SendTenantListButton() {
       <button
         onClick={handleClick}
         disabled={pending}
-        className="text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass()}
       >
         {pending ? 'Envoi en cours…' : 'Envoyer la liste des locataires'}
       </button>

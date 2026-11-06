@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { setRentWrittenOffAction, updateRentNotesAction } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 // Suivi d'un loyer sur la fiche appartement : commentaire libre et, pour un loyer impayé,
 // passage en irrécouvrable (on ne recevra jamais l'argent — clôt l'action « loyer à payer »).
@@ -69,7 +70,7 @@ export default function RentFollowUp({
             type="button"
             onClick={() => setWrittenOff(false)}
             disabled={pending}
-            className="text-xs underline text-gray-500 hover:text-gray-800 disabled:opacity-50 min-h-[44px] md:min-h-0"
+            className={buttonClass({ variant: 'ghost', size: 'sm' })}
           >
             Annuler
           </button>
@@ -81,7 +82,7 @@ export default function RentFollowUp({
           type="button"
           onClick={() => setConfirming(true)}
           disabled={pending}
-          className="w-full text-sm font-medium px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 min-h-[44px]"
+          className={buttonClass({ variant: 'secondary', fullWidth: true })}
         >
           Passer en irrécouvrable
         </button>
@@ -95,7 +96,7 @@ export default function RentFollowUp({
               type="button"
               onClick={() => setWrittenOff(true)}
               disabled={pending}
-              className="bg-blue-primary text-white px-3 py-2 rounded-lg hover:bg-blue-dark disabled:opacity-50 min-h-[44px]"
+              className={buttonClass()}
             >
               Confirmer
             </button>
@@ -103,7 +104,7 @@ export default function RentFollowUp({
               type="button"
               onClick={() => setConfirming(false)}
               disabled={pending}
-              className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 min-h-[44px]"
+              className={buttonClass({ variant: 'secondary' })}
             >
               Retour
             </button>
@@ -129,7 +130,7 @@ export default function RentFollowUp({
             type="button"
             onClick={saveNotes}
             disabled={pending || !notesChanged}
-            className="bg-blue-primary text-white text-sm px-3 py-2 rounded-lg hover:bg-blue-dark disabled:opacity-40 min-h-[44px]"
+            className={buttonClass()}
           >
             Enregistrer
           </button>

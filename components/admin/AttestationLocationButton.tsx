@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { generateAttestationAction, type QuittanceActionResult } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function AttestationLocationButton({
   leaseId,
@@ -43,7 +44,7 @@ export default function AttestationLocationButton({
       <button
         onClick={handleClick}
         disabled={pending}
-        className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass({ fullWidth: true })}
       >
         {pending ? 'Génération en cours…' : 'Attestation de location'}
       </button>

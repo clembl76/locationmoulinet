@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { generateEdlEntreeEmailAction, type EdlEntreeEmailActionResult } from '@/app/admin/apartments/[number]/actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 export default function EdlEntreeEmailButton({
   tenantEmail,
@@ -33,7 +34,7 @@ export default function EdlEntreeEmailButton({
         onClick={handleClick}
         disabled={pending || !tenantEmail}
         title={!tenantEmail ? 'Email locataire introuvable' : undefined}
-        className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={buttonClass({ fullWidth: true })}
       >
         {pending ? 'Génération en cours…' : 'Générer mail arrivée'}
       </button>

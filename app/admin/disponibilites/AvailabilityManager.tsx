@@ -12,6 +12,7 @@ import {
   deleteExceptionAction,
   updateContactAction,
 } from './actions'
+import { buttonClass } from '@/lib/buttonStyles'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -100,7 +101,7 @@ function DayRow({ dayOfWeek, rules }: { dayOfWeek: number; rules: VisitAvailabil
               type="button"
               onClick={handleAdd}
               disabled={adding || !start || !end || start >= end}
-              className="text-sm text-teal hover:text-gray-900 font-medium disabled:opacity-40 transition-colors"
+              className={buttonClass({ variant: 'link' })}
             >
               + Ajouter
             </button>
@@ -186,7 +187,7 @@ function ExceptionsPanel({ exceptions }: { exceptions: VisitAvailabilityExceptio
           type="button"
           onClick={handleAdd}
           disabled={adding || !date || (startTime && !endTime) || (!startTime && !!endTime) || (!!startTime && !!endTime && startTime >= endTime) ? true : false}
-          className="text-sm text-teal hover:text-gray-900 font-medium disabled:opacity-40 transition-colors"
+          className={buttonClass({ variant: 'link' })}
         >
           + Ajouter
         </button>
@@ -244,7 +245,7 @@ function ContactPanel({ settings }: { settings: VisitSettings }) {
         <button
           type="button"
           onClick={handleSave}
-          className="text-sm bg-gray-900 text-white px-4 py-1.5 rounded-full hover:bg-black transition-colors"
+          className={buttonClass()}
         >
           Enregistrer
         </button>
