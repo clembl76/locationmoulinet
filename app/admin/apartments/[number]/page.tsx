@@ -52,7 +52,6 @@ export default async function AdminApartmentDetailPage({
   if (!apt) notFound()
 
   const mois = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
-  const moisCourt = now.toLocaleString('fr-FR', { month: 'long' })
   const isOccupied = !!apt.lease_id
   const isUnpaid = !!rentRecord && rentRecord.amount_received == null
   const isWrittenOff = isUnpaid && !!rentRecord?.written_off_at
@@ -278,7 +277,6 @@ export default async function AdminApartmentDetailPage({
                       aptNumber={apt.number}
                       year={year}
                       month={month}
-                      mois={moisCourt}
                     />
                   )}
                   <div className="mt-3">
@@ -332,7 +330,6 @@ export default async function AdminApartmentDetailPage({
                           aptNumber={apt.number}
                           year={r.year}
                           month={r.month}
-                          mois={MONTH_LABELS[r.month]}
                         />
                       </div>
                     )}

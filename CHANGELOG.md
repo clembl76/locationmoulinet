@@ -2,6 +2,10 @@
 
 ## [Non publié]
 
+### 2026-11-06 — Fiche appartement : libellé du bouton de quittance raccourci
+- `components/admin/QuittanceButton.tsx` : le bouton « Marquer encaissé et générer la quittance {mois} » devient « Encaisser et quittance » (loyer du mois courant et loyers impayés) ; la prop `mois`, devenue inutile, est retirée (et ses passages dans `app/admin/apartments/[number]/page.tsx`)
+- Tests : `src/components/admin/QuittanceButton.test.tsx` mis à jour
+
 ### 2026-10-26 — Fiche appartement : marquer encaissé un loyer impayé des mois précédents
 - `app/admin/apartments/[number]/page.tsx` — section « Loyers impayés » : ajout du bouton `QuittanceButton` (« Marquer encaissé et générer la quittance ») déjà utilisé pour le loyer du mois courant, affiché au-dessus du bouton « Passer en irrécouvrable » pour chaque loyer impayé non irrécouvrable ; réutilise `markReceivedAndGenerateQuittance` et `r.lease_id` (déjà présent sur chaque ligne retournée par `getUnpaidRentsForLease`) — aucune nouvelle server action ni nouveau composant nécessaire
 - Masqué quand le loyer est déjà passé en irrécouvrable (`r.written_off_at`), cohérent avec le garde-fou existant de `setRentWrittenOffAction` qui refuse d'encaisser un loyer irrécouvrable

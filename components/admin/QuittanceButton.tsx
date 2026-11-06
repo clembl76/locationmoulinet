@@ -9,14 +9,12 @@ export default function QuittanceButton({
   aptNumber,
   year,
   month,
-  mois,
 }: {
   rentId: string
   leaseId: string
   aptNumber: string
   year: number
   month: number
-  mois: string
 }) {
   const [pending, startTransition] = useTransition()
   const [result, setResult] = useState<QuittanceActionResult | null>(null)
@@ -45,7 +43,7 @@ export default function QuittanceButton({
         disabled={pending}
         className="w-full text-left text-sm font-semibold bg-gray-900 text-white px-3 py-2 rounded-full hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {pending ? 'Génération en cours…' : `Marquer encaissé et générer la quittance ${mois}`}
+        {pending ? 'Génération en cours…' : 'Encaisser et quittance'}
       </button>
       {result && !result.ok && (
         <p className="text-xs text-red-500 px-1">{result.error}</p>

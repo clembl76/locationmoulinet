@@ -15,7 +15,6 @@ const defaultProps = {
   aptNumber: '7',
   year: 2026,
   month: 9,
-  mois: 'septembre',
 }
 
 beforeEach(() => {
@@ -23,9 +22,10 @@ beforeEach(() => {
 })
 
 describe('QuittanceButton — affichage', () => {
-  it('affiche le mois dans le libellé du bouton', () => {
+  it('affiche le libellé « Encaisser et quittance » sans le mois', () => {
     render(<QuittanceButton {...defaultProps} />)
-    expect(screen.getByRole('button', { name: /marquer encaissé et générer la quittance septembre/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Encaisser et quittance' })).toBeInTheDocument()
+    expect(screen.queryByText(/septembre/i)).not.toBeInTheDocument()
   })
 })
 
@@ -35,7 +35,7 @@ describe('QuittanceButton — génération réussie', () => {
     mockMarkReceivedAndGenerateQuittance.mockResolvedValue({ ok: true, filename: 'quittance.pdf', draftId: 'draft-1' })
     render(<QuittanceButton {...defaultProps} />)
 
-    await user.click(screen.getByRole('button', { name: /marquer encaissé/i }))
+    await user.click(screen.getByRole('button', { name: /encaisser et quittance/i }))
 
     await waitFor(() => {
       expect(mockMarkReceivedAndGenerateQuittance).toHaveBeenCalledWith('rent-1', 'lease-123', '7', 2026, 9)
@@ -47,7 +47,7 @@ describe('QuittanceButton — génération réussie', () => {
     mockMarkReceivedAndGenerateQuittance.mockResolvedValue({ ok: true, filename: '2026-09_Quittance_7.pdf', draftId: 'draft-1' })
     render(<QuittanceButton {...defaultProps} />)
 
-    await user.click(screen.getByRole('button', { name: /marquer encaissé/i }))
+    await user.click(screen.getByRole('button', { name: /encaisser et quittance/i }))
 
     expect(await screen.findByText(/Encaissé · Brouillon Gmail créé/)).toBeInTheDocument()
     expect(screen.getByText('2026-09_Quittance_7.pdf')).toBeInTheDocument()
@@ -61,7 +61,7 @@ describe('QuittanceButton — erreur', () => {
     mockMarkReceivedAndGenerateQuittance.mockResolvedValue({ ok: false, error: 'Loyer introuvable' })
     render(<QuittanceButton {...defaultProps} />)
 
-    await user.click(screen.getByRole('button', { name: /marquer encaissé/i }))
+    await user.click(screen.getByRole('button', { name: /encaisser et quittance/i }))
 
     expect(await screen.findByText('Loyer introuvable')).toBeInTheDocument()
     expect(screen.getByRole('button')).toBeInTheDocument()
