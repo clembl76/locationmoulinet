@@ -28,6 +28,11 @@ export const APARTMENT_TYPE_BUREAU = 'BUREAU'
 // exclus des listings d'appartements. Suppose un alias `a` sur `apartments`.
 export const EXCLUDE_BUREAU = `a.type::text != '${APARTMENT_TYPE_BUREAU}'`
 
+// Fragment SQL : TRUE si l'appartement (alias `a`) est désactivé temporairement depuis la
+// fiche admin. Lu via to_jsonb pour rester valide avant l'exécution de la migration
+// 20261110 (colonne absente → FALSE), comme RENT_NOT_WRITTEN_OFF.
+export const APT_TEMPORARILY_UNAVAILABLE = `COALESCE((to_jsonb(a)->>'temporarily_unavailable')::boolean, FALSE)`
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AdminApartment = {
@@ -235,6 +240,7 @@ export type AdminApartmentDetail = AdminApartment & {
   lease_edl_sent: boolean
   lease_listing_published: boolean
   lease_move_in_date_confirmed: boolean
+  temporarily_unavailable: boolean
 }
 
 export async function getAdminApartmentDetail(number: string, leaseId?: string): Promise<AdminApartmentDetail | null> {
@@ -322,6 +328,15 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
       `).catch(() => [] as ClosingFields[])
     : []
 
+  // apartments.temporarily_unavailable — ajoutée par migration 20261110 (lue via to_jsonb : FALSE si absente)
+  const unavailableRows = await runSql<{ temporarily_unavailable: boolean }>(`
+    SELECT ${APT_TEMPORARILY_UNAVAILABLE} AS temporarily_unavailable
+    FROM apartments a WHERE a.id = '${base.id}' LIMIT 1
+  `).catch(e => {
+    console.warn(`[getAdminApartmentDetail] lecture temporarily_unavailable impossible (apt ${base.number})`, e)
+    return [] as { temporarily_unavailable: boolean }[]
+  })
+
   return {
     ...base,
     lease_status: closingFields[0]?.lease_status ?? 'active',
@@ -330,6 +345,7 @@ export async function getAdminApartmentDetail(number: string, leaseId?: string):
     lease_edl_sent: closingFields[0]?.lease_edl_sent ?? false,
     lease_listing_published: closingFields[0]?.lease_listing_published ?? false,
     lease_move_in_date_confirmed: closingFields[0]?.lease_move_in_date_confirmed ?? false,
+    temporarily_unavailable: unavailableRows[0]?.temporarily_unavailable === true,
   }
 }
 
@@ -765,6 +781,7 @@ export async function getAvailableApartments(): Promise<AvailableApartment[]> {
       JOIN buildings b ON b.id = a.building_id
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
         AND ${EXCLUDE_BUREAU}
+        AND NOT ${APT_TEMPORARILY_UNAVAILABLE}
         AND NOT EXISTS (
           SELECT 1 FROM leases l
           WHERE l.apartment_id = a.id
@@ -787,9 +804,32 @@ export async function getAvailableApartments(): Promise<AvailableApartment[]> {
         AND l.move_out_inspection_date <= CURRENT_DATE + INTERVAL '3 months'
       WHERE (a.valid_to IS NULL OR a.valid_to >= CURRENT_DATE)
         AND ${EXCLUDE_BUREAU}
+        AND NOT ${APT_TEMPORARILY_UNAVAILABLE}
     ) sub
     ORDER BY sub.status ASC, sub.number::integer
   `)
+}
+
+// Numéros des appartements, parmi `apartmentIds`, désactivés temporairement depuis la
+// fiche admin (apartments.temporarily_unavailable). Utilisé par les server actions de
+// visite et de candidature pour refuser côté serveur, pas seulement dans l'UI.
+export async function getTemporarilyUnavailableApartmentNumbers(apartmentIds: string[]): Promise<string[]> {
+  const ids = apartmentIds.filter(id => /^[0-9a-f-]{36}$/i.test(id))
+  if (ids.length === 0) return []
+  const rows = await runSql<{ number: string }>(`
+    SELECT a.number
+    FROM apartments a
+    WHERE a.id IN (${ids.map(id => `'${id}'`).join(',')})
+      AND ${APT_TEMPORARILY_UNAVAILABLE}
+    ORDER BY a.number::integer
+  `)
+  return rows.map(r => r.number)
+}
+
+export function temporarilyUnavailableMessage(numbers: string[]): string {
+  return numbers.length > 1
+    ? `Les appartements ${numbers.join(', ')} sont temporairement indisponibles : ils ne peuvent pas recevoir de visite ni de candidature pour le moment.`
+    : `L'appartement ${numbers[0]} est temporairement indisponible : il ne peut pas recevoir de visite ni de candidature pour le moment.`
 }
 
 // ─── Candidats ────────────────────────────────────────────────────────────────

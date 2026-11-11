@@ -79,9 +79,36 @@ describe('getApartmentStatus', () => {
   })
 })
 
+describe('getApartmentStatus — indisponibilité temporaire', () => {
+  it('sans bail + désactivé : indisponible', () => {
+    const { status, availableFrom } = getApartmentStatus([], true)
+    expect(status).toBe('unavailable')
+    expect(availableFrom).toBeNull()
+  })
+
+  it('préavis en cours (date de sortie future) + désactivé : indisponible, sans date', () => {
+    const future = new Date()
+    future.setDate(future.getDate() + 10)
+    const iso = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}-${String(future.getDate()).padStart(2, '0')}`
+    const { status, availableFrom } = getApartmentStatus([{ move_out_inspection_date: iso }], true)
+    expect(status).toBe('unavailable')
+    expect(availableFrom).toBeNull()
+  })
+
+  it('bail actif + désactivé : reste « loué »', () => {
+    const { status } = getApartmentStatus([{ move_out_inspection_date: null }], true)
+    expect(status).toBe('rented')
+  })
+
+  it('flag explicitement à false : comportement inchangé', () => {
+    expect(getApartmentStatus([], false).status).toBe('available')
+  })
+})
+
 describe('statusSortOrder', () => {
-  it('ordonne available < soon < rented', () => {
+  it('ordonne available < soon < unavailable < rented', () => {
     expect(statusSortOrder('available')).toBeLessThan(statusSortOrder('soon'))
-    expect(statusSortOrder('soon')).toBeLessThan(statusSortOrder('rented'))
+    expect(statusSortOrder('soon')).toBeLessThan(statusSortOrder('unavailable'))
+    expect(statusSortOrder('unavailable')).toBeLessThan(statusSortOrder('rented'))
   })
 })

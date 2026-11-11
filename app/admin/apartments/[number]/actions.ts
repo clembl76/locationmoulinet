@@ -540,3 +540,29 @@ export async function archiveLeaseAction(
   }
 }
 
+// Désactive / réactive temporairement l'appartement comme vacant : il reste visible sur le
+// site vitrine (« Indisponible ») mais ne peut plus recevoir de visites ni de candidatures.
+export async function updateTemporarilyUnavailableAction(
+  apartmentId: string,
+  aptNumber: string,
+  value: boolean
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin
+      .from('apartments')
+      .update({ temporarily_unavailable: value })
+      .eq('id', apartmentId)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/apartments/${aptNumber}`)
+    revalidatePath('/')
+    revalidatePath(`/apartments/${aptNumber}`)
+    revalidatePath('/visiter')
+    revalidatePath('/candidater')
+    revalidatePath('/recap')
+    return { ok: true }
+  } catch (e) {
+    console.error(`[updateTemporarilyUnavailableAction] apt ${aptNumber} (${apartmentId}) value=${value}`, e)
+    return { ok: false, error: e instanceof Error ? e.message : 'Erreur inconnue' }
+  }
+}

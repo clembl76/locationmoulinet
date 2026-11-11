@@ -83,3 +83,40 @@ describe('HomeClient — filtres', () => {
     await waitFor(() => expect(fetch).toHaveBeenCalled())
   })
 })
+
+describe('HomeClient — indisponibilité temporaire', () => {
+  const withUnavailable: Apartment[] = [
+    ...apartments,
+    {
+      id: 'apt-3',
+      number: '12',
+      type: 'STUDIO',
+      surface_area: 20,
+      floor: 1,
+      floor_label: null,
+      rent_including_charges: 520,
+      temporarily_unavailable: true,
+      buildings: { address: '9 rue du Moulinet', short_name: 'Moulinet' },
+      leases: [],
+    },
+  ]
+
+  it('affiche l\'appartement désactivé, trié entre disponibles et loués', async () => {
+    render(<HomeClient apartments={withUnavailable} />)
+    await waitFor(() => expect(fetch).toHaveBeenCalled())
+    const cards = screen.getAllByText(/Appartement (30|84|12)/i)
+    expect(cards.map(c => c.textContent)).toEqual(['Appartement 30', 'Appartement 12', 'Appartement 84'])
+    expect(screen.getByText('3 / 3')).toBeInTheDocument()
+  })
+
+  it('le filtre "Indisponible" masque puis réaffiche l\'appartement désactivé', async () => {
+    const user = userEvent.setup()
+    render(<HomeClient apartments={withUnavailable} />)
+    await waitFor(() => expect(fetch).toHaveBeenCalled())
+    await user.click(screen.getByRole('button', { name: 'Indisponible' }))
+    expect(screen.queryByText(/Appartement 12/i)).not.toBeInTheDocument()
+    expect(screen.getByText('2 / 3')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Indisponible' }))
+    expect(screen.getByText(/Appartement 12/i)).toBeInTheDocument()
+  })
+})

@@ -29,7 +29,9 @@ import {
   savePreavisAction,
   setRentWrittenOffAction,
   updateRentNotesAction,
+  updateTemporarilyUnavailableAction,
 } from '@/app/admin/apartments/[number]/actions'
+import { revalidatePath } from 'next/cache'
 
 function makeAdminMock(updateError: { message: string } | null = null) {
   const eq = vi.fn().mockResolvedValue({ error: updateError })
@@ -304,5 +306,49 @@ describe('updateRentNotesAction', () => {
 
     expect(result).toEqual({ ok: false, error: 'Erreur DB' })
     expect(console.error).toHaveBeenCalled()
+  })
+})
+
+describe('updateTemporarilyUnavailableAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("active temporarily_unavailable sur l'appartement et revalide admin + site vitrine + formulaires", async () => {
+    const { from, update, eq } = makeAdminMock()
+
+    const result = await updateTemporarilyUnavailableAction('apt-uuid', '7', true)
+
+    expect(result).toEqual({ ok: true })
+    expect(from).toHaveBeenCalledWith('apartments')
+    expect(update).toHaveBeenCalledWith({ temporarily_unavailable: true })
+    expect(eq).toHaveBeenCalledWith('id', 'apt-uuid')
+    expect(revalidatePath).toHaveBeenCalledWith('/admin/apartments/7')
+    expect(revalidatePath).toHaveBeenCalledWith('/')
+    expect(revalidatePath).toHaveBeenCalledWith('/apartments/7')
+    expect(revalidatePath).toHaveBeenCalledWith('/visiter')
+    expect(revalidatePath).toHaveBeenCalledWith('/candidater')
+    expect(revalidatePath).toHaveBeenCalledWith('/recap')
+  })
+
+  it('désactive (value=false)', async () => {
+    const { update } = makeAdminMock()
+
+    const result = await updateTemporarilyUnavailableAction('apt-uuid', '7', false)
+
+    expect(result).toEqual({ ok: true })
+    expect(update).toHaveBeenCalledWith({ temporarily_unavailable: false })
+  })
+
+  it("retourne l'erreur Supabase et la journalise (pas d'erreur silencieuse)", async () => {
+    makeAdminMock({ message: 'column "temporarily_unavailable" does not exist' })
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const result = await updateTemporarilyUnavailableAction('apt-uuid', '7', true)
+
+    expect(result).toEqual({ ok: false, error: 'column "temporarily_unavailable" does not exist' })
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('apt 7'), expect.any(Error))
+    expect(revalidatePath).not.toHaveBeenCalled()
+    spy.mockRestore()
   })
 })

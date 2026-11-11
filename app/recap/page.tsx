@@ -1,6 +1,6 @@
 import RecapGrid, { RecapApartment } from '@/components/RecapGrid'
 import { getApartmentStatus } from '@/lib/apartmentStatus'
-import { runSqlAdmin, EXCLUDE_BUREAU } from '@/lib/adminData'
+import { runSqlAdmin, EXCLUDE_BUREAU, APT_TEMPORARILY_UNAVAILABLE } from '@/lib/adminData'
 import Link from 'next/link'
 
 export default async function RecapPage() {
@@ -14,6 +14,7 @@ export default async function RecapPage() {
       a.surface_area,
       a.mezzanine,
       a.rent_including_charges,
+      ${APT_TEMPORARILY_UNAVAILABLE} AS temporarily_unavailable,
       COALESCE(
         (SELECT json_agg(json_build_object('move_out_inspection_date', l.move_out_inspection_date::text))
          FROM leases l WHERE l.apartment_id = a.id),
@@ -26,10 +27,10 @@ export default async function RecapPage() {
     ORDER BY a.number::integer
   `)
 
-  // Only show available and soon — rented apartments are not relevant for visits
+  // Only show available and soon — rented and temporarily unavailable apartments are not relevant for visits
   const apartments = data.filter(apt => {
-    const { status } = getApartmentStatus(apt.leases ?? [])
-    return status !== 'rented'
+    const { status } = getApartmentStatus(apt.leases ?? [], apt.temporarily_unavailable === true)
+    return status !== 'rented' && status !== 'unavailable'
   })
 
   const dateStr = now.toLocaleDateString('fr-FR', {

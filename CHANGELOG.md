@@ -2,6 +2,16 @@
 
 ## [Non publié]
 
+### 2026-11-10 — Fiche appartement : désactiver temporairement la visibilité « vacant »
+- **⚠️ Migration à exécuter manuellement** dans l'éditeur SQL Supabase : `supabase/migrations/20261110_apartments_temporarily_unavailable.sql` (`apartments.temporarily_unavailable BOOLEAN NOT NULL DEFAULT FALSE`). Avant la migration, le site fonctionne normalement (colonne lue via `to_jsonb` → `FALSE`) mais l'interrupteur admin renvoie une erreur visible.
+- Fiche appartement admin (`app/admin/apartments/[number]/page.tsx`) : nouvelle carte « Site vitrine » avec l'interrupteur « Indisponible temporairement » (`components/admin/TemporarilyUnavailableToggle.tsx`, zone tactile 44px, retour à l'état précédent + message d'erreur en cas d'échec) et pastille « Indisponible » dans l'en-tête
+- Server action `updateTemporarilyUnavailableAction` (`app/admin/apartments/[number]/actions.ts`) : met à jour la colonne, erreur journalisée et remontée, revalide la fiche admin, `/`, `/apartments/[number]`, `/visiter`, `/candidater`, `/recap`
+- `lib/apartmentStatus.ts` : nouveau statut `unavailable` (sans bail actif + désactivé, y compris pendant un préavis) ; un bail actif reste « Loué ». Ordre de tri : disponible < prochainement < indisponible < loué
+- Site vitrine : badge « Indisponible » / « Unavailable » sur la carte (`ApartmentCard`) et la fiche (`ApartmentDetail`, bouton « Visiter » masqué), nouveau filtre « Indisponible » sur l'accueil (`HomeClient`) ; l'appartement reste visible et cliquable. `/recap` (vue visites) l'exclut
+- Formulaires : `getAvailableApartments` (visites) et donc `getApartmentsForCandidature` excluent les appartements désactivés
+- Blocage serveur : `createVisitorAction` et `createCandidateAction` refusent avec « L'appartement N est temporairement indisponible : il ne peut pas recevoir de visite ni de candidature pour le moment. » (helpers `getTemporarilyUnavailableApartmentNumbers` / `temporarilyUnavailableMessage` dans `lib/adminData.ts`, fragment SQL `APT_TEMPORARILY_UNAVAILABLE`)
+- Tests : `TemporarilyUnavailableToggle.test.tsx` et `src/app/visiter/actions.test.ts` (nouveaux), `apartmentStatus`, `adminData`, `ApartmentCard`, `ApartmentDetail`, `HomeClient`, actions admin et candidature mis à jour — 850 tests verts, build OK
+
 ### 2026-11-06 — Design system des boutons
 - Nouveau module `lib/buttonStyles.ts` : `buttonClass({ variant, size, fullWidth, className })`, source unique des styles de boutons d'action (utilisable sur `<button>`, `<a>`, `<Link>`, côté serveur comme client)
   - Variantes : `primary` (rectangle sombre, une par zone d'action), `secondary` (rectangle blanc bordé), `ghost` (Annuler / Réinitialiser), `link` (action textuelle teal), `danger` / `success` (refuser / accepter une candidature)

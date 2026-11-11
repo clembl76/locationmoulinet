@@ -73,3 +73,32 @@ describe('ApartmentCard — rendu', () => {
     await flush()
   })
 })
+
+describe('ApartmentCard — indisponibilité temporaire', () => {
+  it('affiche le badge "Indisponible" quand l\'appartement est désactivé temporairement', async () => {
+    render(<ApartmentCard apartment={{ ...baseApartment, temporarily_unavailable: true }} />)
+    expect(screen.getByText('Indisponible')).toBeInTheDocument()
+    expect(screen.queryByText('Disponible')).not.toBeInTheDocument()
+    await flush()
+  })
+
+  it('affiche "Unavailable" en anglais', async () => {
+    vi.mocked(useLang).mockReturnValue({ lang: 'en' } as ReturnType<typeof useLang>)
+    render(<ApartmentCard apartment={{ ...baseApartment, temporarily_unavailable: true }} />)
+    expect(screen.getByText('Unavailable')).toBeInTheDocument()
+    await flush()
+  })
+
+  it('reste "Loué" si un bail actif existe, même désactivé', async () => {
+    render(<ApartmentCard apartment={{ ...baseApartment, temporarily_unavailable: true, leases: [{ move_out_inspection_date: null }] }} />)
+    expect(screen.getByText('Loué')).toBeInTheDocument()
+    expect(screen.queryByText('Indisponible')).not.toBeInTheDocument()
+    await flush()
+  })
+
+  it('reste cliquable vers la fiche (toujours visible sur le site vitrine)', async () => {
+    render(<ApartmentCard apartment={{ ...baseApartment, temporarily_unavailable: true }} />)
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/apartments/30')
+    await flush()
+  })
+})

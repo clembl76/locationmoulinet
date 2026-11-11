@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { getApartmentStatus, formatAvailableFrom, statusSortOrder } from '@/lib/apartmentStatus'
+import { getApartmentStatus, formatAvailableFrom, statusSortOrder, type ApartmentStatus } from '@/lib/apartmentStatus'
 
 export type RecapApartment = {
   id: string
@@ -12,6 +12,7 @@ export type RecapApartment = {
   surface_area: number
   mezzanine: boolean | null
   rent_including_charges: number
+  temporarily_unavailable?: boolean
   leases: { move_out_inspection_date: string | null }[]
 }
 
@@ -51,7 +52,7 @@ function Thumb({ number }: { number: string }) {
 }
 
 function StatusPill({ status, availableFrom }: {
-  status: 'available' | 'soon' | 'rented'
+  status: ApartmentStatus
   availableFrom: Date | null
 }) {
   if (status === 'available') return (

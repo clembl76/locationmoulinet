@@ -1,13 +1,19 @@
-export type ApartmentStatus = 'available' | 'soon' | 'rented'
+export type ApartmentStatus = 'available' | 'soon' | 'unavailable' | 'rented'
 
 export function getApartmentStatus(
-  leases: { move_out_inspection_date: string | null }[]
+  leases: { move_out_inspection_date: string | null }[],
+  temporarilyUnavailable = false
 ): { status: ApartmentStatus; availableFrom: Date | null } {
   const now = new Date()
 
   // Active lease = no departure date set
   if (leases.some(l => l.move_out_inspection_date === null)) {
     return { status: 'rented', availableFrom: null }
+  }
+
+  // Désactivé temporairement depuis la fiche admin : visible mais ni visite ni candidature
+  if (temporarilyUnavailable) {
+    return { status: 'unavailable', availableFrom: null }
   }
 
   // Future move-out = tenant has given notice
@@ -26,7 +32,7 @@ export function getApartmentStatus(
 }
 
 export function statusSortOrder(status: ApartmentStatus): number {
-  return { available: 0, soon: 1, rented: 2 }[status]
+  return { available: 0, soon: 1, unavailable: 2, rented: 3 }[status]
 }
 
 export function formatAvailableFrom(date: Date, lang: 'fr' | 'en'): string {

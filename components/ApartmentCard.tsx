@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useLang } from '@/context/LanguageContext'
-import { getApartmentStatus, formatAvailableFrom } from '@/lib/apartmentStatus'
+import { getApartmentStatus, formatAvailableFrom, type ApartmentStatus } from '@/lib/apartmentStatus'
 import { TYPE_LABELS } from '@/lib/apartmentTypeLabels'
 
 type Lease = { move_out_inspection_date: string | null }
@@ -17,6 +17,7 @@ export type Apartment = {
   floor: number
   floor_label: string | null
   rent_including_charges: number
+  temporarily_unavailable?: boolean
   buildings: { address: string; short_name: string } | null
   leases: Lease[]
 }
@@ -55,10 +56,17 @@ function ApartmentPhoto({ number }: { number: string }) {
 }
 
 function StatusBadge({ status, availableFrom, lang }: {
-  status: 'available' | 'soon' | 'rented'
+  status: ApartmentStatus
   availableFrom: Date | null
   lang: 'fr' | 'en'
 }) {
+  if (status === 'unavailable') {
+    return (
+      <span className="absolute bottom-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-500/80 text-white whitespace-nowrap">
+        {lang === 'fr' ? 'Indisponible' : 'Unavailable'}
+      </span>
+    )
+  }
   if (status === 'rented') {
     return (
       <span className="absolute bottom-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900/75 text-white whitespace-nowrap">
@@ -80,7 +88,7 @@ function StatusBadge({ status, availableFrom, lang }: {
 
 export default function ApartmentCard({ apartment }: { apartment: Apartment }) {
   const { lang } = useLang()
-  const { status, availableFrom } = getApartmentStatus(apartment.leases ?? [])
+  const { status, availableFrom } = getApartmentStatus(apartment.leases ?? [], apartment.temporarily_unavailable === true)
 
   const floorLabel = apartment.floor_label ?? (
     apartment.floor === 0

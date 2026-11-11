@@ -1,7 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
-import { runSqlAdmin } from '@/lib/adminData'
+import { runSqlAdmin, getTemporarilyUnavailableApartmentNumbers, temporarilyUnavailableMessage } from '@/lib/adminData'
 import { createVisitCalendarEvent, sendVisitNotificationEmail } from '@/lib/quittance'
 import { generateSlots, jsDayToRule, filterSlotsForToday } from '@/lib/visitSlotUtils'
 
@@ -99,6 +99,12 @@ export async function createVisitorAction(data: {
     }
     if (data.apartment_ids.length === 0) {
       return { ok: false, error: 'Veuillez sélectionner au moins un appartement.' }
+    }
+
+    // Appartements désactivés temporairement depuis la fiche admin : refus côté serveur
+    const unavailable = await getTemporarilyUnavailableApartmentNumbers(data.apartment_ids)
+    if (unavailable.length > 0) {
+      return { ok: false, error: temporarilyUnavailableMessage(unavailable) }
     }
 
     // Vérification cross-building côté serveur

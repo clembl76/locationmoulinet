@@ -1,6 +1,6 @@
 import HomeClient from '@/components/HomeClient'
 import { Apartment } from '@/components/ApartmentCard'
-import { runSqlAdmin, EXCLUDE_BUREAU } from '@/lib/adminData'
+import { runSqlAdmin, EXCLUDE_BUREAU, APT_TEMPORARILY_UNAVAILABLE } from '@/lib/adminData'
 import { publicFontClassName } from '@/lib/fonts'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +14,7 @@ export default async function Page() {
     floor: number
     floor_label: string | null
     rent_including_charges: number
+    temporarily_unavailable: boolean
     building_address: string
     building_short_name: string
     lease_id: string | null
@@ -27,6 +28,7 @@ export default async function Page() {
       a.floor,
       a.floor_label,
       a.rent_including_charges,
+      ${APT_TEMPORARILY_UNAVAILABLE} AS temporarily_unavailable,
       b.address        AS building_address,
       b.short_name     AS building_short_name,
       l.id             AS lease_id,
@@ -65,6 +67,7 @@ export default async function Page() {
       floor: first.floor,
       floor_label: first.floor_label,
       rent_including_charges: first.rent_including_charges,
+      temporarily_unavailable: first.temporarily_unavailable === true,
       buildings: {
         address: first.building_address,
         short_name: first.building_short_name,

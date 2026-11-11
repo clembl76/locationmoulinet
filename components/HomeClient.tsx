@@ -99,6 +99,7 @@ function FilterBar({
   const statusDefs: { key: ApartmentStatus; labelFr: string; labelEn: string }[] = [
     { key: 'available', labelFr: 'Disponible', labelEn: 'Available' },
     { key: 'soon', labelFr: 'Prochainement', labelEn: 'Coming soon' },
+    { key: 'unavailable', labelFr: 'Indisponible', labelEn: 'Unavailable' },
     { key: 'rented', labelFr: 'Loué', labelEn: 'Rented' },
   ]
 
@@ -156,15 +157,15 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
   const priceBounds: [number, number] = [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))]
 
   const [filters, setFilters] = useState<Filters>({
-    statuses: new Set<ApartmentStatus>(['available', 'soon', 'rented']),
+    statuses: new Set<ApartmentStatus>(['available', 'soon', 'unavailable', 'rented']),
     maxSurface: surfaceBounds[1],
     maxPrice: priceBounds[1],
   })
 
   const sorted = useMemo(() => {
     return [...apartments].sort((a, b) => {
-      const { status: sa } = getApartmentStatus(a.leases ?? [])
-      const { status: sb } = getApartmentStatus(b.leases ?? [])
+      const { status: sa } = getApartmentStatus(a.leases ?? [], a.temporarily_unavailable === true)
+      const { status: sb } = getApartmentStatus(b.leases ?? [], b.temporarily_unavailable === true)
       if (statusSortOrder(sa) !== statusSortOrder(sb)) return statusSortOrder(sa) - statusSortOrder(sb)
       return parseInt(a.number) - parseInt(b.number)
     })
@@ -172,7 +173,7 @@ export default function HomeClient({ apartments }: { apartments: Apartment[] }) 
 
   const displayed = useMemo(() => {
     return sorted.filter(apt => {
-      const { status } = getApartmentStatus(apt.leases ?? [])
+      const { status } = getApartmentStatus(apt.leases ?? [], apt.temporarily_unavailable === true)
       if (!filters.statuses.has(status)) return false
       if (apt.surface_area > filters.maxSurface) return false
       if (apt.rent_including_charges > filters.maxPrice) return false

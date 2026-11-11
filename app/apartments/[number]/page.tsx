@@ -1,4 +1,4 @@
-import { runSqlAdmin } from '@/lib/adminData'
+import { runSqlAdmin, APT_TEMPORARILY_UNAVAILABLE } from '@/lib/adminData'
 import ApartmentDetail, { ApartmentDetailData } from '@/components/ApartmentDetail'
 import { notFound } from 'next/navigation'
 import { publicFontClassName } from '@/lib/fonts'
@@ -24,6 +24,7 @@ export default async function Page({
       a.charges,
       a.rent_including_charges,
       a.mezzanine,
+      ${APT_TEMPORARILY_UNAVAILABLE} AS temporarily_unavailable,
       json_build_object(
         'address', b.address,
         'short_name', b.short_name,

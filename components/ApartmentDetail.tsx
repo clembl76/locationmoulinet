@@ -22,6 +22,7 @@ export type ApartmentDetailData = {
   rent_excluding_charges: number | null
   charges: number | null
   rent_including_charges: number
+  temporarily_unavailable?: boolean
   buildings: { address: string; short_name: string; charges_model: string | null } | null
   leases: { move_out_inspection_date: string | null }[]
 }
@@ -145,7 +146,8 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
   const { lang } = useLang()
   const [showEmail, setShowEmail] = useState(false)
 
-  const { status, availableFrom } = getApartmentStatus(apartment.leases)
+  const { status, availableFrom } = getApartmentStatus(apartment.leases, apartment.temporarily_unavailable === true)
+  const canVisit = status !== 'unavailable'
 
   const floorLabel = apartment.floor_label ?? (
     apartment.floor === 0
@@ -185,6 +187,11 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
         {lang === 'fr'
           ? `Disponible le ${formatAvailableFrom(availableFrom, lang)}`
           : `Available ${formatAvailableFrom(availableFrom, lang)}`}
+      </span>
+    )
+    if (status === 'unavailable') return (
+      <span className="text-sm font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-600">
+        {lang === 'fr' ? 'Indisponible' : 'Unavailable'}
       </span>
     )
     return (
@@ -289,12 +296,14 @@ export default function ApartmentDetail({ apartment }: { apartment: ApartmentDet
                   {t.contact}
                 </button>
               )}
-              <a
-                href="/visiter"
-                className="text-sm font-semibold bg-gray-900 hover:bg-black text-white px-4 py-2.5 rounded-full transition-colors whitespace-nowrap"
-              >
-                {t.visit}
-              </a>
+              {canVisit && (
+                <a
+                  href="/visiter"
+                  className="text-sm font-semibold bg-gray-900 hover:bg-black text-white px-4 py-2.5 rounded-full transition-colors whitespace-nowrap"
+                >
+                  {t.visit}
+                </a>
+              )}
             </div>
           </div>
 

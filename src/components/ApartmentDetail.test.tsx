@@ -91,3 +91,26 @@ describe('ApartmentDetail — statut loué', () => {
     await waitFor(() => expect(fetch).toHaveBeenCalled())
   })
 })
+
+describe('ApartmentDetail — indisponibilité temporaire', () => {
+  it('affiche le statut "Indisponible" et masque le bouton "Visiter"', async () => {
+    render(<ApartmentDetail apartment={{ ...apartment, temporarily_unavailable: true }} />)
+    expect(screen.getByText('Indisponible')).toBeInTheDocument()
+    expect(screen.queryByText('Disponible')).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Visiter' })).not.toBeInTheDocument()
+    await waitFor(() => expect(fetch).toHaveBeenCalled())
+  })
+
+  it('affiche le bouton "Visiter" quand l\'appartement n\'est pas désactivé', async () => {
+    render(<ApartmentDetail apartment={apartment} />)
+    expect(screen.getByRole('link', { name: 'Visiter' })).toHaveAttribute('href', '/visiter')
+    await waitFor(() => expect(fetch).toHaveBeenCalled())
+  })
+
+  it('reste "Loué" (et garde le bouton Visiter) si un bail actif existe, même désactivé', async () => {
+    render(<ApartmentDetail apartment={{ ...apartment, temporarily_unavailable: true, leases: [{ move_out_inspection_date: null }] }} />)
+    expect(screen.getByText('Loué')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Visiter' })).toBeInTheDocument()
+    await waitFor(() => expect(fetch).toHaveBeenCalled())
+  })
+})

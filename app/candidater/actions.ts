@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { uploadCandidateDocuments, sendCandidateNotificationEmail } from '@/lib/quittance'
+import { getTemporarilyUnavailableApartmentNumbers, temporarilyUnavailableMessage } from '@/lib/adminData'
 
 export type CandidateResult =
   | { ok: true; applicationId: string; driveWarning?: string }
@@ -39,6 +40,12 @@ export async function createCandidateAction(formData: FormData): Promise<Candida
 
     if (!firstName || !lastName || !email || !apartmentId || !desiredSigningDate) {
       return { ok: false, error: 'Champs obligatoires manquants.' }
+    }
+
+    // Appartement désactivé temporairement depuis la fiche admin : refus côté serveur
+    const unavailable = await getTemporarilyUnavailableApartmentNumbers([apartmentId])
+    if (unavailable.length > 0) {
+      return { ok: false, error: temporarilyUnavailableMessage(unavailable) }
     }
 
     // ── Fichiers candidat ────────────────────────────────────────────────────

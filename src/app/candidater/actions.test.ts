@@ -10,6 +10,15 @@ vi.mock('@/lib/quittance', () => ({
   sendCandidateNotificationEmail: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock('@/lib/adminData', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/adminData')>()
+  return {
+    ...actual,
+    getTemporarilyUnavailableApartmentNumbers: vi.fn().mockResolvedValue([]),
+  }
+})
+
+import { getTemporarilyUnavailableApartmentNumbers } from '@/lib/adminData'
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import { createCandidateAction } from '@/app/candidater/actions'
 
@@ -136,5 +145,53 @@ describe('createCandidateAction — pièces jointes obligatoires (bug réel : ca
     const result = await createCandidateAction(fd)
 
     expect(result).toEqual({ ok: false, error: 'Merci de joindre votre pièce d\'identité.' })
+  })
+})
+
+describe('createCandidateAction — appartement temporairement indisponible', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(getTemporarilyUnavailableApartmentNumbers).mockResolvedValue([])
+  })
+
+  it("refuse la candidature avec un message clair si l'appartement est désactivé", async () => {
+    const { insert } = makeAdminMock()
+    vi.mocked(getTemporarilyUnavailableApartmentNumbers).mockResolvedValue(['7'])
+    const fd = baseFormData()
+    fd.append('candidate_docs_identity', pdfFile('identite.pdf'))
+    fd.append('candidate_docs_income', pdfFile('revenus.pdf'))
+
+    const result = await createCandidateAction(fd)
+
+    expect(getTemporarilyUnavailableApartmentNumbers).toHaveBeenCalledWith(['apt-1'])
+    expect(result).toEqual({
+      ok: false,
+      error: "L'appartement 7 est temporairement indisponible : il ne peut pas recevoir de visite ni de candidature pour le moment.",
+    })
+    expect(insert).not.toHaveBeenCalled()
+  })
+
+  it("accepte la candidature si l'appartement n'est pas désactivé", async () => {
+    makeAdminMock()
+    const fd = baseFormData()
+    fd.append('candidate_docs_identity', pdfFile('identite.pdf'))
+    fd.append('candidate_docs_income', pdfFile('revenus.pdf'))
+
+    const result = await createCandidateAction(fd)
+
+    expect(result.ok).toBe(true)
+  })
+
+  it('retourne une erreur (sans créer la candidature) si la vérification échoue', async () => {
+    const { insert } = makeAdminMock()
+    vi.mocked(getTemporarilyUnavailableApartmentNumbers).mockRejectedValue(new Error('DB indisponible'))
+    const fd = baseFormData()
+    fd.append('candidate_docs_identity', pdfFile('identite.pdf'))
+    fd.append('candidate_docs_income', pdfFile('revenus.pdf'))
+
+    const result = await createCandidateAction(fd)
+
+    expect(result).toEqual({ ok: false, error: 'DB indisponible' })
+    expect(insert).not.toHaveBeenCalled()
   })
 })

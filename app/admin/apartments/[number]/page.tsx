@@ -17,6 +17,7 @@ import ListingPublishedCheckbox from '@/components/admin/ListingPublishedCheckbo
 import MoveInDateConfirmedCheckbox from '@/components/admin/MoveInDateConfirmedCheckbox'
 import EditableLeaseDate from '@/components/admin/EditableLeaseDate'
 import RentFollowUp from '@/components/admin/RentFollowUp'
+import TemporarilyUnavailableToggle from '@/components/admin/TemporarilyUnavailableToggle'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -88,6 +89,11 @@ export default async function AdminApartmentDetailPage({
         {isClosing && (
           <div className="ml-auto text-sm font-semibold px-3 py-1.5 rounded-full border bg-orange-50 text-orange-700 border-orange-200">
             En cours de clôture
+          </div>
+        )}
+        {apt.temporarily_unavailable && (
+          <div className="text-sm font-semibold px-3 py-1.5 rounded-full border bg-gray-50 text-gray-600 border-gray-200">
+            Indisponible
           </div>
         )}
         {!isArchived && !isClosing && apt.move_out_date && (
@@ -233,6 +239,16 @@ export default async function AdminApartmentDetailPage({
 
         {/* Right column */}
         <div className="space-y-4">
+
+          {/* Visibilité sur le site vitrine */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Site vitrine</p>
+            <TemporarilyUnavailableToggle
+              apartmentId={apt.id}
+              aptNumber={apt.number}
+              initialValue={apt.temporarily_unavailable}
+            />
+          </div>
 
           {/* Loyer du mois — masqué pour les baux archivés */}
           {!isArchived && (
